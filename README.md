@@ -61,3 +61,5 @@ oneHatData
 		const repository = oneHatData.getRepository('Users');
 	});
 ```
+
+## To be continued...
