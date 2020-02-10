@@ -1,0 +1,92 @@
+{
+	"extends": [
+		"eslint:recommended",
+		"plugin:react/recommended",
+		"plugin:cypress/recommended",
+		"prettier"
+	],
+	"plugins": [
+		"react-hooks",
+		"cypress",
+		"chai-friendly"
+	],
+	"env": {
+		"browser": true,
+		"node": true,
+		"cypress/globals": true
+	},
+	"parserOptions": {
+		"ecmaVersion": 9,
+		"sourceType": "module",
+		"ecmaFeatures": {
+			"jsx": true
+		}
+	},
+	"globals": {
+	},
+	"rules": {
+		"react-hooks/rules-of-hooks": "error",
+		"react-hooks/exhaustive-deps": "warn",
+		"no-unused-expressions": 0,
+		"chai-friendly/no-unused-expressions": 2,
+		"no-console": 0,
+		"no-debugger": 0,
+		"no-extra-parens": 0,
+		"curly": [
+			"error",
+			"all"
+		],
+		"dot-notation": 2,
+		"guard-for-in": 2,
+		"no-fallthrough": 0,
+		"no-floating-decimal": 0,
+		"no-implicit-globals": 0,
+		"no-implied-eval": 2,
+		"no-multi-spaces": 2,
+		"no-new": 2,
+		"no-new-func": 2,
+		"no-new-wrappers": 2,
+		"radix": 2,
+		"wrap-iife": [
+			"error",
+			"inside"
+		],
+		"yoda": 2,
+		"no-use-before-define": 0,
+		"block-spacing": 2,
+		"brace-style": [
+			"error",
+			"1tbs"
+		],
+		"comma-dangle": [
+			"error",
+			"only-multiline"
+		],
+		"consistent-this": [
+			"warn",
+			"oThis",
+			"that",
+			"me"
+		],
+		"indent": [
+			"error",
+			"tab",
+			{
+				"SwitchCase": 1,
+				"ignoreComments": true
+			}
+		],
+		"quotes": [
+			"error",
+			"single"
+		],
+		"linebreak-style": [
+			"error",
+			"unix"
+		],
+		"semi": [
+			"error",
+			"always"
+		]
+	}
+}

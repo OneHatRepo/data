@@ -1,0 +1,46 @@
+/** @module Property */
+
+import Property from './Property';
+import Parsers from '../Util/Parsers';
+import _ from 'lodash';
+
+/**
+ * Class represents a Property that stores a float value.
+ * @extends Property
+ */
+export default class FloatProperty extends Property {
+	
+	constructor(config = {}) {
+		super(...arguments);
+
+		const defaults = {
+			precision: 2,
+		};
+
+		_.merge(this, defaults, config);
+	}
+
+	/**
+	 * Parses value to float
+	 * @param {any} value
+	 * @return {string} parsedValue
+	 */
+	parse = (value) => {
+		if (this.isDestroyed) {
+			throw Error('this.parse is no longer valid. Property has been destroyed.');
+		}
+		
+		if (_.isNil(value)) {
+			return null;
+		}
+
+		let parsed = Parsers.ParseFloat(value, this.precision);
+		if (this.submitAsString) {
+			return String(parsed);
+		}
+		return parsed;
+	}
+};
+
+FloatProperty.className = 'Float';
+FloatProperty.type = 'float';
