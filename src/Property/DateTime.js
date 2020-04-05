@@ -13,7 +13,7 @@ export default class DateTimeProperty extends DateProperty {
 		super(...arguments);
 
 		const defaults = {
-			readFormat: 'YYYY-MM-DDTHH:mm:ss',
+			readFormat: 'YYYY-MM-DDTHH:mm:ss', // ISO 8601
 			displayFormat: 'MMM DD, YYYY - HH:mm:ss',
 			submitFormat: 'YYYY-MM-DD HH:mm:ss',
 		};
