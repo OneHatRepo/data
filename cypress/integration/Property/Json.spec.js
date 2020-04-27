@@ -33,7 +33,7 @@ describe('JsonProperty', function() {
 
 	});
 
-	describe('propertly displays formatted values', function() {
+	describe('property displays formatted values', function() {
 
 		it('displayValue - null', function() {
 			this.property.setValue(null);
@@ -42,10 +42,11 @@ describe('JsonProperty', function() {
 		});
 
 		it('displayValue', function() {
-			const json = '{"test":true}';
+			const json = '{"test":true}',
+				testObj = {test:true};
 			this.property.setValue(json);
 			const formatted = this.property.displayValue;
-			expect(_.isEqual(formatted, json)).to.be.true;
+			expect(_.isEqual(formatted, testObj)).to.be.true;
 		});
 		
 		it('submitValue - null', function() {

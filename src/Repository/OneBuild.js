@@ -1,6 +1,7 @@
 /** @module Repository */
 
 import AjaxRepository from './Ajax';
+import qs from 'qs';
 import _ from 'lodash';
 
 /**
@@ -135,7 +136,7 @@ class OneBuildRepository extends AjaxRepository {
 
 		return this.axios({
 				url: 'Users/apiLogin',
-				data: creds,
+				data: qs.stringify(creds),
 				method: 'POST',
 				baseURL: this.api.baseURL,
 			})

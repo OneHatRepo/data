@@ -203,13 +203,13 @@ describe('OneHatData', function() {
 		], parsedData)).to.be.true;
 	});
 
-	it.only('createRepository - LFR', function() {
+	it.only('createRepository - LFR', async function() {
 		const oneHatData = new OneHatData();
 		oneHatData
 			.setRepositoryGlobals({
 				debugMode: true,
 			})
-			.createSchemas([{
+			.createSchemas({
 				name: 'bar',
 				repository: {
 					type: 'lfr',
@@ -227,11 +227,12 @@ describe('OneHatData', function() {
 						isLocal: false,
 					},
 				}
-			}])
-			.createBoundRepositories();
-
-		const repository = oneHatData.getRepository('bar');
-		expect(repository.name).to.be.eq('bar');
+			})
+			.createBoundRepositories()
+			.then(() => {
+				const repository = oneHatData.getRepository('bar');
+				expect(repository.name).to.be.eq('bar');
+			});
 	});
 
 });
