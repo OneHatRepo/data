@@ -530,6 +530,7 @@ class AjaxRepository extends Repository {
 					.catch(error => {
 						if (this.debugMode) {
 							console.log(url + ' error', error);
+							console.log('response:', error.response);
 						}
 						this.emit('error', error);
 					});
