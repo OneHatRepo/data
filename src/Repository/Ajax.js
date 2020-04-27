@@ -4,6 +4,7 @@ import Repository from './Repository';
 import ReaderTypes from '../Reader';
 import WriterTypes from '../Writer';
 import axios from 'axios';
+import qs from 'qs';
 import _ from 'lodash';
 
 /**
@@ -517,7 +518,7 @@ class AjaxRepository extends Repository {
 				transformResponse: null,
 				headers: this.headers,
 				params: method === 'GET' ? data : null,
-				data: method !== 'GET' ? data : null,
+				data: method !== 'GET' ? qs.stringify(data) : null,
 				timeout: this.timeout,
 			};
 		
@@ -528,7 +529,6 @@ class AjaxRepository extends Repository {
 		return this.axios(options)
 					.catch(error => {
 						if (this.debugMode) {
-							debugger;
 							console.log(url + ' error', error);
 						}
 						this.emit('error', error);
