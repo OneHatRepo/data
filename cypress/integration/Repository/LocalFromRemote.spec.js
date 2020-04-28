@@ -1,6 +1,6 @@
 import {
 	default as LocalFromRemoteRepository,
-	MODE_OFFLINE_QUEUE,
+	MODE_COMMAND_QUEUE,
 } from '../../../src/Repository/LocalFromRemote';
 import MemoryRepository from '../../../src/Repository/Memory';
 import Schema from '../../../src/Schema';
@@ -167,7 +167,7 @@ describe('LocalFromRemote', function() {
 
 	});
 
-	describe(MODE_OFFLINE_QUEUE, function() {
+	describe(MODE_COMMAND_QUEUE, function() {
 
 		it('ids', function() {
 
@@ -188,7 +188,7 @@ describe('LocalFromRemote', function() {
 				repository = new LocalFromRemoteRepository({
 					local,
 					remote,
-					mode: MODE_OFFLINE_QUEUE,
+					mode: MODE_COMMAND_QUEUE,
 					isOnline: false,
 					autoSync: false,
 					retryRate: '+1 minute',

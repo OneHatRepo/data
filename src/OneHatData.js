@@ -4,7 +4,7 @@ import EventEmitter from '@onehat/events';
 import CoreRepositoryTypes from './Repository';
 import {
 	MODE_LOCAL_MIRROR,
-	MODE_OFFLINE_QUEUE,
+	MODE_COMMAND_QUEUE,
 	MODE_REMOTE_WITH_OFFLINE,
 } from './Repository/LocalFromRemote/LocalFromRemote';
 import {
@@ -202,7 +202,8 @@ export class OneHatData extends EventEmitter {
 
 		// Special case: LocalFromRemoteRepository.
 		if (config.type === 'lfr') {
-			// We need to initiate *both the local AND the remote* sides first
+			// We need to initiate *both the local AND the remote* sides first,
+			// before we initialize the containing repository
 
 			// Get general config settings shared by both (e.g. schema, isPaginated)
 			const generalConfig = _.omit(config, ['type', 'local', 'remote']);
@@ -219,15 +220,9 @@ export class OneHatData extends EventEmitter {
 				};
 			}
 
-			switch(config.mode) {
-				case MODE_LOCAL_MIRROR:
-					break;
-				case MODE_OFFLINE_QUEUE:
-					generalConfig.isPaginated = false;
-					config.remote.type = 'command';
-					break;
-				case MODE_REMOTE_WITH_OFFLINE:
-					break;
+			if (config.mode === MODE_COMMAND_QUEUE) {
+				generalConfig.isPaginated = false;
+				config.remote.type = 'command';
 			}
 
 			// Apply the general config settings to each specific one

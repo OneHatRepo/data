@@ -8,7 +8,7 @@ import { uuid } from 'uuidv4';
 import _ from 'lodash';
 
 export const MODE_LOCAL_MIRROR = 'MODE_LOCAL_MIRROR';
-export const MODE_OFFLINE_QUEUE = 'MODE_OFFLINE_QUEUE';
+export const MODE_COMMAND_QUEUE = 'MODE_COMMAND_QUEUE';
 export const MODE_REMOTE_WITH_OFFLINE = 'MODE_REMOTE_WITH_OFFLINE';
 
 /**
@@ -31,13 +31,26 @@ export const MODE_REMOTE_WITH_OFFLINE = 'MODE_REMOTE_WITH_OFFLINE';
  * 	- Keeps track of the last time it pulled down from remote.
  * 	- Can be set to reload its local data periodically, to make sure its data doesn't get too stale.
  * 
- * - MODE_OFFLINE_QUEUE
+ * - MODE_COMMAND_QUEUE
  * 	- This mode provides the ability to send remote commands when isConnected,
  * and to queue them up in an offline manner when !isConnected.
  * 	- Items added locally are automatically transmitted to back-end when isConnected.
- * 	- Data only goes from local --> remote; not the other way around.
+ * 	- Data only goes from local --> remote; not the other way around. 
+ * However, we do get a response from the server on the returned object.
  * 	- Remote only uses C, not RUD
  * 	- Sort by date, transmit by date
+ * 
+ * NOTE: This mode is able to send commands of many different types, and have
+ * specialized event handlers for each separate type. In order to do that,
+ * this Repository becomes nothing more than a generic data transport pipeline between
+ * client and server. The Entities it returns are representative of what was returned
+ * from the server (raw payload, response info). In order to use these entities in any
+ * kind of meaningful way, we process them into Command objects. Each Command type
+ * can have its own set of processing handlers.
+ * 
+ * As a result, when operating in this mode, OneHatData::_createRepository forces this
+ * Repository's remote repository type to be a CommandRepository.
+ * 
  * 
  * - MODE_REMOTE_WITH_OFFLINE
  * 	- This mode provides an offline backup to the normal operation of remote.
@@ -73,7 +86,7 @@ class LocalFromRemoteRepository extends EventEmitter {
 
 			/**
 			 * @member {string} mode - The mode this Repository will operate in.
-			 * Options: MODE_LOCAL_MIRROR || MODE_REMOTE_WITH_OFFLINE || MODE_OFFLINE_QUEUE
+			 * Options: MODE_LOCAL_MIRROR || MODE_REMOTE_WITH_OFFLINE || MODE_COMMAND_QUEUE
 			 * Defaults to MODE_LOCAL_MIRROR
 			 */
 			mode: MODE_LOCAL_MIRROR,
@@ -110,7 +123,9 @@ class LocalFromRemoteRepository extends EventEmitter {
 			isOnline: true,
 
 			/**
-			 * @member {array} commands - Names of commands to be used in MODE_OFFLINE_QUEUE mode
+			 * Config var to be used in MODE_COMMAND_QUEUE mode
+			 * This tells the LFR repository which commands will be initialized
+			 * @member {array} commands - Names of commands
 			 * @private
 			 */
 			commands: [],
@@ -121,7 +136,7 @@ class LocalFromRemoteRepository extends EventEmitter {
 		
 		if (this.mode !== MODE_LOCAL_MIRROR && 
 			this.mode !== MODE_REMOTE_WITH_OFFLINE && 
-			this.mode !== MODE_OFFLINE_QUEUE) {
+			this.mode !== MODE_COMMAND_QUEUE) {
 			throw new Error('Mode not recognized.');
 		}
 
@@ -176,10 +191,13 @@ class LocalFromRemoteRepository extends EventEmitter {
 		const activeRepository = this._getActiveRepository();
 		this.relayEventsFrom(activeRepository, activeRepository.getRegisteredEvents());
 
-		// Create commands
-		const commands = this.commands; // array
-		this.commands = {}; // object, so we can index by command name
-		this.registerCommands(commands);
+		// Set up and initialize commands
+		if (this.mode === MODE_COMMAND_QUEUE) {
+			this.setCheckReturnValues();
+			const commands = this.commands; // copy config array into local var
+			this.commands = {}; // reset the local var as an object, so we can index commands by name
+			this.registerCommands(commands);
+		}
 
 		if (this.autoSync) {
 			this._doAutoSync();
@@ -187,7 +205,7 @@ class LocalFromRemoteRepository extends EventEmitter {
 	}
 
 	/**
-	 * Registers multiple commands for when syncing in MODE_OFFLINE_QUEUE mode.
+	 * Registers multiple commands for when syncing in MODE_COMMAND_QUEUE mode.
 	 */
 	registerCommands = (commands) => {
 		_.each(commands, (name) => {
@@ -195,6 +213,20 @@ class LocalFromRemoteRepository extends EventEmitter {
 				this.commands[name] = new Command(name);
 			}
 		});
+	}
+
+	/**
+	 * Adds a handler to a registered command.
+	 * @param {string} name - The command name
+	 * @return {function} handler - The handler function
+	 */
+	registerCommandHandler = (name, handler) => {
+		const command = this.getCommand(name);
+		if (!command) {
+			return false;
+		}
+
+		command.registerHandler(handler);
 	}
 
 	/**
@@ -215,35 +247,20 @@ class LocalFromRemoteRepository extends EventEmitter {
 		return this.commands[name] || null;
 	}
 
-
-	/**
-	 * Adds a handler to a registered command.
-	 * @param {string} name - The command name
-	 * @return {function} handler - The handler function
-	 */
-	registerCommandHandler = (name, handler) => {
-		const command = this.getCommand(name);
-		if (!command) {
-			return false;
-		}
-
-		command.registerHandler(handler);
-	}
-
 	/**
 	 * Adds a hook into the normal Repository.add() method,
-	 * so we can sync immediately after add for MODE_OFFLINE_QUEUE mode.
+	 * so we can sync immediately after add for MODE_COMMAND_QUEUE mode.
 	 */
 	add = async (data) => {
 		// NORMAL PROCESS, basically call super()
 		// This adds to the local repository, so we can sync later,
 		// if needed.
 		const normalAdd = this._getActiveRepository().add(data);
-		if (this.mode !== MODE_OFFLINE_QUEUE || !this.isOnline) {
+		if (this.mode !== MODE_COMMAND_QUEUE || !this.isOnline) {
 			return normalAdd;
 		}
 		
-		// MODE_OFFLINE_QUEUE -- try to sync now!
+		// MODE_COMMAND_QUEUE -- try to sync now!
 		const entity = await normalAdd;
 		return await this.sync(entity);
 	}
@@ -283,7 +300,7 @@ class LocalFromRemoteRepository extends EventEmitter {
 
 					break;
 
-				case MODE_OFFLINE_QUEUE:
+				case MODE_COMMAND_QUEUE:
 					const localItems = entity ? [entity] : this.local.getBy(entity => !entity.response);
 					let i, localItem;
 					for (i = 0; i < localItems.length; i++) {
@@ -309,8 +326,7 @@ class LocalFromRemoteRepository extends EventEmitter {
 						this.remote.clear();
 
 						// Handle the server's response
-						command.processResponse(localItem);
-
+						await command.processResponse(localItem);
 
 						// let shouldDelete = true;
 						// try {
@@ -505,7 +521,7 @@ class LocalFromRemoteRepository extends EventEmitter {
 			}
 		}
 
-		if (this.mode === MODE_OFFLINE_QUEUE) {
+		if (this.mode === MODE_COMMAND_QUEUE) {
 			const unsynced = this.local.getBy(entity => !entity.response);
 			if (unsynced.length) {
 				return true;
@@ -523,7 +539,7 @@ class LocalFromRemoteRepository extends EventEmitter {
 	_getActiveRepository() {
 		switch(this.mode) {
 			case MODE_LOCAL_MIRROR:
-			case MODE_OFFLINE_QUEUE:
+			case MODE_COMMAND_QUEUE:
 				return this.local;
 			case MODE_REMOTE_WITH_OFFLINE:
 				if (this.isOnline) {

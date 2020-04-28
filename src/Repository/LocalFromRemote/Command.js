@@ -6,7 +6,7 @@ import _ from 'lodash';
 /**
  * Base class representing a Command
  * @extends EventEmitter
- * @fires ['change', 'destroy']
+ * @fires ['handleServerResponse', 'destroy']
  */
 export default class Command extends EventEmitter {
 
@@ -28,21 +28,32 @@ export default class Command extends EventEmitter {
 		 */
 		this.isDestroyed = false;
 
-		this.setCheckReturnValues(true);
+		this.setCheckReturnValues();
 	}
 
+	/**
+	 * Register a handler for this command.
+	 * @param {function} handler - The event handler
+	 */
 	registerHandler = (handler) => {
 		this.on('handleServerResponse', handler);
 	}
 
+	/**
+	 * Detect whether this command has any handlers.
+	 * @return {int} count - Number of handlers this command has
+	 */
 	hasHandlers = () => {
-		return this.listenerCount('handleServerResponse') > 0;
+		return this.listenerCount('handleServerResponse');
 	}
 
+	/**
+	 * Convenience function to invoke handlers
+	 * @return {boolean} results - Results of running all handlers
+	 */
 	processResponse = (entity) => {
 		return this.emit('handleServerResponse', entity);
 	}
-
 
 	/**
 	 * Destroy this object.
@@ -50,7 +61,6 @@ export default class Command extends EventEmitter {
 	 * @fires destroy
 	 */
 	destroy = () => {
-
 		this.emit('destroy');
 		this.isDestroyed = true;
 		

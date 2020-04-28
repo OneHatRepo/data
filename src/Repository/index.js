@@ -1,7 +1,7 @@
 /** @module Repository */
 
 import AjaxRepository from './Ajax';
-import CommandRepository from './Command';
+import CommandRepository from './LocalFromRemote/CommandRepository';
 import LocalFromRemoteRepository from './LocalFromRemote';
 import MemoryRepository from './Memory';
 import NullRepository from './Null';
