@@ -6,7 +6,7 @@ import {
 	MODE_LOCAL_MIRROR,
 	MODE_OFFLINE_QUEUE,
 	MODE_REMOTE_WITH_OFFLINE,
-} from './Repository/LocalFromRemote';
+} from './Repository/LocalFromRemote/LocalFromRemote';
 import {
 	default as Schema,
 	CoreSchemas,

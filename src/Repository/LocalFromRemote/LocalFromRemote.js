@@ -1,7 +1,8 @@
 /** @module Repository */
 
 import EventEmitter from '@onehat/events';
-import Repository from './Repository';
+import Repository from '../Repository';
+import Command from './Command';
 import moment from 'relative-time-parser'; // Notice this version of moment is imported from 'relative-time-parser', and may be out of sync with our general 'moment' package
 import { uuid } from 'uuidv4';
 import _ from 'lodash';
@@ -109,10 +110,10 @@ class LocalFromRemoteRepository extends EventEmitter {
 			isOnline: true,
 
 			/**
-			 * @member {object} commands - commands and handlers, to be used in MODE_OFFLINE_QUEUE mode
+			 * @member {array} commands - Names of commands to be used in MODE_OFFLINE_QUEUE mode
 			 * @private
 			 */
-			commands: {},
+			commands: [],
 
 		};
 		_.merge(this, defaults, config);
@@ -175,26 +176,58 @@ class LocalFromRemoteRepository extends EventEmitter {
 		const activeRepository = this._getActiveRepository();
 		this.relayEventsFrom(activeRepository, activeRepository.getRegisteredEvents());
 
+		// Create commands
+		const commands = this.commands; // array
+		this.commands = {}; // object, so we can index by command name
+		this.registerCommands(commands);
+
 		if (this.autoSync) {
 			this._doAutoSync();
 		}
 	}
 
 	/**
-	 * Registers multiple commands and their handlers for when syncing,
-	 * in MODE_OFFLINE_QUEUE mode.
+	 * Registers multiple commands for when syncing in MODE_OFFLINE_QUEUE mode.
 	 */
 	registerCommands = (commands) => {
-		_.merge(this.commands, commands);
+		_.each(commands, (name) => {
+			if (!this.isRegisteredCommand(name)) {
+				this.commands[name] = new Command(name);
+			}
+		});
 	}
 
 	/**
 	 * Checks to see if command has been registered.
-	 * @param {string} command - The command name
+	 * @param {string} name - The command name
 	 * @return {boolean} isRegisteredCommand
 	 */
-	isRegisteredCommand = (command) => {
-		return _.indexOf(this.commands, command) !== -1;
+	isRegisteredCommand = (name) => {
+		return _.indexOf(this.commands, name) !== -1;
+	}
+
+	/**
+	 * Gets a registered command.
+	 * @param {string} name - The command name
+	 * @return {boolean} isRegisteredCommand
+	 */
+	getCommand = (name) => {
+		return this.commands[name] || null;
+	}
+
+
+	/**
+	 * Adds a handler to a registered command.
+	 * @param {string} name - The command name
+	 * @return {function} handler - The handler function
+	 */
+	registerCommandHandler = (name, handler) => {
+		const command = this.getCommand(name);
+		if (!command) {
+			return false;
+		}
+
+		command.registerHandler(handler);
 	}
 
 	/**
@@ -256,13 +289,12 @@ class LocalFromRemoteRepository extends EventEmitter {
 					for (i = 0; i < localItems.length; i++) {
 						localItem = localItems[i];
 
-						let command = this.commands[localItem.command],
-							handler = command && command.handler;
+						let command = this.commands[localItem.command];
 
 						if (!command) {
 							throw new Error('Command ' + localItem.command + ' not registered');
 						}
-						if (!handler) {
+						if (!command.hasHandlers()) {
 							throw new Error('No command handler registered for ' + localItem.command);
 						}
 
@@ -277,15 +309,18 @@ class LocalFromRemoteRepository extends EventEmitter {
 						this.remote.clear();
 
 						// Handle the server's response
-						let shouldDelete = true;
-						try {
-							shouldDelete = await handler.call(this, localItem);
-						} catch(error) {
-							this.emit('error', error.message);
-						}
-						if (shouldDelete) {
-							await this.local.delete(localItem);
-						}
+						command.processResponse(localItem);
+
+
+						// let shouldDelete = true;
+						// try {
+						// 	shouldDelete = await handler.call(this, localItem);
+						// } catch(error) {
+						// 	this.emit('error', error.message);
+						// }
+						// if (shouldDelete) {
+						// 	await this.local.delete(localItem);
+						// }
 					}
 					
 					await this._setLastSync();
@@ -545,6 +580,9 @@ class LocalFromRemoteRepository extends EventEmitter {
 		if (this._timeout) {
 			clearTimeout(this._timeout);
 		}
+		_.each(this.commands, (command) => {
+			command.destroy();
+		});
 
 		this.emit('destroy');
 		this.isDestroyed = true;
