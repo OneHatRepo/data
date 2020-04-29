@@ -40,6 +40,14 @@ export default class Command extends EventEmitter {
 	}
 
 	/**
+	 * Register a handler for this command.
+	 * @param {function} handler - The event handler
+	 */
+	unregisterHandler = (handler) => {
+		this.off('handleServerResponse', handler);
+	}
+
+	/**
 	 * Detect whether this command has any handlers.
 	 * @return {int} count - Number of handlers this command has
 	 */
@@ -51,8 +59,8 @@ export default class Command extends EventEmitter {
 	 * Convenience function to invoke handlers
 	 * @return {boolean} results - Results of running all handlers
 	 */
-	processResponse = (entity) => {
-		return this.emit('handleServerResponse', entity);
+	processResponse = async (entity) => {
+		return await this.emitAsync('handleServerResponse', entity);
 	}
 
 	/**
@@ -66,9 +74,5 @@ export default class Command extends EventEmitter {
 		
 		// listeners
 		this.removeAllListeners();
-	}
-
-	toString = () => {
-		return 'Command {' + this.name + '}';
 	}
 };

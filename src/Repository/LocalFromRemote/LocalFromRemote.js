@@ -229,6 +229,21 @@ class LocalFromRemoteRepository extends EventEmitter {
 		command.registerHandler(handler);
 	}
 
+
+	/**
+	 * Removes a handler from a registered command.
+	 * @param {string} name - The command name
+	 * @return {function} handler - The handler function
+	 */
+	unregisterCommandHandler = (name, handler) => {
+		const command = this.getCommand(name);
+		if (!command) {
+			return false;
+		}
+
+		command.unregisterHandler(handler);
+	}
+
 	/**
 	 * Checks to see if command has been registered.
 	 * @param {string} name - The command name
