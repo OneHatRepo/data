@@ -1,7 +1,12 @@
 /** @module Property */
 
 import Property from './Property';
-import { uuid, isUuid, empty } from 'uuidv4';
+import {
+	// uuid,
+	isUuid,
+	empty
+} from 'uuidv4';
+import uuid from 'uuid-random'; // TEMP, until Expo supports cypto.getRandomValues() - https://github.com/uuidjs/uuid/issues/375
 import _ from 'lodash';
 
 /**
