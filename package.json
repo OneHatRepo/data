@@ -46,19 +46,19 @@
 		"numeral": "^2.0.6",
 		"qs": "^6.9.3",
 		"relative-time-parser": "^1.0.13",
-		"uuidv4": "^6.0.7"
+		"uuidv4": "^6.0.8"
 	},
 	"devDependencies": {
-		"@babel/core": "^7.9.0",
+		"@babel/core": "^7.9.6",
 		"@babel/node": "^7.8.7",
 		"@babel/plugin-proposal-class-properties": "^7.8.3",
-		"@babel/plugin-transform-runtime": "^7.9.0",
-		"@babel/preset-env": "^7.9.5",
+		"@babel/plugin-transform-runtime": "^7.9.6",
+		"@babel/preset-env": "^7.9.6",
 		"@babel/register": "^7.9.0",
-		"@babel/runtime": "^7.9.2",
+		"@babel/runtime": "^7.9.6",
 		"@cypress/webpack-preprocessor": "^4.1.5",
 		"babel-loader": "^8.1.0",
-		"cypress": "^4.4.1",
+		"cypress": "^4.5.0",
 		"webpack": "^4.43.0"
 	}
 }
