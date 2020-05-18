@@ -623,6 +623,19 @@ describe('Repository Base', function() {
 
 	});
 
+	describe('options', function() {
+		it('setOptions', function() {
+
+			this.repository.setOptions({
+				api: {
+					baseURL: 'test123',
+				},
+			});
+			
+			expect(this.repository.api.baseURL).to.be.eq('test123');
+		});
+	});
+
 	it('toString', function() {
 		const str = this.repository.toString();
 		expect(str).to.be.eq('NullRepository {bar} - foo');
