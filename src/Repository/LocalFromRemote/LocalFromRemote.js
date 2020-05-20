@@ -145,7 +145,7 @@ class LocalFromRemoteRepository extends EventEmitter {
 			'beginSync',
 			'endSync',
 			'destroy',
-			'error',
+			'err',
 		]);
 
 		/**
@@ -348,7 +348,7 @@ class LocalFromRemoteRepository extends EventEmitter {
 						// try {
 						// 	shouldDelete = await handler.call(this, localItem);
 						// } catch(error) {
-						// 	this.emit('error', error.message);
+						// 	this.emit('err', error.message);
 						// }
 						// if (shouldDelete) {
 						// 	await this.local.delete(localItem);

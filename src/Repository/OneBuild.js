@@ -111,7 +111,7 @@ class OneBuildRepository extends AjaxRepository {
 			message = response[this.messageProperty];
 		
 		if (!success) {
-			this.emit('error', message, root);
+			this.emit('err', message, root);
 		}
 
 		return {

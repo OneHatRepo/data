@@ -40,7 +40,7 @@ describe('OneBuildRepository', function() {
 	// function login() {
 	// 	const oThis = this;
 	// 	return new Promise((resolve) => {
-	// 		oThis.repository.ons(['login', 'error'], (result) => {
+	// 		oThis.repository.ons(['login', 'err'], (result) => {
 	// 			resolve(result);
 	// 		});
 	// 		oThis.repository.login(creds);
