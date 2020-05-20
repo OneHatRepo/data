@@ -281,8 +281,8 @@ class AjaxRepository extends Repository {
 	 * Refreshes entities.
 	 */
 	_onChangeFilters = () => {
-		_.each(this.filters, (filter) => {
-			this.setParam(filter.name, filter.value);
+		_.each(this.filters, (value, name) => {
+			this.setParam(name, value);
 		});
 
 		if (this.isLoaded) {
