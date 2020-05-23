@@ -1,6 +1,6 @@
 {
 	"name": "@onehat/data",
-	"version": "0.9.0",
+	"version": "0.9.1",
 	"description": "JS data modeling package with adapters for many storage mediums.",
 	"main": "src/index.js",
 	"type": "module",
@@ -59,7 +59,7 @@
 		"@babel/runtime": "^7.9.6",
 		"@cypress/webpack-preprocessor": "^4.1.5",
 		"babel-loader": "^8.1.0",
-		"cypress": "^4.5.0",
+		"cypress": "^4.6.0",
 		"webpack": "^4.43.0"
 	}
 }

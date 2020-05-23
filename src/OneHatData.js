@@ -348,6 +348,22 @@ export class OneHatData extends EventEmitter {
 	}
 
 	/**
+	 * Get Schemas by a filter function
+	 * @param {function} filter - Filter function
+	 * @param {boolean} firstOnly - Whether to retrieve only the first item that passes the filter
+	 * @return {Repository[]} repositories
+	 */
+	getSchemasBy = (filter, firstOnly = false) => {
+		if (this.isDestroyed) {
+			throw Error('this.getSchemasBy is no longer valid. OneHatData has been destroyed.');
+		}
+		if (firstOnly) {
+			return _.find(this.schemas, filter);
+		}
+		return _.filter(this.schemas, filter);
+	}
+
+	/**
 	 * Get all Repositories
 	 * @return {object} repositories
 	 */
