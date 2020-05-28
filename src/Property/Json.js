@@ -102,6 +102,15 @@ export default class JsonProperty extends Property {
 		}
 		return this.parsedValue;
 	}
+
+	/**
+	 * Utility function - gets the JSON string in a way that is safe to display in HTML.
+	 * i.e. It enables us to show a JSON string in HTML *without its contents being interpreted as HTML*
+	 */
+	getAsHtmlSafe = () => {
+		const str = JSON.stringify(this.parsedValue);
+		return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+	}
 };
 
 JsonProperty.className = 'Json';
