@@ -66,6 +66,51 @@ class OneBuildRepository extends AjaxRepository {
 	}
 
 	/**
+	 * Override parent so we can emit 'logout' event on 401 error
+	 * 
+	 * Helper for _do* save operations.
+	 * Fires off axios request to server
+	 * @private
+	 */
+	_send = (method, url, data) => {
+
+		if (!url) {
+			throw new Error('No url submitted');
+		}
+
+		const options = {
+				url,
+				method,
+				baseURL: this.api.baseURL,
+				transformResponse: null,
+				headers: this.headers,
+				params: method === 'GET' ? data : null,
+				data: method !== 'GET' ? qs.stringify(data) : null,
+				timeout: this.timeout,
+			};
+		
+		if (this.debugMode) {
+			console.log(url, options);
+		}
+		
+		return this.axios(options)
+					.catch(error => {
+						// BEGIN MOD
+						if (error && error.response && error.response.status === 401) {
+								this.emit('logout');
+								console.log('logout');
+								return false;
+						}
+						// END MOD
+						if (this.debugMode) {
+							console.log(url + ' error', error);
+							console.log('response:', error.response);
+						}
+						this.emit('err', error);
+					});
+	}
+
+	/**
 	 * Sets "conditions" param.
 	 * OneBuild uses a single, multi-dimentional param for filtering.
 	 * Refreshes entities.
@@ -113,6 +158,16 @@ class OneBuildRepository extends AjaxRepository {
 	 * @private
 	 */
 	_processServerResponse = (result) => {
+
+		if (result === false) { // e.g. 401 error
+			return {
+				root: null,
+				success: false,
+				total: 0,
+				message: null,
+			};
+		}
+
 		const response = this.reader.read(result.data),
 			root = response[this.rootProperty],
 			success = response[this.successProperty],

@@ -190,6 +190,9 @@ export class OneHatData extends EventEmitter {
 		if (bound) {
 			schema.setBoundRepository(repository);
 		}
+		if (repository.isRegisteredEvent('logout')) { // OneBuild repository emits this
+			this.relayEventsFrom(repository, ['logout']);
+		}
 
 		this.emit('createRepository', repository);
 		return repository;

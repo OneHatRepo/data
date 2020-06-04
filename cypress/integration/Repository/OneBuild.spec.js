@@ -27,7 +27,6 @@ describe('OneBuildRepository', function() {
 			await this.oneHatData.createBoundRepositories();
 		})()).then(() => {
 			this.repository = this.oneHatData.getRepository('Users');
-			debugger;
 		});
 	});
 
@@ -47,7 +46,20 @@ describe('OneBuildRepository', function() {
 	// 	});
 	// }
 
-	describe('load', function() {
+	it('401', function() {
+		cy.wrap((async () => {
+
+			let loggedOut = false;
+			this.oneHatData.on('logout', function() { // NOTE: We are listening to the global oneHatData object, not just the individual repository
+				loggedOut = true;
+			});
+			await this.repository.load();
+			expect(loggedOut).to.be.true;
+
+		})());
+	});
+
+	describe.skip('load', function() {
 
 		it('login', function() {
 			(async () => {
@@ -115,13 +127,12 @@ describe('OneBuildRepository', function() {
 
 	});
 
-	describe('CRUD', function() {
+	describe.skip('CRUD', function() {
 
 		const repository = this.repository;
-		debugger;
 		let id;
 
-		it.only('login', function() {
+		it('login', function() {
 			(async () => {
 				debugger;
 				const userData = await repository.login(creds);
