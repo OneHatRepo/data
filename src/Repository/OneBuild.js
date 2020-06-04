@@ -56,6 +56,15 @@ class OneBuildRepository extends AjaxRepository {
 
 	}
 
+	async initialize() {
+
+		this.registerEvents([
+			'logout',
+		]);
+
+		await super.initialize();
+	}
+
 	/**
 	 * Sets "conditions" param.
 	 * OneBuild uses a single, multi-dimentional param for filtering.
@@ -112,6 +121,10 @@ class OneBuildRepository extends AjaxRepository {
 		
 		if (!success) {
 			this.emit('err', message, root);
+		}
+
+		if (message === 'You do not have authorization to access this area.') {
+			this.emit('logout');
 		}
 
 		return {
