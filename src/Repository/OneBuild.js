@@ -123,8 +123,8 @@ class OneBuildRepository extends AjaxRepository {
 			});
 		}
 
-		_.each(this.filters, (value, name) => {
-			this.setParam('conditions[' + name + ']', value);
+		_.each(this.filters, (filter, ix) => {
+			this.setParam('conditions[' + filter.name + ']', filter.value);
 		});
 
 		if (this.isLoaded) {
