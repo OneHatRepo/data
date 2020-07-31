@@ -1,6 +1,6 @@
 {
 	"name": "@onehat/data",
-	"version": "0.10.0",
+	"version": "0.10.1",
 	"description": "JS data modeling package with adapters for many storage mediums.",
 	"main": "src/index.js",
 	"type": "module",
@@ -37,29 +37,29 @@
 		"@onehat/events": "^1.5.2",
 		"accounting-js": "^1.1.1",
 		"axios": "^0.19.2",
-		"chrono-node": "^1.4.6",
-		"fast-xml-parser": "^3.17.3",
+		"chrono-node": "^1.4.8",
+		"fast-xml-parser": "^3.17.4",
 		"he": "^1.2.0",
-		"js-base64": "^2.5.2",
-		"lodash": "^4.17.15",
-		"moment": "^2.26.0",
+		"js-base64": "^2.6.3",
+		"lodash": "^4.17.19",
+		"moment": "^2.27.0",
 		"numeral": "^2.0.6",
 		"qs": "^6.9.4",
 		"relative-time-parser": "^1.0.13",
-		"uuid-random": "^1.3.0",
-		"uuidv4": "^6.1.0"
+		"uuid-random": "^1.3.2",
+		"uuidv4": "^6.2.1"
 	},
 	"devDependencies": {
-		"@babel/core": "^7.10.2",
-		"@babel/node": "^7.10.1",
-		"@babel/plugin-proposal-class-properties": "^7.10.1",
-		"@babel/plugin-transform-runtime": "^7.10.1",
-		"@babel/preset-env": "^7.10.2",
-		"@babel/register": "^7.10.1",
-		"@babel/runtime": "^7.10.2",
+		"@babel/core": "^7.11.0",
+		"@babel/node": "^7.10.5",
+		"@babel/plugin-proposal-class-properties": "^7.10.4",
+		"@babel/plugin-transform-runtime": "^7.11.0",
+		"@babel/preset-env": "^7.11.0",
+		"@babel/register": "^7.10.5",
+		"@babel/runtime": "^7.11.0",
 		"@cypress/webpack-preprocessor": "^4.1.5",
 		"babel-loader": "^8.1.0",
-		"cypress": "^4.7.0",
-		"webpack": "^4.43.0"
+		"cypress": "^4.11.0",
+		"webpack": "^4.44.1"
 	}
 }
