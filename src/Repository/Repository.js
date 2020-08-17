@@ -484,7 +484,7 @@ export default class Repository extends EventEmitter {
 	}
 
 	/**
-	 * Sets the filtering applied to entities.
+	 * Sets one or more filters to entities.
 	 * 
 	 * Usage:
 	 * - repository.filter(); // Special case: clear all filtering
@@ -529,7 +529,7 @@ export default class Repository extends EventEmitter {
 		}
 
 		// Apply new filters to existing filters
-		let filters = _.map(this.filters, filter => filter); // Work with a copy, so we can detect changes in setFilters
+		let filters = _.map(this.filters, filter => filter); // Work with a copy, so we can detect changes in _setFilters
 		_.each(newFilters, (newFilter) => {			
 			if (_.isNil(newFilter.value)) {
 				// delete existing filter
@@ -539,7 +539,32 @@ export default class Repository extends EventEmitter {
 			}
 		});
 
-		return this.setFilters(filters);
+		return this._setFilters(filters);
+	}
+
+	/**
+	 * Sets one or more filters.
+	 * This is a convenience function; a special case alias of filter()
+	 * 
+	 * Usage:
+	 * - repository.setFilters({
+	 * 		first_name: 'Scott',
+	 * 		last_name: 'Spuler',
+	 * 	});
+	 * 
+	 * @return this
+	 */
+	setFilters = (filters, clearFirst = false) => {
+		const parsed = _.map(filters, (value, name) => {
+			return {
+				name,
+				value,
+			};
+		});
+		if (clearFirst) {
+			this.clearFilters();
+		}
+		return this.filter(parsed);
 	}
 
 	/**
@@ -552,24 +577,27 @@ export default class Repository extends EventEmitter {
 	 * - repository.clearFilters('first_name'); // Clear a single filter
 	 * - repository.clearFilters(['first_name', 'last_name']); // Clear multiple filters
 	 */
-	clearFilters = (filtersToClear = []) => {
+	clearFilters = (filtersToClear) => {
 		let filters = [];
 		if (filtersToClear) {
 			if (_.isString(filtersToClear)) {
 				filtersToClear = [filtersToClear];
 			}
-			filters = _.omit(this.filters, filtersToClear);
+			filters = _.filter(this.filters, (filter) => {
+				return filtersToClear.indexOf(filter.name) === -1;
+			});
 		}
-		return this.setFilters(filters);
+		return this._setFilters(filters);
 	}
 
 	/**
 	 * Sets the filters directly
+	 * @private
 	 * @fires changeFilters
 	 */
-	setFilters = (filters) => {
+	_setFilters = (filters) => {
 		if (this.isDestroyed) {
-			throw Error('this.setFilters is no longer valid. Repository has been destroyed.');
+			throw Error('this._setFilters is no longer valid. Repository has been destroyed.');
 		}
 		let isChanged = false;
 		if (!_.isEqual(this.filters, filters)) {

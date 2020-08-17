@@ -292,10 +292,6 @@ class MemoryRepository extends Repository {
 		});
 	}
 
-	filterBy = (filter) => {
-		this.setFilters([filter]);
-	}
-
 	
 
 	//    __________  __  ______
