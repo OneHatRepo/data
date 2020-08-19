@@ -1,11 +1,12 @@
 {
 	"name": "@onehat/data",
-	"version": "0.11.0",
+	"version": "0.11.1",
 	"description": "JS data modeling package with adapters for many storage mediums.",
 	"main": "src/index.js",
 	"type": "module",
 	"scripts": {
-		"test": "npx cypress open --config-file ../cypress.json"
+		"test": "npx cypress open --config-file ../cypress.json",
+		"docs": "jsdoc -c ./jsdoc.json -t ./node_modules/ink-docstrap/template -R README.md"
 	},
 	"repository": {
 		"type": "git",
@@ -60,6 +61,8 @@
 		"@cypress/webpack-preprocessor": "^4.1.5",
 		"babel-loader": "^8.1.0",
 		"cypress": "^4.12.1",
+		"ink-docstrap": "^1.3.2",
+		"jsdoc": "^3.6.5",
 		"webpack": "^4.44.1"
 	}
 }

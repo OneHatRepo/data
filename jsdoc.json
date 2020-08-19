@@ -1,0 +1,28 @@
+{
+	"source": {
+		"include": [ "./src" ],
+		"exclude": [ "./src/Integration" ]
+	},
+	"opts": {
+		"destination": "./docs/",
+		"recurse": true
+	},
+	"template": "./node_modules/ink-docstrap/template",
+	"templates": {
+		"systemName"            : "@onehat/data",
+		"footer"                : "<div style=\"text-align:center;\"><p><a href=\"https://www.npmjs.com/package/@onehat/data\">@onehat/data NPM Module</a></p><p><a href=\"https://github.com/OneHatRepo/data\">@onehat/data Github Repo</a></p></div",
+		"copyright"             : "<div style=\"text-align:center;\"><p>&copy;2020 OneHat Technologies, LLC</p></div>",
+		"includeDate"           : false,
+		"navType"               : "vertical",
+		"theme"                 : "yeti",
+		"linenums"              : true,
+		"collapseSymbols"       : true,
+		"inverseNav"            : false,
+		"outputSourceFiles"     : false,
+		"outputSourcePath"      : true,
+		"dateFormat"            : "YYYY-MM-DD",
+		"syntaxTheme"           : "default",
+		"sort"                  : false,
+		"search"                : true 
+	}
+}

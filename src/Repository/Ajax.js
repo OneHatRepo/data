@@ -46,12 +46,12 @@ class AjaxRepository extends Repository {
 			},
 
 			/**
-			 * @member {[string|object]} reader - Reader. Options: json|xml
+			 * @member {string|object} reader - Reader. Options: json|xml
 			 */
 			reader: 'json',
 
 			/**
-			 * @member {[string|object]} writer - Writer. Options: json|xml
+			 * @member {string|object} writer - Writer. Options: json|xml
 			 */
 			writer: 'json',
 

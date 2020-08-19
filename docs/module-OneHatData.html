@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width">
-	<title>@onehat/data Index</title>
+	<title>@onehat/data Module: OneHatData</title>
 
 	<!--[if lt IE 9]>
 	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -72,191 +72,221 @@
 		<div id="main">
 			
 
+	<h1 class="page-title">Module: OneHatData</h1>
+<section>
+
+<header>
+    
+</header>
+
+
+<article>
+    <div class="container-overview">
+    
+        
+
+        
+<dl class="details">
+    
+
 	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
 	
 
 
 
+	
+	<dt class="tag-source method-doc-label method-doc-details-label">Source:</dt>
+	<dd class="tag-source">
+		OneHatData.js
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
 
 
+        
+    
+    </div>
 
+    
 
+    
 
+    
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="module-OneHatData.OneHatData.html">OneHatData</a></dt>
+            <dd></dd>
+        </dl>
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        <dl>
+            
+<hr>
+<dt class="name" id="~Get">
+    <h4 id="~Get"><span class="type-signature">&lt;inner> </span>Get<span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+    
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
 
 
 
 	
+	<dt class="tag-source method-doc-label method-doc-details-label">Source:</dt>
+	<dd class="tag-source">
+		OneHatData.js
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt class="name" id="~Get">
+    <h4 id="~Get"><span class="type-signature">&lt;inner> </span>Get<span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+    
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
 	
 
 
 
+	
+	<dt class="tag-source method-doc-label method-doc-details-label">Source:</dt>
+	<dd class="tag-source">
+		OneHatData.js
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
 
 
-    <section class="readme-section">
-        <article><img src="onehat-data.svg" alt="@onehat/data" style="width: 400px;" />
-<h1>Overview</h1>
-<p><a href="https://www.npmjs.com/package/@onehat/data">@onehat/data</a>
-A robust ORM for Javascript.
-Can CRUD, search, sort, filter, paginate your data. Integrates with many front- and back-end storage mediums.</p>
-<ul>
-<li><strong>Repositories.</strong> A Repository stores many Entities in a storage medium. Corresponds to a database table.
-Repositories can sort, search/filter, and add/edit/delete their constituent Entities.</li>
-<li><strong>Storage Mediums.</strong> Repositories are specialized to store their data in a single type of storage medium.
-Available types of Repositories include: <em>Memory, Ajax, Rest, LocalStorage (Browser), SessionStorage (Browser),
-IndexedDB (Browser), AsyncStorage (React Native/Expo), SecureStore (React Native/Expo).</em>
-One special type of Repository—<em>LocalFromRemote</em>—combines two different Repository types (one local and one remote) into a single Repository,
-thereby allowing autosyncing between the local and remote repositories, enabling true offline-first capability.</li>
-<li><strong>Entities.</strong> An Entity is a single record of data, organized into properties. Corresponds to a database row.
-Entity data can be accessed directly (entity.username), via specific properties and their formatted values (entity.properties.username.displayValue),
-or by obtaining a JS object of the whole Entity (entity.getDisplayValues(), or entity.getSubmitValues()).</li>
-<li><strong>Properties.</strong> A Property is a single unit of data. Corresponds to a database field.
-Properties are differentiated into different Property types (e.g. <em>Integer, String, Boolean,</em> etc),
-and thereby allow for easy formatting of &quot;display&quot; or &quot;submit&quot; values.
-For example, a date might be set to display as &quot;Wed, Feb 5, 2020&quot; but submit as &quot;2020-02-05&quot;.</li>
-<li><strong>Schemas.</strong> A Schema defines the configuration of a Repository. Corresponds roughly to the database table schema.
-The Schema defines the name and type of Repository, the Properties that exist, and which are &quot;id&quot; and &quot;display&quot; Properties.</li>
-</ul>
-<h1>Install</h1>
-<pre class="prettyprint source"><code>npm i @onehat/data
-</code></pre>
-<h1>Usage</h1>
-<p>Comprehensive unit tests can be found in <em>./cypress/integration</em>. These are an excellent source of code examples.
-Comprehensive API documentation can be found in <em>./docs</em>.</p>
-<h2>1. Define a Schema</h2>
-<p>For every type of Entity you will use (e.g. Users or Animals or Invoices), define a Schema.
-A Schema determines the various Properties that each Entity will have, as well as the medium
-where the Entities will be stored.</p>
-<pre class="prettyprint source lang-javascript"><code>const Users = {
-	name: 'Users',
-	model: {
-		idProperty: 'id',
-		displayProperty: 'username',
-		properties: [
-			{ name: 'id', type: 'int', },
-			{ name: 'username', type: 'string', }, // explicitly set property type
-			{ name: 'password', }, // type: 'string' is assumed, if not explicitly set
-			{ name: 'first_name', },
-			{ name: 'last_name', },
-			{ name: 'email', allowNull: false, }, // make it a required field
-			{ name: 'last_login', type: 'datetime', defaultValue: 'now', }, // give it a default value.
-		],
-		sorters: [
-			{
-				name: 'last_name',
-				direction: 'ASC',
-			},
-			{
-				name: 'first_name',
-				direction: 'ASC',
-			},
-		],
-	},
-	repository: 'memory', // Repository type. Can be string name or config object
-};
-export default Users;
-</code></pre>
-<p>Every Property must have a unique name. All other attributes are optional.
-Common Property attributes include:</p>
-<ul>
-<li><strong>name</strong> - The name of the Property</li>
-<li><strong>type</strong> - The type of the Property (e.g. 'string', 'bool', 'int', etc)</li>
-<li><strong>allowNull</strong> - Is this Property required to have a value?</li>
-<li><strong>defaultValue</strong> - Default value for this Property if none is supplied</li>
-<li><strong>isSortable</strong> - Whether this Property type is sortable</li>
-</ul>
-<p>Other Property attributes exist and can be found in the API.</p>
-<h2>2. Create a Repository</h2>
-<p>The easiest way to create one or more Repositories is to use the global <em>oneHatData</em> singleton object.
-Each schema will have a bound repository of the same name (e.g. &quot;Users&quot;, or &quot;Groups&quot;).</p>
-<pre class="prettyprint source lang-javascript"><code>import oneHatData from '@onehat/data';
-import Groups from './Groups';
-import Users from './Users';
+    
+</dd>
 
-oneHatData
-	.createSchemas([
-		Groups,
-		Users,
-	])
-	.createBoundRepositories()
-	.then(() => {
-		setIsReady(true);
-		
-		const UsersRepository = oneHatData.getRepository('Users');
+        </dl>
+    
 
-		// Do something with your data
+    
 
-	});
-</code></pre>
-<h2>3. Add / Edit / Delete an Entity</h2>
-<p>Once you have a Repository initialized, you can start adding data to it.
-Data is manipulated asynchronously, so you may optionally wait for it to complete.</p>
-<pre class="prettyprint source lang-javascript"><code>const UsersRepository = oneHatData.getRepository('Users');
+    
 
-// 1. Add an Entity
-const userEntity = await UsersRepository.add({
-	username: 'ajones',
-	password: '12345',
-	first_name: 'Alice',
-	last_name: 'Jones',
-	email: 'alice@example.com',
-});
+    
+</article>
 
-
-// 2. Edit an Entity
-// Use assignment to change the value of a particular Property.
-userEntity.password = 'mypass';
-
-// Or you can be more verbose about it
-userEntity.getProperty('password').setValue('mypass');
-
-
-// 3. Delete an Entity
-userEntity.delete();
-
-// Or delete it from the Repository
-await UsersRepository.delete(userEntity);
-</code></pre>
-<h2>4. Filter and Sort the Entities in a Repository</h2>
-<p>There are lots of filtering and sorting methods available on Repositories.</p>
-<pre class="prettyprint source lang-javascript"><code>// Add a single filter
-UsersRepository.filter('first_name', 'Alice');
-const foundEntities = UsersRepository.entities;
-
-// Or search by an id or function
-const myEntity = UsersRepository.getById(1);
-const results = UsersRepository.getBy((entity) => {
-	return entity.id > 2;
-});
-
-// Sort the entities by a particular Property
-UsersRepository.sort('last_name', 'DESC');
-const sortedEntities = UsersRepository.entities;
-</code></pre>
-<h2>5. Listen for events and respond to them</h2>
-<p>Repositories, Entities, and Properties emit many different kinds of events.</p>
-<pre class="prettyprint source lang-javascript"><code>// The 'change' event, emitted from an Entity, is relayed through the Repository and becomes 'entity_change'
-UsersRepository.on('entity_change', (entity) => {
-	console.log('changed entity');
-});
-userEntity.first_name = 'Joe';
-// prints 'changed entity' to console
-
-
-// The 'changeData' event is fired from the Repository after multiple Entities are loaded at once
-UsersRepository.on('changeData', (entities) => {
-	console.log('entities changed');
-});
-UsersRepository.load([
-	{ email: 'alice@example.com' },
-	{ email: 'bob@example.com' },
-	{ email: 'charlie@example.com' },
-]);
-// prints 'entities changed' to console
-</code></pre></article>
-    </section>
-
-
-
+</section>
 
 
 
