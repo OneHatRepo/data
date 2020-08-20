@@ -782,7 +782,7 @@ export default class Repository extends EventEmitter {
 
 		this.emit('add', entity);
 
-		if (this.autoSave) {
+		if (this.autoSave && !entity.isPersisted) {
 			await this.save(entity);
 		}
 
