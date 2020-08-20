@@ -87,10 +87,10 @@ class Entity extends EventEmitter {
 		this.properties = [];
 
 		/**
-		 * @member {boolean} isDeleted - Whether this object has been persisted in a storage medium
+		 * @member {boolean} isPersisted - Whether this object has been persisted in a storage medium
 		 * @private
 		 */
-		this.isPersisted = !_.isEmpty(this._originalData);
+		this.isPersisted = false;
 		
 		/**
 		 * @member {Boolean} isInitialized - State: whether or not this entity has been completely initialized
