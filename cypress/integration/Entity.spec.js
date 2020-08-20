@@ -88,7 +88,6 @@ describe('Entity', function() {
 			entity2.createId();
 			expect(entity2.id).to.be.not.null;
 			const idProperty = entity2.getIdProperty();
-			expect(idProperty.isValid(entity2.id)).to.be.true;
 			expect(Entity.isTempId(entity2.id)).to.be.false;
 		});
 		
@@ -473,12 +472,15 @@ describe('Entity', function() {
 	describe('events', function() {
 
 		it('change', function() {
-			let didFire = false;
-			this.entity.on('change', () => {
+			let didFire = false,
+				matches = false;
+			this.entity.on('change', (entity) => {
 				didFire = true;
+				matches = (this.entity === entity);
 			});
 			this.entity.setValue('bar', 'Test');
 			expect(didFire).to.be.true;
+			expect(matches).to.be.true;
 		});
 
 		it('reset', function() {

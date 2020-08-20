@@ -212,7 +212,7 @@ class Entity extends EventEmitter {
 	 */
 	_onPropertyChange = () => {
 		this._recalculateDependentProperties();
-		this.emit('change', this);
+		this.emit('change', this._proxy);
 	}
 
 	/**
@@ -263,7 +263,7 @@ class Entity extends EventEmitter {
 		this._resetPropertyValues();
 		this._originalDataParsed = this.getParsedValues();
 
-		this.emit('reset');
+		this.emit('reset', this._proxy);
 	}
 
 	/**
@@ -824,7 +824,7 @@ class Entity extends EventEmitter {
 
 		if (isChanged) {
 			this._recalculateDependentProperties();
-			this.emit('change', this);
+			this.emit('change', this._proxy);
 		}
 		return isChanged;
 	}
@@ -854,7 +854,7 @@ class Entity extends EventEmitter {
 		if (this.isDestroyed) {
 			throw Error('this.save is no longer valid. Entity has been destroyed.');
 		}
-		this.emit('save', this, callback);
+		this.emit('save', this._proxy, callback);
 	}
 
 	/**
@@ -890,7 +890,7 @@ class Entity extends EventEmitter {
 			throw Error('this.delete is no longer valid. Entity has been destroyed.');
 		}
 		this.markDeleted();
-		this.emit('delete', this, callback);
+		this.emit('delete', this._proxy, callback);
 	}
 
 	/**
@@ -913,7 +913,7 @@ class Entity extends EventEmitter {
 		})
 		this.properties = null;
 
-		this.emit('destroy');
+		this.emit('destroy', this._proxy);
 		this.isDestroyed = true;
 		
 		// listeners

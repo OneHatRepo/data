@@ -6,7 +6,7 @@ import {
 	isUuid,
 	empty
 } from 'uuidv4';
-import uuid from 'uuid-random'; // TEMP, until Expo supports cypto.getRandomValues() - https://github.com/uuidjs/uuid/issues/375
+import uuid from 'uuid-random'; // TEMP, until Expo supports cypto.getRandomValues() - https://github.com/uuidjs/uuid/issues/375 and https://github.com/expo/expo/issues/7209
 import _ from 'lodash';
 
 /**
