@@ -1,7 +1,7 @@
 import moment from 'moment';
 import momentAlt from 'relative-time-parser'; // Notice this version of moment is imported from 'relative-time-parser', and may be out of sync with our general 'moment' package
 import accounting from 'accounting-js';
-import chrono from 'chrono-node';
+import * as chrono from 'chrono-node';
 import _ from 'lodash';
 
 class Parsers {
