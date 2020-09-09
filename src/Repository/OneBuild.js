@@ -143,7 +143,9 @@ class OneBuildRepository extends AjaxRepository {
 			sorterStrings.push(sorter.name + ' ' + sorter.direction);
 		});
 
-		this.setParam('order', sorterStrings.join(','));
+		if (!_.isEmpty(sorterStrings)) {
+			this.setParam('order', sorterStrings.join(','));
+		}
 		
 		if (this.isLoaded) {
 			return this.reload();

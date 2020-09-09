@@ -229,7 +229,7 @@ export default class Repository extends EventEmitter {
 	 */
 	async initialize() {
 		// Create default sorters if none supplied
-		if (this.autoSort && _.isEmpty(this.sorters)) {
+		if (this.autoSort && !this.sorters.length) {
 			this.sorters = this.getDefaultSorters();
 		}
 		
@@ -265,7 +265,7 @@ export default class Repository extends EventEmitter {
 		if (this.autoLoad) {
 			await this.load();
 		}
-		if (!this.isSorted && this.autoSort) { // load may have sorted, in which case this will be skipped.
+		if (!this.isSorted && this.autoSort && !this.isRemoteSort) { // load may have sorted, in which case this will be skipped.
 			await this.sort();
 		}
 

@@ -155,11 +155,10 @@ class AjaxRepository extends Repository {
 			this.writer = null;
 		}
 
-		await super.initialize();
-
-
 		// Initialize query params
 		this._setInitialQueryParams();
+
+		await super.initialize();
 	}
 
 	/**
@@ -173,20 +172,18 @@ class AjaxRepository extends Repository {
 	 * Sets the query params for initial loading
 	 */
 	_setInitialQueryParams = () => {
+		// Pagination
 		if (this.isPaginated) {
-			this.setParam(this.paramPageNum, this.page);
-			this.setParam(this.paramPageSize, this.pageSize);
+			this._onChangePagination();
 		}
 
 		// Sorting
-		let sorterStrings = [];
-		_.each(this.sorters, (sorter) => {
-			sorterStrings.push(sorter.name + ' ' + sorter.direction);
-		});
-		if (!_.isEmpty(sorterStrings)) {
-			this.setParam('order', sorterStrings.join(','));
+		if (this.autoSort) {
+			if (!this.sorters.length) {
+				this.sorters = this.getDefaultSorters(); // Need this here, because _setInitialQueryParams() runs before this.load() in super.initialize()
+			}
+			this._onChangeSorters();
 		}
-
 	}
 	
 
