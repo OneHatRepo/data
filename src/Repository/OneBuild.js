@@ -200,16 +200,19 @@ class OneBuildRepository extends AjaxRepository {
 	 * @return {Promise}
 	 */
 	login = (creds) => {
+
+		const data = {
+			url: 'Users/apiLogin',
+			data: qs.stringify(creds),
+			method: 'POST',
+			baseURL: this.api.baseURL,
+		};
+
 		if (this.debugMode) {
-			console.log('login', creds);
+			console.log('login', data);
 		}
 
-		return this.axios({
-				url: 'Users/apiLogin',
-				data: qs.stringify(creds),
-				method: 'POST',
-				baseURL: this.api.baseURL,
-			})
+		return this.axios(data)
 			.then((result) => {
 				if (this.debugMode) {
 					console.log('login result', result);
