@@ -484,7 +484,7 @@ export default class Repository extends EventEmitter {
 	}
 
 	/**
-	 * Sets one or more filters to entities.
+	 * Adds one or more filters to the repository.
 	 * 
 	 * Usage:
 	 * - repository.filter(); // Special case: clear all filtering
@@ -503,6 +503,9 @@ export default class Repository extends EventEmitter {
 	 * 			value: 'Scott',
 	 * 		},
 	 * 	]);
+	 * 
+	 * NOTE: This function ADDS new filters to the existing filters.
+	 * If you want to REPLACE the existing filters, use setFilters(..., true) instead.
 	 * 
 	 * @return this
 	 */
@@ -635,6 +638,11 @@ export default class Repository extends EventEmitter {
 		if (_.isEqual(this.pageSize, pageSize)) {
 			return false;
 		}
+
+		// Reset to page 1
+		this.page = 1;
+		this.emit('changePage');
+
 		this.pageSize = pageSize;
 		this.emit('changePageSize', pageSize);
 		if (this._onChangePagination) {
