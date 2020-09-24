@@ -530,8 +530,8 @@ export default class Repository extends EventEmitter {
 
 		// Apply new filters to existing filters
 		let filters = _.map(this.filters, filter => filter); // Work with a copy, so we can detect changes in _setFilters
-		_.each(newFilters, (newFilter) => {			
-			if (_.isNil(newFilter.value)) {
+		_.each(newFilters, (newFilter) => {
+			if (_.isNil(newFilter.value) && !_.isFunction(newFilter)) {
 				// delete existing filter
 				filters = _.omitBy(filters, (filter) => filter.name === newFilter.name)
 			} else {
