@@ -108,7 +108,7 @@ describe('MemoryRepository', function() {
 					value: '1',
 				},
 				{
-					name: 'key',
+					name: 'value',
 					value: '2',
 				},
 			]);
@@ -321,6 +321,16 @@ describe('MemoryRepository', function() {
 			const found = this.repository.isInRepository(id);
 			expect(found).to.be.false;
 			expect(didFire).to.be.true;
+		});
+
+		it('deleteAll', function() {
+			
+			(async () => {
+				expect(this.repository.entities.length).to.be.eq(5);
+				await this.repository.deleteAll();
+				expect(this.repository.entities.length).to.be.eq(0);
+			})();
+
 		});
 
 		it('deleteByIx', function() {
