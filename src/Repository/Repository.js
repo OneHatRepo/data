@@ -535,11 +535,27 @@ export default class Repository extends EventEmitter {
 		let filters = clearFirst ? 
 						[] : // Clear existing filters
 						_.map(this.filters, filter => filter); // Add to or modify existing filters. Work with a copy, so we can detect changes in _setFilters
+		
 		_.each(newFilters, (newFilter) => {
-			if (_.isNil(newFilter.value) && !_.isFunction(newFilter)) {
-				// delete existing filter
-				filters = _.omitBy(filters, (filter) => filter.name === newFilter.name)
-			} else {
+
+			let deleteExisting = false,
+				addNew = true;
+
+			if (!_.isFunction(newFilter)) {
+				if (_.isNil(newFilter.value)) {
+					deleteExisting = true;
+					addNew = false;
+				} else
+				if (_.find(filters, (filter) => filter.name === newFilter.name)) {
+					// Filter already exists
+					deleteExisting = true;
+				}
+			}
+
+			if (deleteExisting) {
+				filters = _.filter(filters, (filter) => filter.name !== newFilter.name)
+			}
+			if (addNew) {
 				filters.push(newFilter);
 			}
 		});

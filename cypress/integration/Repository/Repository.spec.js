@@ -199,9 +199,13 @@ describe('Repository Base', function() {
 
 		it('filter - none', function() {
 			this.repository.filter();
-			const filters = this.repository.filters;
-			
-			expect(_.size(filters)).to.be.eq(0);
+			expect(_.size(this.repository.filters)).to.be.eq(0);
+
+			this.repository.filters = ['test', 'test'];
+			expect(_.size(this.repository.filters)).to.be.eq(2);
+
+			this.repository.filter();
+			expect(_.size(this.repository.filters)).to.be.eq(0);
 		});
 	
 		it('filter - two args', function() {
@@ -224,20 +228,34 @@ describe('Repository Base', function() {
 		it('filter - array', function() {
 			this.repository.filter([
 				{
-					name: 'key',
+					name: 'key1',
 					value: '1',
 				},
 				{
-					name: 'key',
+					name: 'key2',
 					value: '2',
 				},
 			]);
 			const filters = this.repository.filters;
 			
-			expect(filters[0].name).to.be.eq('key');
+			expect(filters[0].name).to.be.eq('key1');
 			expect(filters[0].value).to.be.eq('1');
-			expect(filters[1].name).to.be.eq('key');
+			expect(filters[1].name).to.be.eq('key2');
 			expect(filters[1].value).to.be.eq('2');
+		});
+	
+		it('filter - clearFirst arg', function() {
+			this.repository.filter('key1', '1');
+			this.repository.filter('key2', '2');
+			let filters = this.repository.filters;
+			
+			expect(filters[0].name).to.be.eq('key2');
+			expect(filters[0].value).to.be.eq('2');
+
+			this.repository.filter('key3', '3', false);
+			filters = this.repository.filters;
+			expect(filters[1].name).to.be.eq('key3');
+			expect(filters[1].value).to.be.eq('3');
 		});
 	
 		it('filter - clearFilters', function() {
@@ -290,6 +308,24 @@ describe('Repository Base', function() {
 			expect(filters[1].value).to.be.eq('2');
 		});
 	
+		it('filter - setFilters modifying existing', function() {
+			this.repository.setFilters({
+				a: '1',
+			});
+			let filters = this.repository.filters;
+			expect(filters[0].name).to.be.eq('a');
+			expect(filters[0].value).to.be.eq('1');
+			expect(filters.length).to.be.eq(1);
+
+			this.repository.setFilters({
+				a: '2',
+			}, false);
+			filters = this.repository.filters
+			expect(filters.length).to.be.eq(1);
+			expect(filters[0].name).to.be.eq('a');
+			expect(filters[0].value).to.be.eq('2');
+		});
+	
 		it('filter - setFilters, clearFirst arg', function() {
 			this.repository.setFilters({
 				a: '1',
@@ -299,16 +335,15 @@ describe('Repository Base', function() {
 			this.repository.setFilters({
 				b: '1',
 				c: '2',
-			}, true);
+			});
 			expect(this.repository.filters.length).to.be.eq(2);
 
 			this.repository.setFilters({
 				d: '1',
 				e: '2',
 				f: '3',
-			}, true);
-			expect(this.repository.filters.length).to.be.eq(3);
-
+			}, false);
+			expect(this.repository.filters.length).to.be.eq(5);
 		});
 
 		it('_setFilters emits changeFilters', function() {
@@ -337,8 +372,14 @@ describe('Repository Base', function() {
 			// setPage
 			this.repository.setPage(3);
 			expect(this.repository.page).to.be.eq(3);
+
+			// setPageSize resets page number to 1
+			this.repository.setPageSize(50);
+			expect(this.repository.page).to.be.eq(1);
 	
 			// prevPage
+			this.repository.setPageSize(1);
+			this.repository.setPage(3);
 			this.repository.prevPage();
 			expect(this.repository.page).to.be.eq(2);
 	
