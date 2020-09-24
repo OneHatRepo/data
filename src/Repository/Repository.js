@@ -484,16 +484,19 @@ export default class Repository extends EventEmitter {
 	}
 
 	/**
-	 * Adds one or more filters to the repository.
+	 * Sets one or more filters to the repository.
+	 * 
+	 * NOTE: By default, this function REPLACES the existing filters with new ones.
+	 * If you want to ADD to the existing filters, set the third argument to false.
 	 * 
 	 * Usage:
 	 * - repository.filter(); // Special case: clear all filtering
-	 * - repository.filter('first_name', 'Scott'); // Add a single filter
-	 * - repository.filter({ // Add a single filter, object notation
+	 * - repository.filter('first_name', 'Scott'); // Set a single filter
+	 * - repository.filter({ // Set a single filter, object notation
 	 * 		name: 'first_name',
 	 * 		value: 'Scott',
 	 * 	});
-	 * - repository.filter([ // Add multiple filters
+	 * - repository.filter([ // Set multiple filters
 	 * 		{
 	 * 			name: 'last_name',
 	 * 			value: 'Spuler',
@@ -504,12 +507,9 @@ export default class Repository extends EventEmitter {
 	 * 		},
 	 * 	]);
 	 * 
-	 * NOTE: This function ADDS new filters to the existing filters.
-	 * If you want to REPLACE the existing filters, use setFilters(..., true) instead.
-	 * 
 	 * @return this
 	 */
-	filter = (arg1 = null, arg2 = null) => {
+	filter = (arg1 = null, arg2 = null, clearFirst = true) => {
 		if (this.isDestroyed) {
 			throw Error('this.filter is no longer valid. Repository has been destroyed.');
 		}
@@ -531,8 +531,10 @@ export default class Repository extends EventEmitter {
 			newFilters = [arg1];
 		}
 
-		// Apply new filters to existing filters
-		let filters = _.map(this.filters, filter => filter); // Work with a copy, so we can detect changes in _setFilters
+		// Set up new filters
+		let filters = clearFirst ? 
+						[] : // Clear existing filters
+						_.map(this.filters, filter => filter); // Add to or modify existing filters. Work with a copy, so we can detect changes in _setFilters
 		_.each(newFilters, (newFilter) => {
 			if (_.isNil(newFilter.value) && !_.isFunction(newFilter)) {
 				// delete existing filter
@@ -547,7 +549,8 @@ export default class Repository extends EventEmitter {
 
 	/**
 	 * Sets one or more filters.
-	 * This is a convenience function; a special case alias of filter()
+	 * This is a convenience function; a special case alias of filter().
+	 * Useful for allowing object notation of filters.
 	 * 
 	 * Usage:
 	 * - repository.setFilters({
@@ -557,17 +560,14 @@ export default class Repository extends EventEmitter {
 	 * 
 	 * @return this
 	 */
-	setFilters = (filters, clearFirst = false) => {
+	setFilters = (filters, clearFirst = true) => {
 		const parsed = _.map(filters, (value, name) => {
 			return {
 				name,
 				value,
 			};
 		});
-		if (clearFirst) {
-			this.clearFilters();
-		}
-		return this.filter(parsed);
+		return this.filter(parsed, null, clearFirst);
 	}
 
 	/**

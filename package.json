@@ -1,6 +1,6 @@
 {
 	"name": "@onehat/data",
-	"version": "0.11.9",
+	"version": "0.12.0",
 	"description": "JS data modeling package with adapters for many storage mediums.",
 	"main": "src/index.js",
 	"type": "module",
