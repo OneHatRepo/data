@@ -402,9 +402,9 @@ class MemoryRepository extends Repository {
 	/**
 	 * Get an array of all active Entities,
 	 * with sorting and filtering applied.
-	 * @return {Entity[]} Entities that passed through filter
+	 * @return {array} Entities that passed through filter
 	 */
-	getAll = () => {
+	getEntities = () => {
 		if (this.isDestroyed) {
 			throw Error('this.getAll is no longer valid. Repository has been destroyed.');
 		}

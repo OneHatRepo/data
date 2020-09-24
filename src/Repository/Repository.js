@@ -909,6 +909,18 @@ export default class Repository extends EventEmitter {
 	}
 
 	/**
+	 * Get an array of all active Entities,
+	 * with sorting and filtering applied.
+	 * @return {array} Entities that passed through filter
+	 */
+	getEntities = () => {
+		if (this.isDestroyed) {
+			throw Error('this.getEntities is no longer valid. Repository has been destroyed.');
+		}
+		return this.entities;
+	}
+
+	/**
 	 * Get a single Entity by its index (zero-indexed) on the current page
 	 * @param {integer} ix - Index
 	 * @return {object} entity - Entity

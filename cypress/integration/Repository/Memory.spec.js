@@ -44,7 +44,7 @@ describe('MemoryRepository', function() {
 				{ key: 'bar', value: 2, },
 				{ key: 'baz', value: 3, },
 			]);
-			expect(_.size(this.repository.entities)).to.be.eq(3);
+			expect(_.size(this.repository.getEntities())).to.be.eq(3);
 		});
 
 		it.skip('check UUID as ID', async function() {
@@ -128,13 +128,18 @@ describe('MemoryRepository', function() {
 			});
 			const entity = await this.repository.add({ key: 6, value: 'six' });
 			expect(entity.id).to.be.eq(6);
-			expect(_.size(this.repository.entities)).to.be.eq(6);
+			expect(_.size(this.repository.getEntities())).to.be.eq(6);
 			expect(didFireAdd).to.be.true;
 		});
 		
 	});
 
 	describe('retrieving', function() {
+
+		it('getEntities', function() {
+			const entities = this.repository.getEntities();
+			expect(entities.length).to.be.eq(5);
+		});
 
 		it('getById', function() {
 			let result = this.repository.getById(2);
@@ -210,7 +215,7 @@ describe('MemoryRepository', function() {
 			dirtyEntities = this.repository.getDirty();
 			expect(_.size(nonPersistedEntities)).to.be.eq(0);
 			expect(_.size(dirtyEntities)).to.be.eq(0);
-			expect(_.size(this.repository.entities)).to.be.eq(6);
+			expect(_.size(this.repository.getEntities())).to.be.eq(6);
 			expect(firedChangeData).to.be.true;
 		});
 		
@@ -326,9 +331,9 @@ describe('MemoryRepository', function() {
 		it('deleteAll', function() {
 			
 			(async () => {
-				expect(this.repository.entities.length).to.be.eq(5);
+				expect(this.repository.getEntities().length).to.be.eq(5);
 				await this.repository.deleteAll();
-				expect(this.repository.entities.length).to.be.eq(0);
+				expect(this.repository.getEntities().length).to.be.eq(0);
 			})();
 
 		});

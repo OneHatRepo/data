@@ -520,6 +520,11 @@ describe('Repository Base', function() {
 			expect(_.isEqual(entity, deleted[0])).to.be.true;
 		});
 
+		it('getEntities', function() {
+			const entities = this.repository.getEntities();
+			expect(entities.length).to.be.eq(5);
+		});
+
 		it('isInRepository', function() {
 			this.repository.setAutoSave(false);
 			const entity = this.repository.getByIx(0),
