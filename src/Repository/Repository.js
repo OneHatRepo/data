@@ -409,7 +409,7 @@ export default class Repository extends EventEmitter {
 		}
 		let sorters = [];
 		if (this.schema && this.schema.model) {
-			if (!_.isEmpty(this.schema.model.sorters)) {
+			if (_.size(this.schema.model.sorters) > 0) {
 				sorters = this.schema.model.sorters
 			} else if (!_.isNil(this.schema.model.displayProperty)) {
 				sorters = [{
@@ -780,7 +780,7 @@ export default class Repository extends EventEmitter {
 	// \____/_/ |_|\____/_____/
 
 	/**
-	 * Creates a new Entity in storage medium.
+	 * Creates a single new Entity in storage medium.
 	 * @param {object} data - Either raw data object or Entity. If raw data, keys are Property names, Values are Property values.
 	 * @param {boolean} isPersisted - Whether the new entity should be marked as already being persisted in storage medium.
 	 * @return {object} entity - new Entity object
@@ -811,6 +811,26 @@ export default class Repository extends EventEmitter {
 		}
 
 		return entity;
+	}
+
+	/**
+	 * Convenience function to create multiple new Entities in storage medium.
+	 * @param {array} data - Array of data objects or Entities. 
+	 * @param {boolean} isPersisted - Whether the new entities should be marked as already being persisted in storage medium.
+	 * @return {array} entities - new Entity objects
+	 */
+	addMultiple = async (allData, isPersisted) => {
+
+		let entities = [],
+			i;
+
+		for (i = 0; i < allData.length; i++) {
+			const data = allData[i],
+				entity = await this.add(data, isPersisted);
+			entities.push(entity);
+		};
+		
+		return entities;
 	}
 
 	/**
@@ -1039,7 +1059,7 @@ export default class Repository extends EventEmitter {
 
 	/**
 	 * Utility function.
-	 * Detects if entity is in the storage medium.
+	 * Detects if entity is in the current page of the storage medium.
 	 * @param {object|string} entity - Either an Entity object, or an id
 	 * @return {boolean} isInRepository - Whether or not the entity exists in this Repository
 	 */
@@ -1050,7 +1070,7 @@ export default class Repository extends EventEmitter {
 		if (idOrEntity instanceof Entity) {
 			return this.entities.indexOf(idOrEntity) !== -1;
 		}
-		return !_.isEmpty(this.getById(idOrEntity));
+		return !_.isNil(this.getById(idOrEntity));
 	}
 
 	/**
@@ -1100,7 +1120,7 @@ export default class Repository extends EventEmitter {
 					switch(operation) {
 						case 'add':
 							let entities = this.getNonPersisted();
-							if (!_.isEmpty(entities)) {
+							if (_.size(entities) > 0) {
 								_.each(entities, (entity) => {
 
 									if (entity.isDeleted) {
@@ -1116,7 +1136,7 @@ export default class Repository extends EventEmitter {
 							break;
 						case 'edit':
 							entities = this.getDirty();
-							if (!_.isEmpty(entities)) {
+							if (_.size(entities) > 0) {
 								_.each(entities, (entity) => {
 
 									if (entity.isDeleted) {
@@ -1132,7 +1152,7 @@ export default class Repository extends EventEmitter {
 							break;
 						case 'delete':
 							entities = this.getDeleted();
-							if (!_.isEmpty(entities)) {
+							if (_.size(entities) > 0) {
 								_.each(entities, (entity) => {
 
 									let result;
