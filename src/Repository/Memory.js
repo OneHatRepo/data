@@ -376,6 +376,8 @@ class MemoryRepository extends Repository {
 			throw Error('this._doDelete is no longer valid. Repository has been destroyed.');
 		}
 		delete this._keyedEntities[entity.id];
+		this.entities = _.filter(this.entities, (x) => x.id !== entity.id);
+
 		entity.destroy();
 		return entity;
 	}
