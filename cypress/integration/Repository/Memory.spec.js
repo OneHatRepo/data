@@ -44,7 +44,7 @@ describe('MemoryRepository', function() {
 				{ key: 'bar', value: 2, },
 				{ key: 'baz', value: 3, },
 			]);
-			expect(_.size(this.repository.getEntities())).to.be.eq(3);
+			expect(_.size(this.repository.entities)).to.be.eq(3);
 		});
 
 		it.skip('check UUID as ID', async function() {
@@ -119,6 +119,32 @@ describe('MemoryRepository', function() {
 
 	});
 
+	describe('pagination', function() {
+
+		it('various methods', function() {
+
+			// pageTotal
+			expect(this.repository.pageTotal).to.be.eq(5);
+	
+			// setPageSize
+			this.repository.setPageSize(2);
+			expect(this.repository.pageTotal).to.be.eq(2);
+	
+			// setPage
+			this.repository.setPage(3);
+			expect(this.repository.pageTotal).to.be.eq(1);
+	
+			// prevPage
+			this.repository.prevPage();
+			expect(this.repository.pageTotal).to.be.eq(2);
+	
+			// nextPage
+			this.repository.nextPage();
+			expect(this.repository.pageTotal).to.be.eq(1);
+		});
+
+	});
+
 	describe('creating', function() {
 
 		it('_addEntity', async function() {
@@ -128,7 +154,7 @@ describe('MemoryRepository', function() {
 			});
 			const entity = await this.repository.add({ key: 6, value: 'six' });
 			expect(entity.id).to.be.eq(6);
-			expect(_.size(this.repository.getEntities())).to.be.eq(6);
+			expect(_.size(this.repository.entities)).to.be.eq(6);
 			expect(didFireAdd).to.be.true;
 		});
 		
@@ -163,25 +189,33 @@ describe('MemoryRepository', function() {
 			expect(result.id).to.be.eq(5);
 		});
 
-		it('pagination', function() {
-			// pageTotal
-			expect(this.repository.pageTotal).to.be.eq(5);
-	
-			// setPageSize
-			this.repository.setPageSize(2);
-			expect(this.repository.pageTotal).to.be.eq(2);
-	
-			// setPage
-			this.repository.setPage(3);
-			expect(this.repository.pageTotal).to.be.eq(1);
-	
-			// prevPage
-			this.repository.prevPage();
-			expect(this.repository.pageTotal).to.be.eq(2);
-	
-			// nextPage
-			this.repository.nextPage();
-			expect(this.repository.pageTotal).to.be.eq(1);
+		it('Repository.* retrieve methods, after delete/add', async function() {
+			
+			this.repository.sort('key', 'ASC');
+
+			// Delete two records, add two more
+			await this.repository.deleteBy((entity) => entity.id % 2 === 0); // delete entities with even numbered id's (there should be two)
+			await this.repository.addMultiple([
+				{ key: 6, value: 'six', },
+				{ key: 7, value: 'seven', },
+			], true);
+
+			// Now check all Repository.* retrieve methods
+			expect(_.size(this.repository.entities)).to.be.eq(5);
+			expect(_.size(this.repository.getSubmitValues())).to.be.eq(5);
+			expect(_.size(this.repository.getDisplayValues())).to.be.eq(5);
+			expect(_.size(this.repository.getRawValues())).to.be.eq(5);
+			expect(_.size(this.repository.getOriginalData())).to.be.eq(5);
+			expect(_.size(this.repository.getParsedValues())).to.be.eq(5);
+			expect(this.repository.getByIx(2).value).to.be.eq('five');
+			expect(_.size(this.repository.getNonPersisted())).to.be.eq(0);
+			expect(_.size(this.repository.getPhantom())).to.be.eq(0);
+			expect(_.size(this.repository.getDirty())).to.be.eq(0);
+			expect(_.size(this.repository.getDeleted())).to.be.eq(0);
+			expect(_.size(this.repository.entities)).to.be.eq(5);
+			const entity = this.repository.getByIx(0);
+			expect(this.repository.isInRepository(entity)).to.be.true;
+
 		});
 	});
 
@@ -215,7 +249,7 @@ describe('MemoryRepository', function() {
 			dirtyEntities = this.repository.getDirty();
 			expect(_.size(nonPersistedEntities)).to.be.eq(0);
 			expect(_.size(dirtyEntities)).to.be.eq(0);
-			expect(_.size(this.repository.getEntities())).to.be.eq(6);
+			expect(_.size(this.repository.entities)).to.be.eq(6);
 			expect(firedChangeData).to.be.true;
 		});
 		
@@ -328,13 +362,11 @@ describe('MemoryRepository', function() {
 			expect(didFire).to.be.true;
 		});
 
-		it('deleteAll', function() {
+		it('deleteAll', async function() {
 			
-			(async () => {
-				expect(this.repository.getEntities().length).to.be.eq(5);
-				await this.repository.deleteAll();
-				expect(this.repository.getEntities().length).to.be.eq(0);
-			})();
+			expect(this.repository.entities.length).to.be.eq(5);
+			await this.repository.deleteAll();
+			expect(this.repository.entities.length).to.be.eq(0);
 
 		});
 

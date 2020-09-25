@@ -438,12 +438,29 @@ describe('Repository Base', function() {
 			expect(didFireAdd).to.be.true;
 		});
 
+		it('addMultiple', async function() {
+			await this.repository.addMultiple([
+				{ key: 6, value: 'six' },
+				{ key: 7, value: 'seven', },
+			]);
+			const entities = this.repository.entities;
+			expect(_.size(entities)).to.be.eq(7);
+		});
+
 		it('_createEntity', function() {
 			const entity = this.Repository._createEntity(this.schema, { key: 6, value: 'six' }); // NOTE: this.Repository has capital "R"
 			expect(entity.id).to.be.eq(6);
 		});
 
-		// _relayEntityEvents
+		it('_relayEntityEvents', async function() {
+			let didFire = false;
+			this.repository.on('entity_change', () => {
+				didFire = true;
+			});
+			const entity = this.repository.getById(1);
+			entity.value = 'Test';
+			expect(didFire).to.be.true;
+		});
 		
 	});
 
@@ -518,11 +535,6 @@ describe('Repository Base', function() {
 			entity.markDeleted();	
 			const deleted = this.repository.getDeleted();
 			expect(_.isEqual(entity, deleted[0])).to.be.true;
-		});
-
-		it('getEntities', function() {
-			const entities = this.repository.getEntities();
-			expect(entities.length).to.be.eq(5);
 		});
 
 		it('isInRepository', function() {
