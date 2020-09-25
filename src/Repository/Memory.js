@@ -48,7 +48,7 @@ class MemoryRepository extends Repository {
 		this._sortedEntities = [];
 
 		/**
-		 * @member {array} _filteredEntities - The array of sorted entities, with filtering applied
+		 * @member {array} _filteredEntities - The full array of entities, sorted and filtered
 		 * @private
 		 */
 		this._filteredEntities = [];
@@ -501,18 +501,7 @@ class MemoryRepository extends Repository {
 	}
 
 	/**
-	 * Detects if entity is in the storage medium.
-	 * @return {boolean} isInRepository
-	 */
-	isInRepository(id) {
-		if (this.isDestroyed) {
-			throw Error('this.isInRepository is no longer valid. Repository has been destroyed.');
-		}
-		return this._keyedEntities && this._keyedEntities.hasOwnProperty(id);
-	}
-
-	/**
-	 * Gets the total number of Entities in the storage medium, 
+	 * Gets the total number of Entities in the storage medium,
 	 * before any sorting or filtering is applied.
 	 * @return {integer} count - The total number of unsorted, unfiltered entities
 	 */
