@@ -202,7 +202,7 @@ class OneBuildRepository extends AjaxRepository {
 	login = (creds) => {
 
 		const data = {
-			url: 'Users/apiLogin',
+			url: 'apiLogin',
 			data: qs.stringify(creds),
 			method: 'POST',
 			baseURL: this.api.baseURL,

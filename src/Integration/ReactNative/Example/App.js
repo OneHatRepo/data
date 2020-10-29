@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { AppLoading } from 'expo';
 import {
-	AsyncStorage as AS,
 	Platform,
 } from 'react-native';
+import { AS } from '@react-native-community/async-storage';
 import { checkInternetConnection } from 'react-native-offline';
 
 import oneHatData from '../../../OneHatData';

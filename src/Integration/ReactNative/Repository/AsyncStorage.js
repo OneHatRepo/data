@@ -1,7 +1,7 @@
 /** @module Repository */
 
-import OfflineRepository from '@onehat/data/src/Repository/Offline';
-import { AsyncStorage } from 'react-native';
+import OfflineRepository from '@onehat/data/src/Repository/Offline.js';
+import AsyncStorage from '@react-native-community/async-storage';
 import _ from 'lodash';
 
 /**
@@ -25,11 +25,11 @@ class AsyncStorageRepository extends OfflineRepository {
 
 			const result = await AsyncStorage.getItem(this._namespace(name));
 			
-			// if (this.debugMode) {
-			// 	console.log(this.name, 'AsyncStorage.get results', name, result);
-			// }
+			if (this.debugMode) {
+				console.log(this.name, 'AsyncStorage.get results', name, result);
+			}
 
-			let value;
+			let value = null;
 			if (!_.isNil(result)) {
 				try {
 					value = JSON.parse(result);
@@ -48,12 +48,20 @@ class AsyncStorageRepository extends OfflineRepository {
 
 	_storageGetMultiple = async (keys) => {
 		try {
+
+			if (keys.length === 0) {
+				return null;
+			}
 			
 			if (this.debugMode) {
 				console.log(this.name, 'AsyncStorage.multiGet', keys);
 			}
 
 			const results = await AsyncStorage.multiGet(this._namespace(keys));
+
+			if (this.debugMode) {
+				console.log(this.name, 'AsyncStorage.multiGet results', name, results);
+			}
 
 			let values = [];
 			if (!_.isNil(results)) {
