@@ -192,6 +192,10 @@ class Entity extends EventEmitter {
 				type = 'string';
 			}
 
+			if (!PropertyTypes[type]) {
+				throw new Error('PropertyType ' + type + ' does not exist.');
+			}
+
 			const Property = PropertyTypes[type],
 				property = new Property(definition, this._proxy);
 			
