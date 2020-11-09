@@ -4,7 +4,7 @@ describe('FloatProperty', function() {
 	
 	beforeEach(function() {
 		const definition = {
-				precision: null,
+				precision: 2,
 				type: 'float',
 			},
 			Property = PropertyTypes[definition.type];
@@ -18,24 +18,29 @@ describe('FloatProperty', function() {
 
 	describe('parse', function() {
 
-		it('numeric string', function() {
+		it('numeric int string', function() {
 			const parsed = this.property.parse('12');
-			expect(parsed).to.be.eq(12.0);
+			expect(parsed).to.be.eq('12.00');
+		});
+
+		it('numeric float string', function() {
+			const parsed = this.property.parse('12.0');
+			expect(parsed).to.be.eq('12.00');
 		});
 	
 		it('non-numeric string', function() {
-			const parsed = this.property.parse('nothing');	
-			expect(parsed).to.be.eq(0);
+			const parsed = this.property.parse('nothing');
+			expect(parsed).to.be.eq('0.00');
 		});
 
 		it('integer', function() {
 			const parsed = this.property.parse(12);
-			expect(parsed).to.be.eq(12.0);
+			expect(parsed).to.be.eq('12.00');
 		});
 
 		it('float', function() {
 			const parsed = this.property.parse(12.0);
-			expect(parsed).to.be.eq(12.0);
+			expect(parsed).to.be.eq('12.00');
 		});
 
 		it('null', function() {
@@ -45,9 +50,23 @@ describe('FloatProperty', function() {
 	
 		it('date', function() {
 			const parsed = this.property.parse(new Date());
-			expect(parsed).to.be.eq(0.0);
+			expect(parsed).to.be.eq('0.00');
 		});
 
+	});
+
+
+	it('setPrecision', function() {
+		this.property.setValue('12');
+		expect(this.property.displayValue).to.be.eq('12.00');
+
+		this.property.setPrecision(null);
+		expect(this.property.displayValue).to.be.eq(12);
+		
+		this.property.setPrecision(0);
+		expect(this.property.displayValue).to.be.eq('12');
+		this.property.setPrecision(4);
+		expect(this.property.displayValue).to.be.eq('12.0000');
 	});
 
 });

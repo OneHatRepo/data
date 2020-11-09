@@ -9,6 +9,8 @@ import FileProperty from './File';
 import FloatProperty from './Float';
 import IntegerProperty from './Integer';
 import JsonProperty from './Json';
+import PercentProperty from './Percent';
+import PercentIntProperty from './PercentInt';
 import StringProperty from './String';
 import TimeProperty from './Time';
 import UuidProperty from './Uuid';
@@ -23,6 +25,8 @@ const PropertyTypes = {
 	[FloatProperty.type]: FloatProperty,
 	[IntegerProperty.type]: IntegerProperty,
 	[JsonProperty.type]: JsonProperty,
+	[PercentProperty.type]: PercentProperty,
+	[PercentIntProperty.type]: PercentIntProperty,
 	[StringProperty.type]: StringProperty,
 	[TimeProperty.type]: TimeProperty,
 	[UuidProperty.type]: UuidProperty,

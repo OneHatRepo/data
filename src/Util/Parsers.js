@@ -111,24 +111,24 @@ class Parsers {
 		return Parsers.ParseDate(value, format);
 	}
 
-	static ParseHours = (value) => {
-		return Parsers.ParseFloat(value);
+	static ParseHours = (value, precision) => {
+		return Parsers.ParseFloat(value, precision);
 	}
 
-	static ParseDistance = (value) => {
-		return Parsers.ParseFloat(value);
+	static ParseDistance = (value, precision) => {
+		return Parsers.ParseFloat(value, precision);
 	}
 
-	static ParseVolume = (value) => {
-		return Parsers.ParseFloat(value);
+	static ParseVolume = (value, precision) => {
+		return Parsers.ParseFloat(value, precision);
 	}
 
-	static ParseWeight = (value) => {
-		return Parsers.ParseFloat(value);
+	static ParseWeight = (value, precision) => {
+		return Parsers.ParseFloat(value, precision);
 	}
 
-	static ParseSpeed = (value) => {
-		return Parsers.ParseFloat(value);
+	static ParseSpeed = (value, precision) => {
+		return Parsers.ParseFloat(value, precision);
 	}
 
 	static ParseFloat = (value, precision = null, useNull = false) => {
@@ -138,24 +138,27 @@ class Parsers {
 		}
 		let f = parseFloat(value);
 		if (_.isNaN(f)) {
-			return useNull ? null : 0.0;
+			if (useNull) {
+				return null;
+			}
+			f = 0.0;
 		}
-		if (precision) {
+		if (precision || precision === 0) {
 			return f.toFixed(precision);
 		}
 		return f;
 	}
 
-	static ParseFloatUseNull = (value) => {
-		return Parsers.ParseFloat(value, true);
+	static ParseFloatUseNull = (value, precision) => {
+		return Parsers.ParseFloat(value, precision, true);
 	}
 
-	static ParsePercent = (value) => {
-		return Parsers.ParseFloat(value);
+	static ParsePercent = (value, precision) => {
+		return Parsers.ParseFloat(value, precision);
 	}
 
-	static ParsePercentInt = (value) => {
-		return Parsers.ParseFloat(value);
+	static ParsePercentInt = (value, precision) => {
+		return Parsers.ParseFloat(value, precision);
 	}
 
 	static ParseString = (value) => {
@@ -169,7 +172,7 @@ class Parsers {
 	}
 
 	static stripNonNumeric(value) {
-		return value.replace(/\D/, '').replace(/,/, '');
+		return value.replace(/\D\./, '').replace(/,/, '');
 	}
 
 	static inArray(value, arr) {

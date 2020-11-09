@@ -20,6 +20,11 @@ export default class FloatProperty extends Property {
 		_.merge(this, defaults, config);
 	}
 
+	setPrecision = (precision) => {
+		this.precision = precision;
+		this.parsedValue = this.parse(this.rawValue);
+	}
+
 	/**
 	 * Parses value to float
 	 * @param {any} value

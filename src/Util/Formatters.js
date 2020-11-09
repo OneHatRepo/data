@@ -159,10 +159,10 @@ class Formatters {
 		return isNaN(f) ? null : parseFloat(f.toFixed(2));
 	}
 
-	static FormatPercent = (value) => {
-		value = value * 100;
-		const f = parseFloat(value);
-		return isNaN(f) ? 0 : parseFloat(f.toFixed(2)) + '%';
+	static FormatPercent = (str, precision = 4) => {
+		const f = parseFloat(str);
+		let value = isNaN(f) ? 0 : f * 100;
+		return value.toFixed(precision) + '%';
 	}
 
 	static FormatPercentInt = (value) => {
