@@ -160,13 +160,19 @@ class Formatters {
 	}
 
 	static FormatPercent = (str, precision = 4) => {
+		if (_.isNil(str)) {
+			return str;
+		}
 		const f = parseFloat(str);
 		let value = isNaN(f) ? 0 : f * 100;
 		return value.toFixed(precision) + '%';
 	}
 
-	static FormatPercentInt = (value) => {
-		return '' + value + '%';
+	static FormatPercentInt = (str) => {
+		if (_.isNil(str)) {
+			return str;
+		}
+		return '' + str + '%';
 	}
 
 	static FormatTag = (value, metaData, entity, rowIndex, colIndex, store, view) => {
