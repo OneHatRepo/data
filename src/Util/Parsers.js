@@ -172,7 +172,7 @@ class Parsers {
 	}
 
 	static stripNonNumeric(value) {
-		return value.replace(/\D\./, '').replace(/,/, '');
+		return value.replace(/[^0-9\.]+/gm, '');
 	}
 
 	static inArray(value, arr) {

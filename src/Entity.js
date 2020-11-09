@@ -192,7 +192,7 @@ class Entity extends EventEmitter {
 				type = 'string';
 			}
 
-			const PT = PropertyTypes;
+			const PT = PropertyTypes; // Was having ES6 import issues. This fixed it.
 			if (!PT[type]) {
 				throw new Error('PropertyType ' + type + ' does not exist.');
 			}
