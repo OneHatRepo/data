@@ -192,7 +192,8 @@ class Entity extends EventEmitter {
 				type = 'string';
 			}
 
-			if (!PropertyTypes[type]) {
+			const PT = PropertyTypes;
+			if (!PT[type]) {
 				throw new Error('PropertyType ' + type + ' does not exist.');
 			}
 
