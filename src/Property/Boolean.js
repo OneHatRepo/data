@@ -13,7 +13,13 @@ export default class BooleanProperty extends Property {
 
 	constructor(config = {}) {
 		super(...arguments);
-		_.merge(this, config);
+
+		const defaults = {
+			submitAsString: false,
+			submitAsInt: false,
+		};
+
+		_.merge(this, defaults, config);
 	}
 
 	parse = (value) => {
@@ -39,6 +45,9 @@ export default class BooleanProperty extends Property {
 		}
 		if (this.submitAsString) {
 			return Formatters.FormatBoolAsString(this.parsedValue); // submit as string like 'true' or 'false'
+		}
+		if (this.submitAsInt) {
+			return Formatters.FormatBoolAsInt(this.parsedValue); // submit as string like 'true' or 'false'
 		}
 		return Parsers.ParseBool(this.parsedValue); // Use a Parser instead of a Formatter to make sure we submit it as an actual boolean primitive value
 	}
