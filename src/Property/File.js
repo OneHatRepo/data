@@ -12,6 +12,11 @@ export default class FileProperty extends Base64Property {
 		super(...arguments);
 		_.merge(this, config);
 	}
+ 
+	get urlencoded() {
+		return encodeURIComponent(this.displayValue);
+	}
+
 };
 
 
