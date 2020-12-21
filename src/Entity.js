@@ -459,7 +459,7 @@ class Entity extends EventEmitter {
 	 */
 	get displayValues() {
 		if (this.isDestroyed) {
-			throw Error('this.getDisplayValues is no longer valid. Entity has been destroyed.');
+			throw Error('this.displayValues is no longer valid. Entity has been destroyed.');
 		}
 		return this.getDisplayValues();
 	}
@@ -486,7 +486,7 @@ class Entity extends EventEmitter {
 	 */
 	get rawValues() {
 		if (this.isDestroyed) {
-			throw Error('this.getRawValues is no longer valid. Entity has been destroyed.');
+			throw Error('this.rawValues is no longer valid. Entity has been destroyed.');
 		}
 		return this.getRawValues();
 	}
@@ -513,7 +513,7 @@ class Entity extends EventEmitter {
 	 */
 	get parsedValues() {
 		if (this.isDestroyed) {
-			throw Error('this.getRawValues is no longer valid. Entity has been destroyed.');
+			throw Error('this.parsedValues is no longer valid. Entity has been destroyed.');
 		}
 		return this.getParsedValues();
 	}
@@ -927,7 +927,7 @@ class Entity extends EventEmitter {
 
 	get [Symbol.toStringTag]() {
 		if (this.isDestroyed) {
-			throw Error('this.toString is no longer valid. Entity has been destroyed.');
+			throw Error('this.toStringTag is no longer valid. Entity has been destroyed.');
 		}
 		return 'Entity {' + this.id + '} - ' + this.displayValue;
 	}
