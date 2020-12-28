@@ -74,6 +74,13 @@ export default class DateProperty extends Property {
 		}
 		return Formatters.FormatDate(this.parsedValue, this.submitFormat);
 	}
+
+	getValueFormattedAs = (format) => {
+		if (this.isDestroyed) {
+			throw Error('this.getValueFormattedAs is no longer valid. Property has been destroyed.');
+		}
+		return Formatters.FormatDate(this.parsedValue, format);
+	}
 };
 
 DateProperty.className = 'Date';
