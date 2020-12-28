@@ -72,6 +72,14 @@ describe('DateProperty', function() {
 			expect(formatted).to.be.eq('2020-01-01');
 		});
 
+		it('getValueFormattedAs', function() {
+			this.property.setValue('2020-01-01');
+			const formatted = this.property.getValueFormattedAs('YYYY');
+			expect(formatted).to.be.eq('2020');
+		});
+
+		
+
 	});
 
 });
