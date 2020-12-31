@@ -332,6 +332,7 @@ class AjaxRepository extends Repository {
 			console.log('loading ' + this.name, params);
 		}
 
+		const repository = this;
 		const data = _.assign({}, this.baseParams, this._params);
 		
 		return this._send(this.methods.get, this.api.get, data)
@@ -351,7 +352,7 @@ class AjaxRepository extends Repository {
 
 						// Set the current entities
 						this.entities = _.map(root, (data) => {
-							const entity = Repository._createEntity(this.schema, data, this, true);
+							const entity = Repository._createEntity(this.schema, data, repository, true);
 							this._relayEntityEvents(entity);
 							return entity;
 						});

@@ -51,8 +51,9 @@ class NullRepository extends Repository {
 		if (data) {
 			let entities = data;
 			if (data[0] instanceof Entity === false) {
+				const repository = this;
 				entities = _.map(data, (item) => {
-					const entity = Repository._createEntity(this.schema, item, this, true);
+					const entity = Repository._createEntity(this.schema, item, repository, true);
 					this._relayEntityEvents(entity);
 					return entity;
 				});
