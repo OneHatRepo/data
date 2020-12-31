@@ -265,19 +265,15 @@ class OfflineRepository extends MemoryRepository {
 	 * Should take the results of the batch operations and handle any errors.
 	 * Executes callback that was passed to save()
 	 * @param {array} results - Promises returned from batch operations
-	 * @param {function} callback - Callback that was passed to save().
 	 * Executes with one argument of batchOperationResults
 	 * @fires save
 	 * @private
 	 */
-	_finalizeSave = async (results, callback) => {
+	_finalizeSave = async (results) => {
 		return Promise.all(results)
 					.then(() => {
 						this.isSaving = false;
 						this.emit('save');
-						if (callback) {
-							callback(results);
-						}
 					});
 	}
 

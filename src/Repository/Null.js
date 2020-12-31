@@ -39,7 +39,6 @@ class NullRepository extends Repository {
 	/**
 	 * Tells storage medium to load data
 	 * @param {object} data - Data to immediately load
-	 * @param {function} callback - Callback to execute on successful load
 	 * @fires load
 	 */
 	load = (data = this.data) => {
@@ -119,24 +118,6 @@ class NullRepository extends Repository {
 
 	_doDeleteNonPersisted = (entity) => {
 		return this._doDelete(entity);
-	}
-	
-	/**
-	 * Helper for save.
-	 * Should take the results of the batch operations and handle any errors.
-	 * Executes callback that was passed to save()
-	 * @param {array} batchOperationResults - Results of batch operations
-	 * @param {function} callback - Callback that was passed to save().
-	 * Executes with one argument of batchOperationResults
-	 * @fires save
-	 * @private
-	 */
-	_finalizeSave = (batchOperationResults, callback) => {
-		this.isSaving = false;
-		this.emit('save', batchOperationResults);
-		if (callback) {
-			callback(batchOperationResults);
-		}
 	}
 
 };
