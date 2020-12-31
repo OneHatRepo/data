@@ -851,15 +851,15 @@ class Entity extends EventEmitter {
 
 	/**
 	 * Tells the Repository to save this entity to the storage medium.
-	 * @param {function} callback - Optional function to execute when save operation
-	 * successfully completes.
+	 * @param {function} onSuccess - Optional function to execute when save operation successfully completes.
+	 * @param {function} onFailure - Optional function to execute when save operation successfully completes.
 	 * @fires save
 	 */
-	save = (callback) => {
+	save = (onSuccess, onFailure) => {
 		if (this.isDestroyed) {
 			throw Error('this.save is no longer valid. Entity has been destroyed.');
 		}
-		this.emit('save', this._proxy, callback);
+		this.emit('save', this._proxy, onSuccess, onFailure);
 	}
 
 	/**
@@ -886,16 +886,16 @@ class Entity extends EventEmitter {
 
 	/**
 	 * Tells the Repository to delete this entity from the storage medium.
-	 * @param {function} callback - Optional function to execute when save operation
-	 * successfully completes.
+	 * @param {function} onSuccess - Optional function to execute when save operation successfully completes.
+	 * @param {function} onFailure - Optional function to execute when save operation successfully completes.
 	 * @fires delete
 	 */
-	delete = (callback) => {
+	delete = (onSuccess, onFailure) => {
 		if (this.isDestroyed) {
 			throw Error('this.delete is no longer valid. Entity has been destroyed.');
 		}
 		this.markDeleted();
-		this.emit('delete', this._proxy, callback);
+		this.emit('delete', this._proxy, onSuccess, onFailure);
 	}
 
 	/**

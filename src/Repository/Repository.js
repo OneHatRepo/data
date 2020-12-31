@@ -234,32 +234,37 @@ export default class Repository extends EventEmitter {
 		}
 		
 		// Assign event handlers
-		this.on('entity_change', (entity, callback) => { // Entity changed its value
+		// Use traditional success/failure callbacks rather than async/await
+		// because these happen in response to emitted events; not direct fn calls
+		this.on('entity_change', async (entity, onSuccess, onFailure) => { // Entity changed its value
 			if (this.autoSave) {
-				this.save(entity)
-					.then((results) => {
-						if (callback) {
-							callback(results);
-						}
-					});
+				try {
+					const results = await this.save(entity);
+					if (onSuccess) {
+						onSuccess(results);
+					}
+				} catch(error) {
+					if (onFailure) {
+						onFailure(error);
+					}
+				}
 			}
 		});
-		this.on('entity_save', (entity, callback) => { // Entity is telling Repository to immediately save just this one
-			this.save(entity)
-				.then((results) => {
-					if (callback) {
-						callback(results);
+		const onSave = async (entity, onSuccess, onFailure) => {
+			try {
+				await this.save(entity).then((results) => {
+					if (onSuccess) {
+						onSuccess(results);
 					}
 				});
-		});
-		this.on('entity_delete', (entity, callback) => { // Entity is telling Repository to immediately delete just this one
-			this.save(entity)
-				.then((results) => {
-					if (callback) {
-						callback(results);
-					}
-				});
-		});
+			} catch(error) {
+				if (onFailure) {
+					onFailure(error);
+				}
+			}
+		}
+		this.on('entity_save', onSave); // Entity is telling Repository to immediately save just this one
+		this.on('entity_delete', onSave); // Entity is telling Repository to immediately delete just this one
 
 		// Auto load & sort
 		if (this.autoLoad) {
@@ -1074,98 +1079,89 @@ export default class Repository extends EventEmitter {
 		if (this.isDestroyed) {
 			throw Error('this.save is no longer valid. Repository has been destroyed.');
 		}
-		
-		try {
 
-			this.emit('beforeSave'); // So subclasses can prep anything needed for saving
-		
-			this.isSaving = true;
+		this.emit('beforeSave'); // So subclasses can prep anything needed for saving
 	
-			const results = [];
+		this.isSaving = true;
 
-			if (entity) {
-				// Single operation
+		const results = [];
 
-				let result;
-				if (!entity.isPersisted && entity.isDeleted) {
-					result = this._doDeleteNonPersisted(entity);
-				} else if (!entity.isPersisted) {
-					result = this._doAdd(entity);
-				} else if (entity.isDirty && !entity.isDeleted) {
-					result = this._doEdit(entity);
-				} else if (entity.isDeleted) {
-					result = this._doDelete(entity);
+		if (entity) {
+			// Single operation
+
+			let result;
+			if (!entity.isPersisted && entity.isDeleted) {
+				result = this._doDeleteNonPersisted(entity);
+			} else if (!entity.isPersisted) {
+				result = this._doAdd(entity);
+			} else if (entity.isDirty && !entity.isDeleted) {
+				result = this._doEdit(entity);
+			} else if (entity.isDeleted) {
+				result = this._doDelete(entity);
+			}
+			results.push(result);
+
+		} else {
+			// Batch operations
+			// TODO: Future feature: Take advantage of storage medium's bulk add/edit/delete functionality, if it exists
+
+			const batchOrder = this.batchOrder.split(',');
+
+			_.each(batchOrder, (operation) => {
+				switch(operation) {
+					case 'add':
+						let entities = this.getNonPersisted();
+						if (_.size(entities) > 0) {
+							_.each(entities, (entity) => {
+
+								if (entity.isDeleted) {
+									// This entity is new, but it's also marked for deletion
+									// Skip it. We'll deal with it later, in 'delete'
+									return;
+								}
+
+								const result = this._doAdd(entity);
+								results.push(result);
+							});
+						}
+						break;
+					case 'edit':
+						entities = this.getDirty();
+						if (_.size(entities) > 0) {
+							_.each(entities, (entity) => {
+
+								if (entity.isDeleted) {
+									// This entity is dirty, but it's also marked for deletion
+									// Skip it. We'll deal with it later, in 'delete'
+									return;
+								}
+
+								const result = this._doEdit(entity);
+								results.push(result);
+							});
+						}
+						break;
+					case 'delete':
+						entities = this.getDeleted();
+						if (_.size(entities) > 0) {
+							_.each(entities, (entity) => {
+
+								let result;
+								if (!entity.isPersisted) {
+									result = this._doDeleteNonPersisted(entity);
+								} else {
+									result = this._doDelete(entity);
+								}
+
+								results.push(result);
+							});
+						}
+						break;
 				}
-				results.push(result);
-
-			} else {
-				// Batch operations
-				// TODO: Future feature: Take advantage of storage medium's bulk add/edit/delete functionality, if it exists
-
-				const batchOrder = this.batchOrder.split(',');
-
-				_.each(batchOrder, (operation) => {
-					switch(operation) {
-						case 'add':
-							let entities = this.getNonPersisted();
-							if (_.size(entities) > 0) {
-								_.each(entities, (entity) => {
-
-									if (entity.isDeleted) {
-										// This entity is new, but it's also marked for deletion
-										// Skip it. We'll deal with it later, in 'delete'
-										return;
-									}
-
-									const result = this._doAdd(entity);
-									results.push(result);
-								});
-							}
-							break;
-						case 'edit':
-							entities = this.getDirty();
-							if (_.size(entities) > 0) {
-								_.each(entities, (entity) => {
-
-									if (entity.isDeleted) {
-										// This entity is dirty, but it's also marked for deletion
-										// Skip it. We'll deal with it later, in 'delete'
-										return;
-									}
-
-									const result = this._doEdit(entity);
-									results.push(result);
-								});
-							}
-							break;
-						case 'delete':
-							entities = this.getDeleted();
-							if (_.size(entities) > 0) {
-								_.each(entities, (entity) => {
-
-									let result;
-									if (!entity.isPersisted) {
-										result = this._doDeleteNonPersisted(entity);
-									} else {
-										result = this._doDelete(entity);
-									}
-
-									results.push(result);
-								});
-							}
-							break;
-					}
-				});
-			}
-
-			return await this._finalizeSave(results);
-
-		} catch (error) {
-			if (this.debugMode) {
-				const msg = error && error.message;
-				debugger;
-			}
+			});
 		}
+
+		return await this._finalizeSave(results);
 	}
 
 	/**
@@ -1216,7 +1212,7 @@ export default class Repository extends EventEmitter {
 	 * Helper for save.
 	 * Should take the promises returned from batch operations and handle any errors.
 	 * @param {array} results - Promises returned from batch operations
-	 * @fires save, error
+	 * @fires save
 	 * @return {Promise}
 	 * @private
 	 */
