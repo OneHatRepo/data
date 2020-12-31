@@ -351,7 +351,7 @@ class AjaxRepository extends Repository {
 
 						// Set the current entities
 						this.entities = _.map(root, (data) => {
-							const entity = Repository._createEntity(this.schema, data, true);
+							const entity = Repository._createEntity(this.schema, data, this, true);
 							this._relayEntityEvents(entity);
 							return entity;
 						});

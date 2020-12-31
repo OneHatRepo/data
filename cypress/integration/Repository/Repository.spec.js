@@ -448,7 +448,7 @@ describe('Repository Base', function() {
 		});
 
 		it('_createEntity', function() {
-			const entity = this.Repository._createEntity(this.schema, { key: 6, value: 'six' }); // NOTE: this.Repository has capital "R"
+			const entity = this.Repository._createEntity(this.schema, { key: 6, value: 'six' }, this.repository); // NOTE: this.Repository has capital "R"
 			expect(entity.id).to.be.eq(6);
 		});
 
@@ -560,6 +560,16 @@ describe('Repository Base', function() {
 			this.repository.add({ value: 'six' });
 			
 			expect(didFire).to.be.true;
+		});
+
+		it('save by entity', async function() {
+			const entity = await this.repository.add({ key: 6, value: 'six' });
+			this.repository.setAutoSave(false);
+			entity.key = 8;
+			const result = await entity.save();
+			expect(result[0].operation).to.eq('edit');
+			expect(result[0].success).to.be.true;
+			expect(result[0].entity.key).eq(8);
 		});
 
 	});

@@ -124,7 +124,7 @@ class MemoryRepository extends Repository {
 		let entities = data;
 		if (!_.isEmpty(data) && !(data[0] instanceof Entity)) {
 			entities = _.map(data, (dataRow) => {
-				const entity = Repository._createEntity(this.schema, dataRow, true);
+				const entity = Repository._createEntity(this.schema, dataRow, this, true);
 				this._relayEntityEvents(entity);
 				return entity;
 			});

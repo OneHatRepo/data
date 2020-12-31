@@ -234,37 +234,11 @@ export default class Repository extends EventEmitter {
 		}
 		
 		// Assign event handlers
-		// Use traditional success/failure callbacks rather than async/await
-		// because these happen in response to emitted events; not direct fn calls
-		this.on('entity_change', async (entity, onSuccess, onFailure) => { // Entity changed its value
+		this.on('entity_change', async (entity) => { // Entity changed its value
 			if (this.autoSave) {
-				try {
-					const results = await this.save(entity);
-					if (onSuccess) {
-						onSuccess(results);
-					}
-				} catch(error) {
-					if (onFailure) {
-						onFailure(error);
-					}
-				}
+				return await this.save(entity);
 			}
 		});
-		const onSave = async (entity, onSuccess, onFailure) => {
-			try {
-				await this.save(entity).then((results) => {
-					if (onSuccess) {
-						onSuccess(results);
-					}
-				});
-			} catch(error) {
-				if (onFailure) {
-					onFailure(error);
-				}
-			}
-		}
-		this.on('entity_save', onSave); // Entity is telling Repository to immediately save just this one
-		this.on('entity_delete', onSave); // Entity is telling Repository to immediately delete just this one
 
 		// Auto load & sort
 		if (this.autoLoad) {
@@ -799,7 +773,7 @@ export default class Repository extends EventEmitter {
 		let entity = data;
 		if (!(data instanceof Entity)) {
 			// Create the new entity
-			entity = Repository._createEntity(this.schema, data, isPersisted);
+			entity = Repository._createEntity(this.schema, data, this, isPersisted);
 		}
 		this._relayEntityEvents(entity);
 		this.entities.push(entity);
@@ -843,12 +817,13 @@ export default class Repository extends EventEmitter {
 	 * Creates a new Entity and immediately returns it
 	 * @param {object} schema - Schema object
 	 * @param {object} rawData - Raw data object. Keys are Property names, Values are Property values.
+	 * @param {boolean} repository - Optional repository to connect the entity to.
 	 * @param {boolean} isPersisted - Whether the new entity should be marked as already being persisted in storage medium.
 	 * @return {object} entity - new Entity object
 	 * @private
 	 */
-	static _createEntity = (schema, rawData, isPersisted = false) => {
-		const entity = new Entity(schema, rawData);
+	static _createEntity = (schema, rawData, repository = null, isPersisted = false) => {
+		const entity = new Entity(schema, rawData, repository);
 		entity.initialize();
 		entity.isPersisted = isPersisted;
 		return entity;

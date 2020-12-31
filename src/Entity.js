@@ -33,7 +33,7 @@ class Entity extends EventEmitter {
 	 * @param {Schema} schema - Schema object
 	 * @param {object} rawData - Raw data object. Keys are Property names, Values are Property values.
 	 */
-	constructor(schema, rawData = {}) {
+	constructor(schema, rawData = {}, repository = null) {
 		super(...arguments);
 
 		if (!schema) {
@@ -66,6 +66,13 @@ class Entity extends EventEmitter {
 		 * @private
 		 */
 		this.schema = schema;
+		
+		/**
+		 * @member {Schema} schema
+		 * @private
+		 * @readonly
+		 */
+		this.repository = repository;
 
 		/**
 		 * @member {object} _originalData - Original data object, *prior to* mapping or parsing.
@@ -244,7 +251,7 @@ class Entity extends EventEmitter {
 	 * @memberOf Entity
 	 */
 	clone = () => {
-		const clone = new Entity(this.schema, this._originalData);
+		const clone = new Entity(this.schema, this._originalData, this.repository);
 		clone.initialize();
 		if (this.isDirty) {
 			clone.setValues( this.getRawValues() );
@@ -851,15 +858,16 @@ class Entity extends EventEmitter {
 
 	/**
 	 * Tells the Repository to save this entity to the storage medium.
-	 * @param {function} onSuccess - Optional function to execute when save operation successfully completes.
-	 * @param {function} onFailure - Optional function to execute when save operation successfully completes.
 	 * @fires save
 	 */
-	save = (onSuccess, onFailure) => {
+	save = () => {
 		if (this.isDestroyed) {
 			throw Error('this.save is no longer valid. Entity has been destroyed.');
 		}
-		this.emit('save', this._proxy, onSuccess, onFailure);
+		this.emit('save', this._proxy);
+		if (this.repository) {
+			return this.repository.save(this._proxy);
+		}
 	}
 
 	/**
@@ -890,12 +898,15 @@ class Entity extends EventEmitter {
 	 * @param {function} onFailure - Optional function to execute when save operation successfully completes.
 	 * @fires delete
 	 */
-	delete = (onSuccess, onFailure) => {
+	delete = () => {
 		if (this.isDestroyed) {
 			throw Error('this.delete is no longer valid. Entity has been destroyed.');
 		}
 		this.markDeleted();
-		this.emit('delete', this._proxy, onSuccess, onFailure);
+		this.emit('delete', this._proxy);
+		if (this.repository) {
+			return this.repository.save(this._proxy);
+		}
 	}
 
 	/**
@@ -911,6 +922,7 @@ class Entity extends EventEmitter {
 		// parent objects
 		this.schema = null;
 		this._proxy = null;
+		this.repository = null;
 		
 		// child objects
 		_.each(this.properties, (property) => {
