@@ -431,9 +431,11 @@ class AjaxRepository extends Repository {
 	
 	/**
 	 * Helper for reloadEntity.
+	 * Subclasses may override this to provide additional 
+	 * or differing functionality.
 	 * @private
 	 */
-	_getReloadEntityParams = (entity) => {
+	_getReloadEntityParams(entity) {
 		const params = {
 			id: entity.id,
 		};

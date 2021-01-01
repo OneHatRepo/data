@@ -114,8 +114,8 @@ class OneBuildRepository extends AjaxRepository {
 	 * Helper for reloadEntity.
 	 * @private
 	 */
-	_getReloadEntityParams = (entity) => {
-		const params = _.assign({}, this.baseParams, this._params);
+	_getReloadEntityParams(entity) {
+		const params = _.cloneDeep(_.assign({}, this.baseParams, this._params)); // cloneDeep, as we don't want to affect this._params (otherwise, reload() would retain this param!)
 		params.conditions[entity.schema.name + '.id'] = entity.id;
 		return params;
 	}
