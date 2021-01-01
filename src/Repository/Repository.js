@@ -217,6 +217,7 @@ export default class Repository extends EventEmitter {
 			'err',
 			'initialize',
 			'load',
+			'reloadEntity',
 			'save',
 		]);
 	}
@@ -274,6 +275,14 @@ export default class Repository extends EventEmitter {
 	 */
 	reload() {
 		return this.load();
+	}
+
+	/**
+	 * Tells storage medium to reload just this one entity
+	 * @abstract
+	 */
+	reloadEntity = async (entity) => {
+		throw new Error('reloadEntity must be implemented by Repository subclass');
 	}
 
 	/**

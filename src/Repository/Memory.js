@@ -170,6 +170,16 @@ class MemoryRepository extends Repository {
 		this._recalculate();
 	}
 
+	/**
+	 * Override base Repository, just return the entity from storage
+	 * @abstract
+	 */
+	reloadEntity = async (entity) => {
+		const reloadedEntity = this.getById(entity.id);
+		this.emit('reloadEntity', reloadedEntity);
+		return reloadedEntity;
+	}
+
 
 
 	//    _____            __

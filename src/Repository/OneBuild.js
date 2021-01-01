@@ -97,9 +97,9 @@ class OneBuildRepository extends AjaxRepository {
 					.catch(error => {
 						// BEGIN MOD
 						if (error && error.response && error.response.status === 401) {
-								this.emit('logout');
-								console.log('logout');
-								return false;
+							this.emit('logout');
+							console.log('logout');
+							return false;
 						}
 						// END MOD
 						if (this.debugMode) {
@@ -108,6 +108,16 @@ class OneBuildRepository extends AjaxRepository {
 						}
 						this.emit('err', error);
 					});
+	}
+
+	/**
+	 * Helper for reloadEntity.
+	 * @private
+	 */
+	_getReloadEntityParams = (entity) => {
+		const params = _.assign({}, this.baseParams, this._params);
+		params.conditions[entity.schema.name + '.id'] = entity.id;
+		return params;
 	}
 
 	/**

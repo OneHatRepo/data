@@ -47,6 +47,21 @@ describe('MemoryRepository', function() {
 			expect(_.size(this.repository.entities)).to.be.eq(3);
 		});
 
+		it('reloadEntity', function() {
+			let didFire = false;
+			this.repository.on('reloadEntity', () => {
+				didFire = true;
+			});
+			this.repository.load([
+				{ key: 'foo', value: 1, },
+				{ key: 'bar', value: 2, },
+				{ key: 'baz', value: 3, },
+			]);
+			const entity = this.repository.getByIx(0);
+			this.repository.reloadEntity(entity);
+			expect(didFire).to.be.true;
+		});
+
 		it.skip('check UUID as ID', async function() {
 			const entity = await this.repository.add({ value: 1, });
 			const found = this.repository.getById(entity.id);

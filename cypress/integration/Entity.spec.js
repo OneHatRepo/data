@@ -503,6 +503,15 @@ describe('Entity', function() {
 			expect(didFire).to.be.true;
 		});
 
+		it('reload', function() {
+			let didFire = false;
+			this.entity.on('reload', () => {
+				didFire = true;
+			});
+			this.entity.reload();
+			expect(didFire).to.be.true;
+		});
+
 		it('delete', function() {
 			let didFire = false;
 			this.entity.on('delete', () => {

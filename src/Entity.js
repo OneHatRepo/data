@@ -1,4 +1,4 @@
- /** @module Entity */
+/** @module Entity */
 
 import EventEmitter from '@onehat/events';
 import PropertyTypes from './Property';
@@ -49,6 +49,7 @@ class Entity extends EventEmitter {
 		this.registerEvents([
 			'change',
 			'reset',
+			'reload',
 			'save',
 			'delete',
 			'destroy',
@@ -70,7 +71,6 @@ class Entity extends EventEmitter {
 		/**
 		 * @member {Schema} schema
 		 * @private
-		 * @readonly
 		 */
 		this.repository = repository;
 
@@ -854,6 +854,22 @@ class Entity extends EventEmitter {
 			property.setValue( property.getRawValue() ); // Force the property to re-parse the raw value originally submitted to it
 			property.resumeEvents();
 		});
+	}
+
+	/**
+	 * Tells the Repository to reload just this one entity from the storage medium.
+	 * @fires reload
+	 */
+	reload = () => {
+		if (this.isDestroyed) {
+			throw Error('this.reload is no longer valid. Entity has been destroyed.');
+		}
+		
+		if (this.repository) {
+			return this.repository.reloadEntity(this._proxy);
+		}
+
+		this.emit('reload', this._proxy);
 	}
 
 	/**

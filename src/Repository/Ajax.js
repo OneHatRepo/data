@@ -81,7 +81,7 @@ class AjaxRepository extends Repository {
 			timeout: 4000,
 
 			/**
-			 * @member {Object} _params - Object of headers to submit to server on every request
+			 * @member {Object} headers - Object of headers to submit to server on every request
 			 * @private
 			 */
 			headers: {},
@@ -311,7 +311,7 @@ class AjaxRepository extends Repository {
 	 * Loads data into the Repository.
 	 * This loads only a single page of data.
 	 * @param {object} params - Params to send to server
-	 * @fires beforeLoad, error
+	 * @fires beforeLoad,changeData,load,error
 	 */
 	load = async (params) => {
 		if (this.isDestroyed) {
@@ -369,6 +369,75 @@ class AjaxRepository extends Repository {
 					.finally(() => {
 						this.isLoading = false;
 					});
+	}
+
+	/**
+	 * Reload a single entity from storage. Update the internal representation,
+	 * and return the newly updated entity
+	 * @fires reloadEntity,beforeLoad,changeData,load,error
+	 */
+	reloadEntity = async (entity) => {
+		if (this.isDestroyed) {
+			throw Error('this.reloadEntity is no longer valid. Repository has been destroyed.');
+		}
+		if (!this.api.get) {
+			throw new Error('No "get" api endpoint defined.');
+		}
+		if (entity !== this.getById(entity.id)) {
+			throw new Error('Entity must be in this repository');
+		}
+		this.emit('beforeLoad'); // TODO: canceling beforeLoad will cancel the load operation
+		this.isLoading = true;
+
+		const params = this._getReloadEntityParams(entity);
+		
+		if (this.debugMode) {
+			console.log('reloadEntity ' + entity.id, params);
+		}
+		
+		return this._send(this.methods.get, this.api.get, params)
+					.then(result => {
+						if (this.debugMode) {
+							console.log('reloadEntity result ' + entity.id, result);
+						}
+						
+						const {
+							root,
+							success,
+							total,
+							message
+						} = this._processServerResponse(result);
+
+						if (success && total === 0) {
+							// Entity no longer found with current filters
+							this.reload();
+							return;
+						}
+
+						const updatedData = root[0];
+						entity.loadOriginalData(updatedData);
+						
+						this.isLoading = false;
+						this.isLoaded = true;
+						this.emit('changeData', this.entities);
+						this.emit('load', this);
+						this.emit('reloadEntity', entity);
+					})
+					.finally(() => {
+						this.isLoading = false;
+					});
+		
+	}
+	
+	/**
+	 * Helper for reloadEntity.
+	 * @private
+	 */
+	_getReloadEntityParams = (entity) => {
+		const params = {
+			id: entity.id,
+		};
+		return _.assign({}, this.baseParams, params);
 	}
 
 	/**
