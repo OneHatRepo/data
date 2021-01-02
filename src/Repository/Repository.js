@@ -101,6 +101,16 @@ export default class Repository extends EventEmitter {
 			batchOrder: 'add,edit,delete',
 
 			/**
+			 * @member {boolean} batchAsSynchronous - Whether batch operations should be conducted synchronously (waiting for each operation to complete before beginning the next)
+			 */
+			batchAsSynchronous: false,
+
+			/**
+			 * @member {boolean} combineBatch - Whether this Repository should combine batch operations
+			 */
+			combineBatch: false,
+
+			/**
 			 * @member {boolean} debugMode - Whether this Repository should output debug messages
 			 */
 			debugMode: false,
@@ -1091,58 +1101,89 @@ export default class Repository extends EventEmitter {
 
 			const batchOrder = this.batchOrder.split(',');
 
-			_.each(batchOrder, (operation) => {
+			let n;
+			for (n = 0; n < batchOrder.length; n++) {
+				const operation = batchOrder[n];
+				let entities;
 				switch(operation) {
 					case 'add':
-						let entities = this.getNonPersisted();
-						if (_.size(entities) > 0) {
-							_.each(entities, (entity) => {
+						entities = this.getNonPersisted();
+						if (this.combineBatch) {
 
-								if (entity.isDeleted) {
-									// This entity is new, but it's also marked for deletion
-									// Skip it. We'll deal with it later, in 'delete'
-									return;
+							// TODO: Implement combined batch processing
+							throw new Error('Combined batch processing not yet implemented');
+
+						} else {
+							if (_.size(entities) > 0) {
+								let i;
+								for (i = 0; i < entities.length; i++) {
+									const entity = entities[i];
+	
+									if (entity.isDeleted) {
+										// This entity is new, but it's also marked for deletion
+										// Skip it. We'll deal with it later, in 'delete'
+										return;
+									}
+	
+									const result = this.batchAsSynchronous ? await this._doAdd(entity) : this._doAdd(entity);
+									results.push(result);
 								}
-
-								const result = this._doAdd(entity);
-								results.push(result);
-							});
+							}
 						}
+			
+			
 						break;
 					case 'edit':
 						entities = this.getDirty();
-						if (_.size(entities) > 0) {
-							_.each(entities, (entity) => {
+						if (this.combineBatch) {
 
-								if (entity.isDeleted) {
-									// This entity is dirty, but it's also marked for deletion
-									// Skip it. We'll deal with it later, in 'delete'
-									return;
+							// TODO: Implement combined batch processing
+							throw new Error('Combined batch processing not yet implemented');
+
+						} else {
+							if (_.size(entities) > 0) {
+								let i;
+								for (i = 0; i < entities.length; i++) {
+									const entity = entities[i];
+
+									if (entity.isDeleted) {
+										// This entity is new, but it's also marked for deletion
+										// Skip it. We'll deal with it later, in 'delete'
+										return;
+									}
+
+									const result = this.batchAsSynchronous ? await this._doEdit(entity) : this._doEdit(entity);
+									results.push(result);
 								}
-
-								const result = this._doEdit(entity);
-								results.push(result);
-							});
+							}
 						}
 						break;
 					case 'delete':
 						entities = this.getDeleted();
-						if (_.size(entities) > 0) {
-							_.each(entities, (entity) => {
+						if (this.combineBatch) {
 
-								let result;
-								if (!entity.isPersisted) {
-									result = this._doDeleteNonPersisted(entity);
-								} else {
-									result = this._doDelete(entity);
+							// TODO: Implement combined batch processing
+							throw new Error('Combined batch processing not yet implemented');
+
+						} else {
+							if (_.size(entities) > 0) {
+								let i;
+								for (i = 0; i < entities.length; i++) {
+									const entity = entities[i];
+
+									let result;
+									if (!entity.isPersisted) {
+										result = this.batchAsSynchronous ? await this._doDeleteNonPersisted(entity) : this._doDeleteNonPersisted(entity);
+									} else {
+										result = this.batchAsSynchronous ? await this._doDelete(entity) : this._doDelete(entity);
+									}
+									results.push(result);
 								}
-
-								results.push(result);
-							});
+							}
 						}
 						break;
 				}
-			});
+			}
 		}
 
 		return await this._finalizeSave(results);

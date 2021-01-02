@@ -390,7 +390,6 @@ class AjaxRepository extends Repository {
 		this.isLoading = true;
 
 		const params = this._getReloadEntityParams(entity);
-		
 		if (this.debugMode) {
 			console.log('reloadEntity ' + entity.id, params);
 		}
@@ -565,7 +564,7 @@ class AjaxRepository extends Repository {
 					});
 	}
 
-	_doDeleteNonPersisted = (entity) => {
+	_doDeleteNonPersisted(entity) {
 		return true; // We don't really need to do anything, as this will disappear when Repository reloads
 	}
 
