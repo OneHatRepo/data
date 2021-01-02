@@ -372,8 +372,9 @@ class AjaxRepository extends Repository {
 	}
 
 	/**
-	 * Reload a single entity from storage. Update the internal representation,
-	 * and return the newly updated entity
+	 * Reload a single entity from storage. 
+	 * If the entity is in the internal representation, update it.
+	 * @returns {entity} The newly updated entity
 	 * @fires reloadEntity,beforeLoad,changeData,load,error
 	 */
 	reloadEntity = async (entity) => {
@@ -382,9 +383,6 @@ class AjaxRepository extends Repository {
 		}
 		if (!this.api.get) {
 			throw new Error('No "get" api endpoint defined.');
-		}
-		if (entity !== this.getById(entity.id)) {
-			throw new Error('Entity must be in this repository');
 		}
 		this.emit('beforeLoad'); // TODO: canceling beforeLoad will cancel the load operation
 		this.isLoading = true;
@@ -407,10 +405,8 @@ class AjaxRepository extends Repository {
 							message
 						} = this._processServerResponse(result);
 
-						if (success && total === 0) {
-							// Entity no longer found with current filters
-							this.reload();
-							return;
+						if (!success) {
+							throw Error(message);
 						}
 
 						const updatedData = root[0];
