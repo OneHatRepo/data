@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AppLoading } from 'expo';
+import AppLoading from 'expo-app-loading';
 import {
 	Platform,
 } from 'react-native';
