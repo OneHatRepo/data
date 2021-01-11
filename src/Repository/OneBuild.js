@@ -250,6 +250,8 @@ class OneBuildRepository extends AjaxRepository {
 				url: 'Users/apiLogout',
 				method: 'POST',
 				baseURL: this.api.baseURL,
+				headers: this.headers,
+				timeout: this.timeout,
 			})
 			.then((result) => {
 				if (this.debugMode) {
