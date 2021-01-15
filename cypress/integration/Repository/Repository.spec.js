@@ -601,6 +601,24 @@ describe('Repository Base', function() {
 	});
 
 	describe('events', function() {
+	
+		it('on, ons, off, offs', function() {
+			const repository = new this.Repository({
+				id: 'foo',
+				schema: this.schema,
+			});
+			const handler = () => {};
+			repository.on('add', handler);
+			expect(repository.listenerCount('add')).to.be.eq(1);
+			repository.off('add', handler);
+			expect(repository.listenerCount('add')).to.be.eq(0);
+			repository.ons(['add','load',], handler);
+			expect(repository.listenerCount('add')).to.be.eq(1);
+			expect(repository.listenerCount('load')).to.be.eq(1);
+			repository.offs(['add','load',], handler);
+			expect(repository.listenerCount('add')).to.be.eq(0);
+			expect(repository.listenerCount('load')).to.be.eq(0);
+		});
 
 		it('add', function() {
 			let add = 0,
