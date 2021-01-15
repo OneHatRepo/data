@@ -41,6 +41,9 @@ describe('OneBuildRepository', function() {
 
 			await this.repository.save();
 			expect(_.size(this.repository.entities)).to.be.eq(0);
+
+			await this.repository.add({ key: 6, value: 'six' });
+			expect(_.size(this.repository.entities)).to.be.eq(1);
 		});
 		
 	});
