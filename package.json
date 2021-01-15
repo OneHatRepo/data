@@ -1,6 +1,6 @@
 {
 	"name": "@onehat/data",
-	"version": "1.1.7",
+	"version": "1.1.8",
 	"description": "JS data modeling package with adapters for many storage mediums.",
 	"main": "src/index.js",
 	"type": "module",
@@ -35,7 +35,7 @@
 	},
 	"homepage": "https://github.com/OneHatRepo/data#readme",
 	"dependencies": {
-		"@onehat/events": "^1.5.4",
+		"@onehat/events": "^1.6.0",
 		"accounting-js": "^1.1.1",
 		"axios": "^0.21.1",
 		"chrono-node": "^2.1.9",
