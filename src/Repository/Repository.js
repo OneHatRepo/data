@@ -1122,7 +1122,7 @@ export default class Repository extends EventEmitter {
 									if (entity.isDeleted) {
 										// This entity is new, but it's also marked for deletion
 										// Skip it. We'll deal with it later, in 'delete'
-										return;
+										continue;
 									}
 	
 									const result = this.batchAsSynchronous ? await this._doAdd(entity) : this._doAdd(entity);
@@ -1149,7 +1149,7 @@ export default class Repository extends EventEmitter {
 									if (entity.isDeleted) {
 										// This entity is new, but it's also marked for deletion
 										// Skip it. We'll deal with it later, in 'delete'
-										return;
+										continue;
 									}
 
 									const result = this.batchAsSynchronous ? await this._doEdit(entity) : this._doEdit(entity);
