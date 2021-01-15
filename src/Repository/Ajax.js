@@ -561,7 +561,10 @@ class AjaxRepository extends Repository {
 	}
 
 	_doDeleteNonPersisted(entity) {
-		return true; // We don't really need to do anything, as this will disappear when Repository reloads
+		this.entities = _.omitBy(this.entities, (item) => {
+			return item === entity;
+		})
+		return true;
 	}
 
 	/**
