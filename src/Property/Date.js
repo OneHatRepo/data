@@ -85,6 +85,10 @@ export default class DateProperty extends Property {
 	getMoment = () => {
 		return this.getParsedValue();
 	}
+
+	isToday = () => {
+		return this.getMoment().isSame(new Date(), 'day');
+	}
 };
 
 DateProperty.className = 'Date';
