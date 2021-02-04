@@ -41,4 +41,18 @@ describe('DateTimeProperty', function() {
 
 	});
 
+	describe('comparisons', function() {
+
+		it('today', function() {
+			this.property.setValue('2020-01-01 20:00:00');
+			const moment = this.property.getMoment(),
+				isSame = moment.isSame(new Date(), 'day');
+			expect(isSame).to.be.false;
+		});
+
+	});
+
+	
+	
+
 });

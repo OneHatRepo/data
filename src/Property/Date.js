@@ -81,6 +81,10 @@ export default class DateProperty extends Property {
 		}
 		return Formatters.FormatDate(this.parsedValue, format);
 	}
+
+	getMoment = () => {
+		return this.getParsedValue();
+	}
 };
 
 DateProperty.className = 'Date';
