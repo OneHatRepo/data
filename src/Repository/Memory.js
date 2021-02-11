@@ -176,7 +176,12 @@ class MemoryRepository extends Repository {
 	 */
 	reloadEntity = async (entity) => {
 		const reloadedEntity = this.getById(entity.id);
+		reloadedEntity.emit('reload', reloadedEntity);
+
+		this.emit('changeData', this.entities);
+		this.emit('load', this);
 		this.emit('reloadEntity', reloadedEntity);
+		
 		return reloadedEntity;
 	}
 

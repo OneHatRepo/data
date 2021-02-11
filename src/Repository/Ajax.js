@@ -410,7 +410,8 @@ class AjaxRepository extends Repository {
 						}
 
 						const updatedData = root[0];
-						entity.loadOriginalData(updatedData);
+						entity.loadOriginalData(updatedData, true);
+						entity.emit('reload', entity);
 						
 						this.isLoading = false;
 						this.isLoaded = true;

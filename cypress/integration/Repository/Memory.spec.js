@@ -48,9 +48,10 @@ describe('MemoryRepository', function() {
 		});
 
 		it('reloadEntity', function() {
-			let didFire = false;
+			let didFire1 = false,
+				didFire2 = true;
 			this.repository.on('reloadEntity', () => {
-				didFire = true;
+				didFire1 = true;
 			});
 			this.repository.load([
 				{ key: 'foo', value: 1, },
@@ -58,8 +59,12 @@ describe('MemoryRepository', function() {
 				{ key: 'baz', value: 3, },
 			]);
 			const entity = this.repository.getByIx(0);
+			entity.on('reload', () => {
+				didFire2 = true;
+			});
 			this.repository.reloadEntity(entity);
-			expect(didFire).to.be.true;
+			expect(didFire1).to.be.true;
+			expect(didFire2).to.be.true;
 		});
 
 		it.skip('check UUID as ID', async function() {
