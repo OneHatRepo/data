@@ -196,6 +196,22 @@ describe('Repository Base', function() {
 			this.repository.filter('key', '1');
 			expect(this.repository.hasFilters).to.be.true;
 		});
+		
+		it('hasFilter', function() {
+			expect(this.repository.hasFilter('key', '1')).to.be.false;
+			this.repository.filter('key', '1');
+			expect(this.repository.hasFilter('key', '1')).to.be.true;
+		});
+		
+		it('hasFilterValue', function() {
+			expect(this.repository.hasFilterValue('key', '1')).to.be.false;
+			this.repository.filter('key', '1');
+			expect(this.repository.hasFilterValue('key', '1')).to.be.true;
+
+			this.repository.filter('key', [1,2,4,]);
+			expect(this.repository.hasFilterValue('key', [1,2,4,])).to.be.true;
+			expect(this.repository.hasFilterValue('key', [1,4,2,])).to.be.true; // order is different
+		});
 
 		it('filter - none', function() {
 			this.repository.filter();

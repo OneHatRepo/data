@@ -481,6 +481,33 @@ export default class Repository extends EventEmitter {
 		return this.filters.length > 0;
 	}
 
+	hasFilter = (name) => {
+		if (!this.hasFilters) {
+			return false;
+		}
+		const found = _.find(this.filters, (filter) => {
+			return filter.name === name;
+		});
+		return !!found;
+	}
+
+	hasFilterValue = (name, value) => {
+		if (!this.hasFilters) {
+			return false;
+		}
+		const found = _.find(this.filters, (filter) => {
+			return filter.name === name;
+		});
+		if (!found) {
+			return false;
+		}
+		if (_.isArray(value)) {
+			// Sort the array elements first, so isEqual doesn't fail simply because of ordering of elements
+			return _.isEqual(_.sortBy(value), _.sortBy(found.value));
+		}
+		return _.isEqual(value, found.value);
+	}
+
 	/**
 	 * Sets one or more filters to the repository.
 	 * 
