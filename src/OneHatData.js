@@ -330,6 +330,23 @@ export class OneHatData extends EventEmitter {
 		return this;
 	}
 
+	/**
+	 * Registers a global error handler
+	 * Chainable.
+	 * @return this
+	 * @memberOf OneHatData
+	 */
+	createGlobalErrorHandler = (handler) => {
+		if (this.isDestroyed) {
+			throw Error('this.createGlobalErrorHandler is no longer valid. OneHatData has been destroyed.');
+		}
+		const repositories = this.getAllRepositories();
+		_.each(repositories, (repository) => {
+			repository.on('error') = handler;
+		});
+		return this;
+	}
+
 
 
 	//     ____       __       _
