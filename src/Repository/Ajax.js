@@ -601,7 +601,7 @@ class AjaxRepository extends Repository {
 							console.log(url + ' error', error);
 							console.log('response:', error.response);
 						}
-						this.emit('err', error);
+						this.emit('error', error);
 					});
 	}
 

@@ -259,6 +259,23 @@ describe('OneHatData', function() {
 		})();
 	});
 
+	it('createGlobalErrorHandler', function() {
+		(async function() {
+			await beforeEach();
+
+			let message = '';
+			const oneHatData = this.oneHatData,
+				errorHandler = (a, b) => {
+					debugger;
+				};
+			oneHatData.createGlobalErrorHandler(errorHandler);
+			oneHatData.emitError();
+			expect(message).to.be.eq('Test here');
+
+			afterEach();
+		})();
+	});
+
 	it('destroy', function() {
 		(async function() {
 			await beforeEach();

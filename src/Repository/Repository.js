@@ -224,7 +224,7 @@ export default class Repository extends EventEmitter {
 			'changeSorters',
 			'delete',
 			'destroy',
-			'err',
+			'error',
 			'initialize',
 			'load',
 			'reloadEntity',

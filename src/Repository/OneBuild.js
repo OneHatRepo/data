@@ -106,7 +106,7 @@ class OneBuildRepository extends AjaxRepository {
 							console.log(url + ' error', error);
 							console.log('response:', error.response);
 						}
-						this.emit('err', error);
+						this.emit('error', error);
 					});
 	}
 
@@ -187,7 +187,7 @@ class OneBuildRepository extends AjaxRepository {
 			message = response[this.messageProperty];
 		
 		if (!success) {
-			this.emit('err', message, root);
+			this.emit('error', message, root);
 		}
 
 		if (message === 'You do not have authorization to access this area.') {

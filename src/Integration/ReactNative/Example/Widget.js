@@ -11,10 +11,10 @@ export default function WidgetStandard() {
 		if (!Users || !Groups) {
 			return;
 		}
-		Users.on('err', (message) => {
+		Users.on('error', (message) => {
 			setError(message);
 		});
-		Groups.on('err', (message) => {
+		Groups.on('error', (message) => {
 			setError(message);
 		});
 		

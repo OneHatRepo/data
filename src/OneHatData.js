@@ -57,6 +57,7 @@ export class OneHatData extends EventEmitter {
 			'createSchema',
 			'deleteSchema',
 			'destroy',
+			'error',
 		]);
 	}
 
@@ -68,7 +69,7 @@ export class OneHatData extends EventEmitter {
 	 */
 	setRepositoryGlobals = (globals) => {
 		if (this.isDestroyed) {
-			throw Error('this.setRepositoryGlobals is no longer valid. OneHatData has been destroyed.');
+			throw new Error('this.setRepositoryGlobals is no longer valid. OneHatData has been destroyed.');
 		}
 		this._repositoryGlobals = globals;
 		return this;
@@ -89,7 +90,7 @@ export class OneHatData extends EventEmitter {
 	 */
 	createSchema = (config) => {
 		if (this.isDestroyed) {
-			throw Error('this.createSchema is no longer valid. OneHatData has been destroyed.');
+			throw new Error('this.createSchema is no longer valid. OneHatData has been destroyed.');
 		}
 		return this._createSchema(config);
 	}
@@ -102,7 +103,7 @@ export class OneHatData extends EventEmitter {
 	 */
 	createSchemas = (configs) => {
 		if (this.isDestroyed) {
-			throw Error('this.createSchemas is no longer valid. OneHatData has been destroyed.');
+			throw new Error('this.createSchemas is no longer valid. OneHatData has been destroyed.');
 		}
 		if (!_.isArray(configs)) {
 			configs = [configs];
@@ -121,7 +122,7 @@ export class OneHatData extends EventEmitter {
 	 */
 	_createSchema = (config) => {
 		if (this.isDestroyed) {
-			throw Error('this._createSchema is no longer valid. OneHatData has been destroyed.');
+			throw new Error('this._createSchema is no longer valid. OneHatData has been destroyed.');
 		}
 		if (config.name && this.hasSchemaWithName(config.name)) {
 			throw new Error('Schema with name ' + config.name + ' already exists. Schema names must be unique.');
@@ -140,7 +141,7 @@ export class OneHatData extends EventEmitter {
 	 */
 	createRepository = async (config, bound = false) => {
 		if (this.isDestroyed) {
-			throw Error('this.createRepository is no longer valid. OneHatData has been destroyed.');
+			throw new Error('this.createRepository is no longer valid. OneHatData has been destroyed.');
 		}
 
 		if (_.isNil(config)) {
@@ -255,7 +256,7 @@ export class OneHatData extends EventEmitter {
 	 */
 	createRepositories = async (schemas, bound = false) => {
 		if (this.isDestroyed) {
-			throw Error('this.createRepositories is no longer valid. OneHatData has been destroyed.');
+			throw new Error('this.createRepositories is no longer valid. OneHatData has been destroyed.');
 		}
 		let promises = [];
 		_.each(schemas, (schema) => {
@@ -274,7 +275,7 @@ export class OneHatData extends EventEmitter {
 	 */
 	createBoundRepositories = async () => {
 		if (this.isDestroyed) {
-			throw Error('this.createBoundRepositories is no longer valid. OneHatData has been destroyed.');
+			throw new Error('this.createBoundRepositories is no longer valid. OneHatData has been destroyed.');
 		}
 		return await this.createRepositories(this.schemas, true);
 	}
@@ -306,7 +307,7 @@ export class OneHatData extends EventEmitter {
 	 */
 	registerRepositoryType = (repositoryType) => {
 		if (this.isDestroyed) {
-			throw Error('this.registerRepositoryType is no longer valid. OneHatData has been destroyed.');
+			throw new Error('this.registerRepositoryType is no longer valid. OneHatData has been destroyed.');
 		}
 		return this.registerRepositoryTypes(repositoryType);
 	}
@@ -319,7 +320,7 @@ export class OneHatData extends EventEmitter {
 	 */
 	registerRepositoryTypes = (repositoryTypes) => {
 		if (this.isDestroyed) {
-			throw Error('this.registerRepositoryTypes is no longer valid. OneHatData has been destroyed.');
+			throw new Error('this.registerRepositoryTypes is no longer valid. OneHatData has been destroyed.');
 		}
 		if (!_.isArray(repositoryTypes)) {
 			repositoryTypes = [repositoryTypes];
@@ -338,13 +339,17 @@ export class OneHatData extends EventEmitter {
 	 */
 	createGlobalErrorHandler = (handler) => {
 		if (this.isDestroyed) {
-			throw Error('this.createGlobalErrorHandler is no longer valid. OneHatData has been destroyed.');
+			throw new Error('this.createGlobalErrorHandler is no longer valid. OneHatData has been destroyed.');
 		}
 		const repositories = this.getAllRepositories();
 		_.each(repositories, (repository) => {
-			repository.on('error') = handler;
+			repository.on('error', handler);
 		});
 		return this;
+	}
+
+	emitError = () => {
+		this.emit('error', 'Test here');
 	}
 
 
@@ -362,7 +367,7 @@ export class OneHatData extends EventEmitter {
 	 */
 	getSchema = (name) => {
 		if (this.isDestroyed) {
-			throw Error('this.getSchema is no longer valid. OneHatData has been destroyed.');
+			throw new Error('this.getSchema is no longer valid. OneHatData has been destroyed.');
 		}
 		return this.schemas[name];
 	}
@@ -375,7 +380,7 @@ export class OneHatData extends EventEmitter {
 	 */
 	getSchemasBy = (filter, firstOnly = false) => {
 		if (this.isDestroyed) {
-			throw Error('this.getSchemasBy is no longer valid. OneHatData has been destroyed.');
+			throw new Error('this.getSchemasBy is no longer valid. OneHatData has been destroyed.');
 		}
 		if (firstOnly) {
 			return _.find(this.schemas, filter);
@@ -389,7 +394,7 @@ export class OneHatData extends EventEmitter {
 	 */
 	getAllRepositories = () => {
 		if (this.isDestroyed) {
-			throw Error('this.getAllRepositories is no longer valid. OneHatData has been destroyed.');
+			throw new Error('this.getAllRepositories is no longer valid. OneHatData has been destroyed.');
 		}
 		return this.repositories;
 	}
@@ -401,7 +406,7 @@ export class OneHatData extends EventEmitter {
 	 */
 	getRepository = (name) => {
 		if (this.isDestroyed) {
-			throw Error('this.getRepository is no longer valid. OneHatData has been destroyed.');
+			throw new Error('this.getRepository is no longer valid. OneHatData has been destroyed.');
 		}
 		const schema = this.getSchema(name);
 		if (!schema) {
@@ -418,7 +423,7 @@ export class OneHatData extends EventEmitter {
 	 */
 	getRepositoriesBy = (filter, firstOnly = false) => {
 		if (this.isDestroyed) {
-			throw Error('this.getRepositoriesBy is no longer valid. OneHatData has been destroyed.');
+			throw new Error('this.getRepositoriesBy is no longer valid. OneHatData has been destroyed.');
 		}
 		if (firstOnly) {
 			return _.find(this.repositories, filter);
@@ -433,7 +438,7 @@ export class OneHatData extends EventEmitter {
 	 */
 	getRepositoryById = (id) => {
 		if (this.isDestroyed) {
-			throw Error('this.getRepositoryById is no longer valid. OneHatData has been destroyed.');
+			throw new Error('this.getRepositoryById is no longer valid. OneHatData has been destroyed.');
 		}
 		return this.repositories[id];
 	}
@@ -445,7 +450,7 @@ export class OneHatData extends EventEmitter {
 	 */
 	getRepositoriesBySchema = (schema) => {
 		if (this.isDestroyed) {
-			throw Error('this.getRepositoriesBySchema is no longer valid. OneHatData has been destroyed.');
+			throw new Error('this.getRepositoriesBySchema is no longer valid. OneHatData has been destroyed.');
 		}
 		return this.getRepositoriesBy((repository) => {
 			return repository.schema === schema;
@@ -459,7 +464,7 @@ export class OneHatData extends EventEmitter {
 	 */
 	getRepositoriesByType = (type) => {
 		if (this.isDestroyed) {
-			throw Error('this.getRepositoriesByType is no longer valid. OneHatData has been destroyed.');
+			throw new Error('this.getRepositoriesByType is no longer valid. OneHatData has been destroyed.');
 		}
 		return this.getRepositoriesBy((repository) => {
 			return repository.getType() === type;
@@ -473,7 +478,7 @@ export class OneHatData extends EventEmitter {
 	 */
 	hasSchemaWithName = (name) => {
 		if (this.isDestroyed) {
-			throw Error('this.hasSchemaWithName is no longer valid. OneHatData has been destroyed.');
+			throw new Error('this.hasSchemaWithName is no longer valid. OneHatData has been destroyed.');
 		}
 		return this.schemas && this.schemas.hasOwnProperty(name);
 	}
@@ -485,7 +490,7 @@ export class OneHatData extends EventEmitter {
 	 */
 	hasRepositoryWithId = (id) => {
 		if (this.isDestroyed) {
-			throw Error('this.hasRepositoryWithId is no longer valid. OneHatData has been destroyed.');
+			throw new Error('this.hasRepositoryWithId is no longer valid. OneHatData has been destroyed.');
 		}
 		return this.repositories && this.repositories.hasOwnProperty(id);
 	}
@@ -507,7 +512,7 @@ export class OneHatData extends EventEmitter {
 	 */
 	deleteSchema = (name) => {
 		if (this.isDestroyed) {
-			throw Error('this.deleteSchema is no longer valid. OneHatData has been destroyed.');
+			throw new Error('this.deleteSchema is no longer valid. OneHatData has been destroyed.');
 		}
 		const schema = this.getSchema(name);
 		delete this.schemas[name];
@@ -524,7 +529,7 @@ export class OneHatData extends EventEmitter {
 	 */
 	deleteRepository = (id) => {
 		if (this.isDestroyed) {
-			throw Error('this.deleteRepository is no longer valid. OneHatData has been destroyed.');
+			throw new Error('this.deleteRepository is no longer valid. OneHatData has been destroyed.');
 		}
 		const repository = this.getRepositoryById(id);
 		if (!repository) {
