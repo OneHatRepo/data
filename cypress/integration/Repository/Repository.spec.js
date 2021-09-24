@@ -502,6 +502,12 @@ describe('Repository Base', function() {
 			expect(_.size(result)).to.be.eq(5);
 		});
 
+		it.only('getRandomEntity', function() {
+			const result = this.repository.getRandomEntity();
+			expect(result.hasProperty('key')).to.be.true;
+			assert.approximately(result.id, 3, 2);
+		});
+
 		it('getParsedValues', function() {
 			const result = this.repository.getParsedValues();
 			expect(_.size(result)).to.be.eq(5);

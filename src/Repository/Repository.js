@@ -945,6 +945,19 @@ export default class Repository extends EventEmitter {
 	}
 
 	/**
+	 * Gets a single random entity
+	 * @return {array} map - 
+	 */
+	getRandomEntity = () => {
+		const len = this.entities.length;
+		if (!len) {
+			return null;
+		}
+		const rand = _.random(0, len -1);
+		return this.entities[rand];
+	}
+
+	/**
 	 * Gets an array of "parsed" values objects for the entities
 	 * @return {array} map - 
 	 */
