@@ -1,5 +1,6 @@
 import {
 	default as LocalFromRemoteRepository,
+	MODE_LOCAL_MIRROR,
 	MODE_COMMAND_QUEUE,
 } from '../../../src/Repository/LocalFromRemote';
 import MemoryRepository from '../../../src/Repository/Memory';
@@ -56,7 +57,7 @@ describe('LocalFromRemote', function() {
 
 	const slopFactor = 100; // difference should be within 100ms
 
-	describe('MODE_LOCAL_MIRROR', function() {
+	describe(MODE_LOCAL_MIRROR, function() {
 
 		it('ids', function() {
 			const id = this.repository.id,
@@ -102,6 +103,19 @@ describe('LocalFromRemote', function() {
 		it('_getActiveRepository', function() {
 			const result = this.repository._getActiveRepository();
 			expect(_.isEqual(result, this.repository.local)).to.be.true;
+		});
+
+		it('setOptions', function() {
+			const
+				local = this.repository.local,
+				remote = this.repository.remote;
+
+			this.repository.setOptions({
+				test: 1
+			});
+			
+			expect(local.test).to.be.equal(1);
+			expect(remote.test).to.be.equal(1);
 		});
 
 		it('setIsOnline', function() {

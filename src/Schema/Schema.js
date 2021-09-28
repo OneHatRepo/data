@@ -119,10 +119,21 @@ export default class Schema extends EventEmitter {
 		 */
 		this.isDestroyed = false;
 
+		this.normalizeRepositoryConfig();
 		
 		this.registerEvents([
 			'destroy',
 		]);
+	}
+
+	/**
+	 * Normalizes the repository configuration from single string to object.
+	 * @memberOf Schema
+	 */
+	normalizeRepositoryConfig = () => {
+		if (_.isString(this.repository)) {
+			this.repository = { type: this.repository };
+		}
 	}
 
 	/**

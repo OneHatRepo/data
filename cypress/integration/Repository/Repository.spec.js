@@ -502,7 +502,7 @@ describe('Repository Base', function() {
 			expect(_.size(result)).to.be.eq(5);
 		});
 
-		it.only('getRandomEntity', function() {
+		it('getRandomEntity', function() {
 			const result = this.repository.getRandomEntity();
 			expect(result.hasProperty('key')).to.be.true;
 			assert.approximately(result.id, 3, 2);

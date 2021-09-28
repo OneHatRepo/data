@@ -583,6 +583,14 @@ class LocalFromRemoteRepository extends EventEmitter {
 	}
 
 	/**
+	 * Sets options on the repositories.
+	 */
+	setOptions = (options) => {
+		this.local.setOptions(options);
+		this.remote.setOptions(options);
+	}
+
+	/**
 	 * Sets isOnline. If isOnline and autoSync is enabled, it immediately starts autosync process.
 	 */
 	setIsOnline = (isOnline) => {

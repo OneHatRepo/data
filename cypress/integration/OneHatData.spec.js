@@ -276,6 +276,21 @@ describe('OneHatData', function() {
 		})();
 	});
 
+	it('setOptionsOnAllRepositories', function() {
+		(async function() {
+			await beforeEach();
+
+			const oneHatData = this.oneHatData;
+			oneHatData.setOptionsOnAllRepositories({
+				test: 1,
+			});
+			const repository = oneHatData.getRepository('bar');
+			expect(repository.test).to.be.eq(1);
+
+			afterEach();
+		})();
+	});
+
 	it('destroy', function() {
 		(async function() {
 			await beforeEach();

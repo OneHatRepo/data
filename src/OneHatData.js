@@ -1,4 +1,4 @@
- /** @module OneHatData */
+/** @module OneHatData */
 
 import EventEmitter from '@onehat/events';
 import CoreRepositoryTypes from './Repository';
@@ -40,6 +40,12 @@ export class OneHatData extends EventEmitter {
 		this._repositoryTypes = _.clone(CoreRepositoryTypes);
 
 		/**
+		 * @member {Object} _repositoryGlobals - Object of all global settings for all repositories.
+		 * @private
+		 */
+		this._repositoryGlobals = {};
+
+		/**
 		 * @member {Object} repositories - Object of all Repositories, keyed by id (for quick access)
 		 * @private
 		 */
@@ -71,7 +77,25 @@ export class OneHatData extends EventEmitter {
 		if (this.isDestroyed) {
 			throw new Error('this.setRepositoryGlobals is no longer valid. OneHatData has been destroyed.');
 		}
-		this._repositoryGlobals = globals;
+		_.assign(this._repositoryGlobals, globals);
+		return this;
+	}
+
+
+	/**
+	 * Sets options on all Repositories.
+	 * Chainable.
+	 * @param {object} options - Keys and properties will be set as options on the Repository
+	 * @return this
+	 */
+	setOptionsOnAllRepositories = (options) => {
+		if (this.isDestroyed) {
+			throw new Error('this.applyGlobalHeaders is no longer valid. OneHatData has been destroyed.');
+		}
+		const repositories = this.getAllRepositories();
+		_.each(repositories, (repository) => {
+			repository.setOptions(options);
+		});
 		return this;
 	}
 
@@ -568,6 +592,6 @@ export class OneHatData extends EventEmitter {
 
 };
 
- // Create and export a singleton
+// Create and export a singleton
 const oneHatData = new OneHatData();
 export default oneHatData;
