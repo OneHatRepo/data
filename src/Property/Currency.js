@@ -25,6 +25,7 @@ export default class CurrencyProperty extends Property {
 				fallback: 0,
 			},
 			submitAsString: true, // NOTE, we want to use the accounting.toFixed() method by default
+			defaultValue: 0.00,
 		};
 
 		_.merge(this, defaults, config);

@@ -15,6 +15,7 @@ export default class FloatProperty extends Property {
 
 		const defaults = {
 			precision: 2,
+			defaultValue: 0.00,
 		};
 
 		_.merge(this, defaults, config);

@@ -11,9 +11,22 @@ describe('FloatProperty', function() {
 		this.property = new Property(definition);
 	});
 
-	it('className', function() {
-		const className = this.property.getClassName();
-		expect(className).to.be.eq('Float');
+	describe('general', function() {
+
+		it('className', function() {
+			const className = this.property.getClassName();
+			expect(className).to.be.eq('Float');
+		});
+
+		it('default value', function() {
+			const property = this.property,
+				rawValue = property.getDefaultValue();
+			property.pauseEvents();
+			property.setValue(rawValue);
+			property.resumeEvents();
+			expect(this.property.submitValue).to.be.eq('0.00');
+		});
+		
 	});
 
 	describe('parse', function() {

@@ -12,7 +12,12 @@ export default class IntegerProperty extends Property {
 
 	constructor(config = {}) {
 		super(...arguments);
-		_.merge(this, config);
+
+		const defaults = {
+			defaultValue: 0,
+		};
+		
+		_.merge(this, defaults, config);
 	}
 
 	parse = (value) => {

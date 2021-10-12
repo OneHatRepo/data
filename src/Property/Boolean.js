@@ -17,6 +17,7 @@ export default class BooleanProperty extends Property {
 		const defaults = {
 			submitAsString: false,
 			submitAsInt: false,
+			defaultValue: false,
 		};
 
 		_.merge(this, defaults, config);

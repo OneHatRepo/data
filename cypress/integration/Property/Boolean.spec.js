@@ -10,9 +10,22 @@ describe('BooleanProperty', function() {
 		this.property = new Property(definition);
 	});
 
-	it('className', function() {
-		const className = this.property.getClassName();
-		expect(className).to.be.eq('Boolean');
+	describe('general', function() {
+
+		it('className', function() {
+			const className = this.property.getClassName();
+			expect(className).to.be.eq('Boolean');
+		});
+
+		it('default value', function() {
+			const property = this.property,
+				rawValue = property.getDefaultValue();
+			property.pauseEvents();
+			property.setValue(rawValue);
+			property.resumeEvents();
+			expect(this.property.submitValue).to.be.eq(false);
+		});
+		
 	});
 
 	describe('parse', function() {
