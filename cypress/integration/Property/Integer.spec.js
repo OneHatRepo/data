@@ -19,14 +19,14 @@ describe('IntegerProperty', function() {
 			expect(className).to.be.eq('Integer');
 		});
 
-		it('default value', function() {
-			const property = this.property,
-				rawValue = property.getDefaultValue();
-			property.pauseEvents();
-			property.setValue(rawValue);
-			property.resumeEvents();
-			expect(this.property.submitValue).to.be.eq(0);
-		});
+		// it('default value', function() {
+		// 	const property = this.property,
+		// 		rawValue = property.getDefaultValue();
+		// 	property.pauseEvents();
+		// 	property.setValue(rawValue);
+		// 	property.resumeEvents();
+		// 	expect(this.property.submitValue).to.be.eq(0);
+		// });
 
 	});
 

@@ -14,7 +14,7 @@ export default class IntegerProperty extends Property {
 		super(...arguments);
 
 		const defaults = {
-			defaultValue: 0,
+			// defaultValue: 0,
 		};
 		
 		_.merge(this, defaults, config);
