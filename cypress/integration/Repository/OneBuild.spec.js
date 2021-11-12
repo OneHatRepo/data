@@ -46,6 +46,23 @@ describe('OneBuildRepository', function() {
 	// 	});
 	// }
 
+	it('_onChangeFilters combines two filters correctly for params', function() {
+		this.repository.filter([
+			{
+				name: 'key1',
+				value: '1',
+			},
+			{
+				name: 'key2',
+				value: '2',
+			},
+		]);
+		const p = this.repository._params;
+		
+		expect(p.conditions.key1).to.be.eq('1');
+		expect(p.conditions.key2).to.be.eq('2');
+	});
+
 	it('401', function() {
 		cy.wrap((async () => {
 

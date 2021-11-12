@@ -29,6 +29,17 @@ describe('OneBuildRepository', function() {
 		this.repository.destroy();
 	});
 
+	describe('Params', function() {
+		it('setValuelessParam', function() {
+			const r = this.repository;
+			r.setParam('conditions[field]', 1);
+			r.setValuelessParam('conditions[field IS NOT NULL]');
+
+			expect(r._params.conditions.field).to.be.eq(1);
+			expect(r._params.conditions[0]).to.be.eq('field IS NOT NULL');
+		});
+	});
+
 	describe('custom', function() {
 
 		it('delete phantom', async function() {

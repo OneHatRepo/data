@@ -209,7 +209,7 @@ class AjaxRepository extends Repository {
 			const first = matches[1],
 				second = matches[2];
 			if (paramsToChange && !paramsToChange.hasOwnProperty(first)) {
-				paramsToChange[first] = {};
+				paramsToChange[first] = [];
 			}
 			if (_.isNil(value) && paramsToChange[first] && paramsToChange[first].hasOwnProperty(second)) {
 				delete paramsToChange[first][second];
@@ -223,6 +223,33 @@ class AjaxRepository extends Repository {
 			return;
 		}
 		paramsToChange[name] = value;
+	}
+
+	/**
+	 * Same as setParam, but without any value
+	 * Sets a single query param.
+	 * @param {string} name - Param name to set.
+	 * @param {boolean} isBaseParam - Whether param is a base param (to be sent on every request).
+	 */
+	setValuelessParam = (name, isBaseParam = false) => {
+		const re = /^([^\[]+)\[([^\]]+)\](.*)$/,
+			matches = name.match(re),
+			paramsToChange = isBaseParam ? this.baseParams : this._params;
+		
+		if (matches) { // name has array notation like 'conditions[username]'
+			const first = matches[1],
+				second = matches[2];
+			if (paramsToChange && !paramsToChange.hasOwnProperty(first)) {
+				paramsToChange[first] = [];
+			}
+			if (paramsToChange[first] && paramsToChange[first].hasOwnProperty(second)) {
+				delete paramsToChange[first][second];
+				return;
+			}
+			paramsToChange[first][ paramsToChange[first].length ] = second;
+			return;
+		}
+		paramsToChange[paramsToChange.length] = second;
 	}
 
 	/**
