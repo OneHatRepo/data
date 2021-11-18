@@ -2,11 +2,10 @@
 
 import Property from './Property';
 import {
-	// uuid,
-	is,
-	empty
-} from 'uuidv4';
-import uuid from 'uuid-random'; // TEMP, until Expo supports cypto.getRandomValues() - https://github.com/uuidjs/uuid/issues/375 and https://github.com/expo/expo/issues/7209
+	v4 as uuid,
+	validate,
+	NIL,
+} from 'uuid';
 import _ from 'lodash';
 
 /**
@@ -45,7 +44,7 @@ export default class UuidProperty extends Property {
 	 * Validates a UUID
 	 */
 	isValid = (value) => {
-		return is(value);
+		return validate(value);
 	}
 
 	/**
@@ -55,7 +54,7 @@ export default class UuidProperty extends Property {
 		if (_.isNil(value)) {
 			value = this.submitValue;
 		}
-		return value === empty();
+		return value === NIL;
 	}
 
 };
