@@ -4,7 +4,9 @@ import EventEmitter from '@onehat/events';
 import Repository from '../Repository';
 import Command from './Command';
 import moment from 'relative-time-parser'; // Notice this version of moment is imported from 'relative-time-parser', and may be out of sync with our general 'moment' package
-import uuid from 'uuid-random'; // TEMP, until Expo supports cypto.getRandomValues() - https://github.com/uuidjs/uuid/issues/375
+import {
+	v4 as uuid,
+} from 'uuid';
 import _ from 'lodash';
 
 export const MODE_LOCAL_MIRROR = 'MODE_LOCAL_MIRROR';
