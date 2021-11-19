@@ -2,9 +2,7 @@
 
 import EventEmitter from '@onehat/events';
 import Entity from '../Entity';
-import {
-	v4 as uuid,
-} from 'uuid';
+import uuid from 'uuid-random'; // TEMP, until Expo supports cypto.getRandomValues() - https://github.com/uuidjs/uuid/issues/375
 import _ from 'lodash';
 
 /**
