@@ -4,6 +4,21 @@ import AjaxRepository from './Ajax';
 import qs from 'qs';
 import _ from 'lodash';
 
+const nonConditionFilters = [
+	'q',
+	'hydrate',
+	'fields',
+	'distinct',
+	'leftJoinWith',
+	'join',
+	'where',
+	'matching',
+	'contain',
+	'order',
+	'limit',
+	'page',
+];
+
 /**
  * This class contains overrides of specific functions in
  * AjaxRepository that are unique to OneBuild.
@@ -129,12 +144,16 @@ class OneBuildRepository extends AjaxRepository {
 		// Clear existing "conditions" params
 		if (!_.isEmpty(this._params)) {
 			this._params = _.omitBy(this._params, (value, key) => {
-				return key.match(/^conditions/);
+				return key.match(/^conditions/) || _.includes(nonConditionFilters, key);
 			});
 		}
 
 		_.each(this.filters, (filter, ix) => {
-			this.setParam('conditions[' + filter.name + ']', filter.value);
+			if (_.includes(nonConditionFilters, filter.name)) {
+				this.setParam(filter.name, filter.value);
+			} else {
+				this.setParam('conditions[' + filter.name + ']', filter.value);
+			}
 		});
 
 		if (this.isLoaded) {
