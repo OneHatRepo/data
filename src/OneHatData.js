@@ -282,12 +282,15 @@ export class OneHatData extends EventEmitter {
 		if (this.isDestroyed) {
 			throw new Error('this.createRepositories is no longer valid. OneHatData has been destroyed.');
 		}
-		let promises = [];
-		_.each(schemas, (schema) => {
-			promises.push( this.createRepository({ schema, }, bound) );
-		});
-
-		await Promise.all(promises);
+		const schemasArray = _.map(schemas, (schema) => schema);
+		let i, schema, repository;
+		for (i = 0; i < schemasArray.length; i++) {
+			schema = schemasArray[i];
+			repository = await this.createRepository({ schema, }, bound);
+			if (!repository) {
+				throw new Error('Repository could not be created');
+			}
+		}
 		return this;
 	}
 
