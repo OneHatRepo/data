@@ -779,12 +779,38 @@ export default class Repository extends EventEmitter {
 	 * @static
 	 */
 	static _calculatePaginationVars = (total, page, pageSize) => {
+
+		// Special case: empty pages
+		if (total < 1) {
+			return {
+				page,
+				pageSize,
+				total,
+				totalPages: 1,
+				pageStart: 0,
+				pageEnd: 0,
+				pageTotal: 0,
+			};
+		}
+
 		const totalPages = Math.ceil(total / pageSize),
-			pageStart = !total ? 0 : ((page -1) * pageSize) + 1,
-			remainder = total > pageSize ? total % pageSize : 0,
-			pageTotal = (page === 1 && totalPages === 1) ? total : 
-						(page < totalPages ? pageSize : remainder),
-			pageEnd = !total ? 0 : pageStart -1 + pageTotal;
+			pageStart = ((page -1) * pageSize) + 1;
+		
+		let remainder,
+			pageEnd,
+			pageTotal;
+
+		if (page === 1 && totalPages === 1) {
+			pageTotal = total;
+		} else if (page < totalPages) {
+			pageTotal = pageSize;
+		} else {
+			// last page
+			remainder = total % pageSize;
+			pageTotal = remainder || pageSize;
+		}
+
+		pageEnd = pageStart + pageTotal -1;
 		
 		return {
 			page,

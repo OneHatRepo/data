@@ -414,29 +414,61 @@ describe('Repository Base', function() {
 		});
 
 		it('_calculatePaginationVars', function() {
-			let results = this.Repository._calculatePaginationVars(15, 1, 10), // Capital "R"
-				expected = {
-					page: 1,
-					pageSize: 10,
-					total: 15,
-					totalPages: 2,
-					pageStart: 1,
-					pageEnd: 10,
-					pageTotal: 10,
-				};
-			expect(_.isEqual(results, expected)).to.be.true;
+			let results;
 
-			results = this.Repository._calculatePaginationVars(15, 2, 10); // Capital "R"
-			expected = {
-				page: 2,
-				pageSize: 10,
-				total: 15,
-				totalPages: 2,
-				pageStart: 11,
-				pageEnd: 15,
-				pageTotal: 5,
-			};
-			expect(_.isEqual(results, expected)).to.be.true;
+			results = this.Repository._calculatePaginationVars(0, 1, 10);
+			expect(results.page).to.be.eq(1);
+			expect(results.pageSize).to.be.eq(10);
+			expect(results.total).to.be.eq(0);
+			expect(results.totalPages).to.be.eq(1);
+			expect(results.pageStart).to.be.eq(0);
+			expect(results.pageEnd).to.be.eq(0);
+			expect(results.pageTotal).to.be.eq(0);
+
+			results = this.Repository._calculatePaginationVars(15, 1, 10);
+			expect(results.page).to.be.eq(1);
+			expect(results.pageSize).to.be.eq(10);
+			expect(results.total).to.be.eq(15);
+			expect(results.totalPages).to.be.eq(2);
+			expect(results.pageStart).to.be.eq(1);
+			expect(results.pageEnd).to.be.eq(10);
+			expect(results.pageTotal).to.be.eq(10);
+
+			results = this.Repository._calculatePaginationVars(15, 2, 10);
+			expect(results.page).to.be.eq(2);
+			expect(results.pageSize).to.be.eq(10);
+			expect(results.total).to.be.eq(15);
+			expect(results.totalPages).to.be.eq(2);
+			expect(results.pageStart).to.be.eq(11);
+			expect(results.pageEnd).to.be.eq(15);
+			expect(results.pageTotal).to.be.eq(5);
+
+			results = this.Repository._calculatePaginationVars(15, 2, 5);
+			expect(results.page).to.be.eq(2);
+			expect(results.pageSize).to.be.eq(5);
+			expect(results.total).to.be.eq(15);
+			expect(results.totalPages).to.be.eq(3);
+			expect(results.pageStart).to.be.eq(6);
+			expect(results.pageEnd).to.be.eq(10);
+			expect(results.pageTotal).to.be.eq(5);
+
+			results = this.Repository._calculatePaginationVars(7, 2, 5);
+			expect(results.page).to.be.eq(2);
+			expect(results.pageSize).to.be.eq(5);
+			expect(results.total).to.be.eq(7);
+			expect(results.totalPages).to.be.eq(2);
+			expect(results.pageStart).to.be.eq(6);
+			expect(results.pageEnd).to.be.eq(7);
+			expect(results.pageTotal).to.be.eq(2);
+
+			results = this.Repository._calculatePaginationVars(15, 15, 1);
+			expect(results.page).to.be.eq(15);
+			expect(results.pageSize).to.be.eq(1);
+			expect(results.total).to.be.eq(15);
+			expect(results.totalPages).to.be.eq(15);
+			expect(results.pageStart).to.be.eq(15);
+			expect(results.pageEnd).to.be.eq(15);
+			expect(results.pageTotal).to.be.eq(1);
 		});
 
 	});
