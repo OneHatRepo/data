@@ -1328,6 +1328,9 @@ export default class Repository extends EventEmitter {
 		if (!_.isArray(entities)) {
 			entities = [entities];
 		}
+		if (!entities.length) {
+			return;
+		}
 		_.each(entities, (entity) => {
 			entity.markDeleted(); // Entity is still there, it's just marked for deletion
 		});

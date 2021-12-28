@@ -292,8 +292,8 @@ class AjaxRepository extends Repository {
 	 */
 	_onChangeSorters = () => {
 		const sorter = this.sorters[0];
-		this.setParam(this.paramSort, sorter.name);
-		this.setParam(this.paramDirection, sorter.direction);
+		this.setParam(this.paramSort, sorter.name, true); // true to set baseParam
+		this.setParam(this.paramDirection, sorter.direction, true);
 		
 		if (this.isLoaded) {
 			return this.reload();
@@ -319,8 +319,8 @@ class AjaxRepository extends Repository {
 	 * Refreshes entities.
 	 */
 	_onChangePagination = () => {
-		this.setParam(this.paramPageNum, this.page);
-		this.setParam(this.paramPageSize, this.pageSize);
+		this.setParam(this.paramPageNum, this.page, true); // true to set baseParam
+		this.setParam(this.paramPageSize, this.pageSize, true);
 
 		if (this.isLoaded) {
 			return this.reload();
