@@ -1,7 +1,12 @@
+/**
+ * This file is categorized as "Proprietary Framework Code"
+ * and is subject to the terms and conditions defined in
+ * file 'LICENSE.txt', which is part of this source code package.
+ */
 /** @module Repository */
 
 import OfflineRepository from '@onehat/data/src/Repository/Offline.js';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import _ from 'lodash';
 
 /**
@@ -37,10 +42,12 @@ class AsyncStorageRepository extends OfflineRepository {
 					value = result; // Invalid JSON, just return raw result
 				}
 			}
+			
 			return value;
 		} catch (error) {
 			if (this.debugMode) {
 				const msg = error && error.message;
+				console.log('_storageGetValue error', msg);
 				debugger;
 			}
 		}
@@ -60,7 +67,7 @@ class AsyncStorageRepository extends OfflineRepository {
 			const results = await AsyncStorage.multiGet(this._namespace(keys));
 
 			if (this.debugMode) {
-				console.log(this.name, 'AsyncStorage.multiGet results', name, results);
+				console.log(this.name, 'AsyncStorage.multiGet results', results);
 			}
 
 			let values = [];
@@ -72,7 +79,17 @@ class AsyncStorageRepository extends OfflineRepository {
 					} catch (e) {
 						parsed = value; // Invalid JSON, just return raw result
 					}
-					values.push(parsed);
+					if (parsed === null) {
+						// Values should be stored as JSON, so it should be either {} or []. If it's null, that means the AsyncStorage can't find the record
+						// Delete the index to this record
+						const re = new RegExp('^' + this.name + '\-' + '(.*)'),
+							matches = key.match(re);
+debugger;
+						const id = parseInt(matches, 10);
+						this._deleteFromIndex(id);
+					} else {
+						values.push(parsed);
+					}
 				})
 			}
 
@@ -84,6 +101,7 @@ class AsyncStorageRepository extends OfflineRepository {
 		} catch (error) {
 			if (this.debugMode) {
 				const msg = error && error.message;
+				console.log('_storageGetMultiple error', msg);
 				debugger;
 			}
 		}
@@ -103,6 +121,7 @@ class AsyncStorageRepository extends OfflineRepository {
 		} catch (error) {
 			if (this.debugMode) {
 				const msg = error && error.message;
+				console.log('_storageSetValue error', msg);
 				debugger;
 			}
 		}
@@ -126,11 +145,16 @@ class AsyncStorageRepository extends OfflineRepository {
 				console.log(this.name, 'AsyncStorage.multiSet', keys);
 			}
 
+			if (_.isEmpty(converted)) {
+				return;
+			}
+
 			return await AsyncStorage.multiSet(converted);
 
 		} catch (error) {
 			if (this.debugMode) {
 				const msg = error && error.message;
+				console.log('_storageSetMultiple error', msg);
 				debugger;
 			}
 		}
@@ -151,6 +175,7 @@ class AsyncStorageRepository extends OfflineRepository {
 		} catch (error) {
 			if (this.debugMode) {
 				const msg = error && error.message;
+				console.log('_storageDeleteValue error', msg);
 				debugger;
 			}
 		}
@@ -171,6 +196,7 @@ class AsyncStorageRepository extends OfflineRepository {
 		} catch (error) {
 			if (this.debugMode) {
 				const msg = error && error.message;
+				console.log('_storageDeleteMultiple error', msg);
 				debugger;
 			}
 		}

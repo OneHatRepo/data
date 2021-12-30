@@ -23,13 +23,8 @@ class OfflineRepository extends MemoryRepository {
 
 	async initialize() {
 		this.pauseEvents(); // Queue 'initialize' event from super
-		await super.initialize();
 
-		this._index = await this._getIndex();
-		if (!this._index) {
-			await this._setIndex([]);
-			this._index = [];
-		}
+		await super.initialize(); // Initializes index in _loadFromStorage()
 
 		this.resumeEvents(true); // Now fire it!
 	}
@@ -80,7 +75,14 @@ class OfflineRepository extends MemoryRepository {
 	 */
 	_loadFromStorage = async () => {
 		try {
-			const ids = await this._getIndex(),
+
+			this._index = await this._getIndex();
+			if (!this._index) {
+				await this._setIndex([]);
+				this._index = [];
+			}
+
+			const ids = this._index,
 				total = ids && ids.length ? ids.length : 0,
 				results = [];
 			
