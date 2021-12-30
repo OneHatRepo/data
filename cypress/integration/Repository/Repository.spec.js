@@ -372,6 +372,19 @@ describe('Repository Base', function() {
 			expect(didFireChangeFilters).to.be.true;
 		});
 
+		it('changing filters resets pagination', function() {
+			this.repository.isPaginated = true;
+			this.repository.setPageSize(1);
+			this.repository.setPage(3);
+
+			this.repository.setFilters({
+				b: '1',
+				c: '2',
+			});
+
+			expect(this.repository.page).to.be.eq(1);
+		});
+
 	});
 
 	describe('pagination', function() {
@@ -469,6 +482,18 @@ describe('Repository Base', function() {
 			expect(results.pageStart).to.be.eq(15);
 			expect(results.pageEnd).to.be.eq(15);
 			expect(results.pageTotal).to.be.eq(1);
+		});
+
+		it('reset pagination', function() {
+			expect(this.repository.page).to.be.eq(1);
+			
+			this.repository.isPaginated = true;
+			this.repository.setPageSize(1);
+			this.repository.setPage(3);
+			expect(this.repository.page).to.be.eq(3);
+
+			this.repository.resetPagination();
+			expect(this.repository.page).to.be.eq(1);
 		});
 
 	});

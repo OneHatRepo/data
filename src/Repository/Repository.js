@@ -648,6 +648,7 @@ export default class Repository extends EventEmitter {
 		if (!_.isEqual(this.filters, filters)) {
 			isChanged = true;
 			this.filters = filters;
+			this.resetPagination();
 			this.emit('changeFilters');
 			if (this._onChangeFilters) {
 				return this._onChangeFilters();
@@ -665,6 +666,17 @@ export default class Repository extends EventEmitter {
 	//  / ____/ /_/ / /_/ / / / / / /_/ / /_/  __/
 	// /_/    \__,_/\__, /_/_/ /_/\__,_/\__/\___/
 	//             /____/
+
+	/**
+	 * Resets the pagination to page one
+	 * @fires changePageSize
+	 */
+	resetPagination = (pageSize) => {
+		if (this.isDestroyed) {
+			throw Error('this.resetPagination is no longer valid. Repository has been destroyed.');
+		}
+		this.setPage(1);
+	}
 
 	/**
 	 * Sets the pageSize
