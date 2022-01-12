@@ -30,6 +30,43 @@ describe('OneBuildRepository', function() {
 	});
 
 	describe('Params', function() {
+
+		it('setParam', function() {
+			const r = this.repository;
+			r.setParam('test', 1);
+
+			expect(r._params.test).to.be.eq(1);
+		});
+
+		it('setParams', function() {
+			const r = this.repository;
+			r.setParams({
+				test1: 1,
+				test2: 2,
+			});
+
+			expect(r._params.test1).to.be.eq(1);
+			expect(r._params.test2).to.be.eq(2);
+		});
+
+		it('setBaseParam', function() {
+			const r = this.repository;
+			r.setBaseParam('test', 1);
+
+			expect(r._baseParams.test).to.be.eq(1);
+		});
+
+		it('setBaseParams', function() {
+			const r = this.repository;
+			r.setBaseParams({
+				test1: 1,
+				test2: 2,
+			});
+
+			expect(r._baseParams.test1).to.be.eq(1);
+			expect(r._baseParams.test2).to.be.eq(2);
+		});
+
 		it('setValuelessParam', function() {
 			const r = this.repository;
 			r.setParam('conditions[field]', 1);
@@ -38,6 +75,24 @@ describe('OneBuildRepository', function() {
 			expect(r._params.conditions.field).to.be.eq(1);
 			expect(r._params.conditions[0]).to.be.eq('field IS NOT NULL');
 		});
+
+		it('clearParams', function() {
+			const r = this.repository;
+			r.setParams({
+				test1: 1,
+				test2: 2,
+			});
+			r.setBaseParams({
+				test1: 1,
+				test2: 2,
+			});
+
+			r.clearParams(false, true);
+
+			expect(r._params).to.be.empty;
+			expect(r._baseParams).to.be.empty;
+		});
+
 	});
 
 	describe('custom', function() {

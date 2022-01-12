@@ -87,9 +87,9 @@ class AjaxRepository extends Repository {
 			headers: {},
 
 			/**
-			 * @member {object} baseParams - Params that will be applied to every request
+			 * @member {object} _baseParams - Params that will be applied to every request
 			 */
-			baseParams: {},
+			_baseParams: {},
 			
 		};
 		_.merge(this, defaults, config);
@@ -202,8 +202,7 @@ class AjaxRepository extends Repository {
 	setParam = (name, value, isBaseParam = false) => {
 		const re = /^([^\[]+)\[([^\]]+)\](.*)$/,
 			matches = name.match(re),
-			paramsToChange = isBaseParam ? this.baseParams : this._params;
-		
+			paramsToChange = isBaseParam ? this._baseParams : this._params;
 		
 		if (matches) { // name has array notation like 'conditions[username]'
 			const first = matches[1],
@@ -234,7 +233,7 @@ class AjaxRepository extends Repository {
 	setValuelessParam = (name, isBaseParam = false) => {
 		const re = /^([^\[]+)\[([^\]]+)\](.*)$/,
 			matches = name.match(re),
-			paramsToChange = isBaseParam ? this.baseParams : this._params;
+			paramsToChange = isBaseParam ? this._baseParams : this._params;
 		
 		if (matches) { // name has array notation like 'conditions[username]'
 			const first = matches[1],
@@ -263,23 +262,34 @@ class AjaxRepository extends Repository {
 	}
 
 	/**
+	 * Sets base query param
+	 * @param {string} name - Param name to set.
+	 * @param {any} value - Param value to set.
+	 */
+	setBaseParam = (name, value) => {
+		this.setParam(name, value, true);
+	}
+
+	/**
 	 * Sets base query params. These params are sent on every request.
 	 * @param {object} params - Base params to set. Key is parameter name, value is parameter value
 	 */
 	setBaseParams = (params) => {
 		_.each(params, (value, name) => {
-			this.setParam(name, value, true);
+			this.setBaseParam(name, value);
 		});
 	}
 
 	/**
-	 * Manually clears all existing (non-base) params
-	 * including sorting, filtering, and pagination.
+	 * Manually clears all (non-base) params including filtering.
 	 * *Not intended for normal usage,* but rather for testing.
 	 * @param {boolean} reload - Whether to reload repository. Defaults to false.
 	 */
-	clearParams = (reload = false) => {
+	clearParams = (reload = false, clearBase = false) => {
 		this._params = {};
+		if (clearBase) {
+			this._baseParams = {};
+		}
 		if (reload && this.isLoaded) {
 			return this.reload();
 		}
@@ -292,8 +302,8 @@ class AjaxRepository extends Repository {
 	 */
 	_onChangeSorters = () => {
 		const sorter = this.sorters[0];
-		this.setParam(this.paramSort, sorter.name, true); // true to set baseParam
-		this.setParam(this.paramDirection, sorter.direction, true);
+		this.setBaseParam(this.paramSort, sorter.name);
+		this.setBaseParam(this.paramDirection, sorter.direction);
 		
 		if (this.isLoaded) {
 			return this.reload();
@@ -319,8 +329,8 @@ class AjaxRepository extends Repository {
 	 * Refreshes entities.
 	 */
 	_onChangePagination = () => {
-		this.setParam(this.paramPageNum, this.page, true); // true to set baseParam
-		this.setParam(this.paramPageSize, this.pageSize, true);
+		this.setBaseParam(this.paramPageNum, this.page);
+		this.setBaseParam(this.paramPageSize, this.pageSize);
 
 		if (this.isLoaded) {
 			return this.reload();
@@ -360,7 +370,7 @@ class AjaxRepository extends Repository {
 		}
 
 		const repository = this;
-		const data = _.assign({}, this.baseParams, this._params);
+		const data = _.assign({}, this._baseParams, this._params);
 		
 		return this._send(this.methods.get, this.api.get, data)
 					.then(result => {
@@ -462,7 +472,7 @@ class AjaxRepository extends Repository {
 		const params = {
 			id: entity.id,
 		};
-		return _.assign({}, this.baseParams, params);
+		return _.assign({}, this._baseParams, params);
 	}
 
 	/**
