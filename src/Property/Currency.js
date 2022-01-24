@@ -26,6 +26,7 @@ export default class CurrencyProperty extends Property {
 			},
 			submitAsString: true, // NOTE, we want to use the accounting.toFixed() method by default
 			defaultValue: 0.00,
+			omitZeros: false, // Should we omit any .00 at the end?
 		};
 
 		_.merge(this, defaults, config);
@@ -45,7 +46,12 @@ export default class CurrencyProperty extends Property {
 		if (this.isDestroyed) {
 			throw Error('this.getDisplayValue is no longer valid. Property has been destroyed.');
 		}
-		return accounting.formatMoney(this.parsedValue, this.displayOptions);
+
+		let ret = accounting.formatMoney(this.parsedValue, this.displayOptions)
+		if (this.omitZeros && ret.match(/\.00$/)) {
+			ret = ret.replace(/\.00$/, '');
+		}
+		return ret;
 	}
 
 	getSubmitValue = () => {

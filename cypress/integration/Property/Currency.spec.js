@@ -60,6 +60,28 @@ describe('CurrencyProperty', function() {
 			expect(formatted).to.be.eq('$1,234.56');
 		});
 
+		it('omitZeros', function() {
+			this.property.setValue('1234.56');
+			expect(this.property.displayValue).to.be.eq('$1,234.56');
+
+			this.property.setValue('1234.50');
+			expect(this.property.displayValue).to.be.eq('$1,234.50');
+
+			this.property.setValue('1234.00');
+			expect(this.property.displayValue).to.be.eq('$1,234.00');
+
+			this.property.omitZeros = true;
+
+			this.property.setValue('1234.56');
+			expect(this.property.displayValue).to.be.eq('$1,234.56');
+
+			this.property.setValue('1234.50');
+			expect(this.property.displayValue).to.be.eq('$1,234.50');
+
+			this.property.setValue('1234.00');
+			expect(this.property.displayValue).to.be.eq('$1,234');
+		});
+
 		it('submitValue', function() {
 			this.property.setValue(123.156);
 			const formatted = this.property.submitValue;
