@@ -32,8 +32,10 @@ class Entity extends EventEmitter {
 	 * @constructor
 	 * @param {Schema} schema - Schema object
 	 * @param {object} rawData - Raw data object. Keys are Property names, Values are Property values.
+	 * @param {Repository} repository
+	 * @param {boolean} - Has rawData already been mapped according to schema?
 	 */
-	constructor(schema, rawData = {}, repository = null) {
+	constructor(schema, rawData = {}, repository = null, originalIsMapped = false) {
 		super(...arguments);
 
 		if (!schema) {
@@ -85,6 +87,12 @@ class Entity extends EventEmitter {
 		 * @private
 		 */
 		this._originalDataParsed = null;
+
+		/**
+		 * @member {boolean} originalIsMapped - Has the original data already been mapped according to schema?
+		 * @private
+		 */
+		this.originalIsMapped = originalIsMapped;
 
 		/**
 		 * @member {Object} properties - Object of all Properties, keyed by id (for quick access)
@@ -204,6 +212,11 @@ class Entity extends EventEmitter {
 				throw new Error('PropertyType ' + type + ' does not exist.');
 			}
 
+			if (this.originalIsMapped) {
+				// Data has already been mapped according to schema, so alter definition
+				definition = _.clone(definition); // Clone it so you don't alter original in schema
+				definition.mapping = definition.name;
+			}
 			const Property = PropertyTypes[type],
 				property = new Property(definition, this._proxy);
 			

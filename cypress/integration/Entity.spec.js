@@ -14,7 +14,7 @@ describe('Entity', function() {
 				properties: [
 					{ name: 'foo', type: 'int' },
 					{ name: 'bar' },
-					{ name: 'baz', mapping: 'baz.test.val', type: 'bool' },
+					{ name: 'baz', mapping: 'baz.test.val', type: 'bool', defaultValue: null, },
 				],
 			},
 		});

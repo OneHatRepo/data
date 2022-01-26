@@ -847,10 +847,11 @@ export default class Repository extends EventEmitter {
 	 * Creates a single new Entity in storage medium.
 	 * @param {object} data - Either raw data object or Entity. If raw data, keys are Property names, Values are Property values.
 	 * @param {boolean} isPersisted - Whether the new entity should be marked as already being persisted in storage medium.
+	 * @param {boolean} originalIsMapped - Has data already been mapped according to schema?
 	 * @return {object} entity - new Entity object
 	 * @fires add
 	 */
-	add = async (data, isPersisted) => {
+	add = async (data, isPersisted = false, originalIsMapped = false) => {
 		if (this.isDestroyed) {
 			throw Error('this.add is no longer valid. Repository has been destroyed.');
 		}
@@ -858,7 +859,7 @@ export default class Repository extends EventEmitter {
 		let entity = data;
 		if (!(data instanceof Entity)) {
 			// Create the new entity
-			entity = Repository._createEntity(this.schema, data, this, isPersisted);
+			entity = Repository._createEntity(this.schema, data, this, isPersisted, originalIsMapped);
 		}
 		this._relayEntityEvents(entity);
 		this.entities.push(entity);
@@ -878,19 +879,26 @@ export default class Repository extends EventEmitter {
 	}
 
 	/**
+	 * Convenience function to add entity with mapped data.
+	 */
+	addMapped = (data, isPersisted = false) => {
+		return this.add(data, isPersisted, true);
+	}
+
+	/**
 	 * Convenience function to create multiple new Entities in storage medium.
 	 * @param {array} data - Array of data objects or Entities. 
 	 * @param {boolean} isPersisted - Whether the new entities should be marked as already being persisted in storage medium.
 	 * @return {array} entities - new Entity objects
 	 */
-	addMultiple = async (allData, isPersisted) => {
+	addMultiple = async (allData, isPersisted = false, originalIsMapped = false) => {
 
 		let entities = [],
 			i;
 
 		for (i = 0; i < allData.length; i++) {
 			const data = allData[i],
-				entity = await this.add(data, isPersisted);
+				entity = await this.add(data, isPersisted, originalIsMapped);
 			entities.push(entity);
 		};
 		
@@ -907,8 +915,8 @@ export default class Repository extends EventEmitter {
 	 * @return {object} entity - new Entity object
 	 * @private
 	 */
-	static _createEntity = (schema, rawData, repository = null, isPersisted = false) => {
-		const entity = new Entity(schema, rawData, repository);
+	static _createEntity = (schema, rawData, repository = null, isPersisted = false, originalIsMapped = false) => {
+		const entity = new Entity(schema, rawData, repository, originalIsMapped);
 		entity.initialize();
 		entity.isPersisted = isPersisted;
 		return entity;
