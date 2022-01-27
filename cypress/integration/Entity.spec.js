@@ -301,9 +301,35 @@ describe('Entity', function() {
 			expect(_.isEqual(reverseMapped2, expected2)).to.be.true;
 		});
 
-		it('getReverseMappedRawValues', function() {
-			const result = this.entity.getReverseMappedRawValues();
-			expect(_.isEqual(result, this.data)).to.be.true;
+		it('getReverseMappedRawValues (check deep matches)', function() {
+			const schema = new Schema({
+					name: 'baz',
+					model: {
+						idProperty: 'foo',
+						displayProperty: 'bar',
+						properties: [
+							{ name: 'foo', type: 'int' },
+							{ name: 'bar' },
+							{ name: 'baz', mapping: 'baz.test.val', type: 'bool', defaultValue: null, },
+							{ name: 'baz2', mapping: 'baz.test2', type: 'bool', defaultValue: null, },
+						],
+					},
+				}),
+				data = {
+					foo: 1,
+					bar: 'one',
+					baz: {
+						test: {
+							val: true,
+						},
+						test2: false,
+					},
+				},
+				entity = new Entity(schema, data);
+			entity.initialize();
+
+			const result = entity.getReverseMappedRawValues();
+			expect(_.isEqual(result, data)).to.be.true;
 		});
 
 		it('build a new entity from an existing one using getDataForNewEntity', function() {

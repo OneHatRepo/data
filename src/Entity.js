@@ -640,7 +640,7 @@ class Entity extends EventEmitter {
 		let propertyValues = {};
 		_.forOwn(this.properties, (property) => {
 			const reverseMapped = Entity.getReverseMappedRawValue(property);
-			_.assign(propertyValues, reverseMapped);
+			_.merge(propertyValues, reverseMapped);
 		});
 		return propertyValues;
 	}
