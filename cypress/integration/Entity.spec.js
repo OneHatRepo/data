@@ -198,6 +198,17 @@ describe('Entity', function() {
 			expect(_.isEqual(this.entity.submitValues, expected)).to.be.true;
 		});
 
+		it('getSubmitValuesMapped & submitValuesMapped', function() {
+			const result = this.entity.getSubmitValuesMapped(),
+				expected = {
+					foo: 1,
+					bar: 'one',
+					'baz.test.val': true,
+				};
+			expect(_.isEqual(result, expected)).to.be.true;
+			expect(_.isEqual(this.entity.submitValuesMapped, expected)).to.be.true;
+		});
+
 		it('getDisplayValues & displayValues', function() {
 			const result = this.entity.getDisplayValues(),
 				expected = {
@@ -258,20 +269,48 @@ describe('Entity', function() {
 		});
 
 		it('getReverseMappedRawValue', function() {
-			const definition = {
-				name: 'foo',
-				mapping: 'a.b.c',
-				type: 'int',
-			},
-			Property = PropertyTypes[definition.type];
-			const property = new Property(definition, 'fakeEntity');
+			const definition1 = {
+					name: 'foo',
+					mapping: 'a.b.c',
+					type: 'int',
+				},
+				Property1 = PropertyTypes[definition1.type];
+			const property1 = new Property1(definition1, 'fakeEntity');
 
-			property.setValue('47');
+			property1.setValue('47');
 			
-			const reverseMapped = Entity.getReverseMappedRawValue(property),
-				expected = { a: { b: { c: '47' }, }, };
+			const reverseMapped1 = Entity.getReverseMappedRawValue(property1),
+				expected1 = { a: { b: { c: '47' }, }, };
 			
-			expect(_.isEqual(reverseMapped, expected)).to.be.true;
+			expect(_.isEqual(reverseMapped1, expected1)).to.be.true;
+
+
+			// Now, with no mapping
+			const definition2 = {
+					name: 'foo',
+					type: 'int',
+				},
+				Property2 = PropertyTypes[definition2.type];
+			const property2 = new Property2(definition2, 'fakeEntity');
+
+			property2.setValue('47');
+			
+			const reverseMapped2 = Entity.getReverseMappedRawValue(property2),
+				expected2 = { foo: '47' };
+			
+			expect(_.isEqual(reverseMapped2, expected2)).to.be.true;
+		});
+
+		it('getReverseMappedRawValues', function() {
+			const result = this.entity.getReverseMappedRawValues();
+			expect(_.isEqual(result, this.data)).to.be.true;
+		});
+
+		it('build a new entity from an existing one using getDataForNewEntity', function() {
+			const entity = new Entity(this.schema, this.entity.getDataForNewEntity());
+			entity.initialize();
+
+			expect(_.isEqual(entity.submitValues, this.entity.submitValues)).to.be.true;
 		});
 
 		it('getChanged', function() {

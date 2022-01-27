@@ -458,6 +458,36 @@ class Entity extends EventEmitter {
 	}
 
 	/**
+	 * Gets an object of properties/values for this Entity,
+	 * and returns them with the mapped names
+	 * Values are the "submit" values, not the "raw" or "parsed" or "display" values.
+	 * @return {object} propertyValues
+	 */
+	getSubmitValuesMapped = () => {
+		if (this.isDestroyed) {
+			throw Error('this.getSubmitValuesMapped is no longer valid. Entity has been destroyed.');
+		}
+		
+		let propertyValues = {};
+		_.forOwn(this.properties, (property) => {
+			const name = property.hasMapping ? property.getMapping() : property.name;
+			propertyValues[name] = property.getSubmitValue();
+		});
+		return propertyValues;
+	}
+
+	/**
+	 * Gets "submit" values for this Entity, and returns them with the mapped names
+	 * @return {object} values
+	 */
+	get submitValuesMapped() {
+		if (this.isDestroyed) {
+			throw Error('this.submitValuesMapped is no longer valid. Entity has been destroyed.');
+		}
+		return this.getSubmitValuesMapped();
+	}
+
+	/**
 	 * Gets an object of values for this Entity,
 	 * Values are the "display" values, not the "raw" or "parsed" or "submit" values.
 	 * @return {object} propertyValues
@@ -569,6 +599,11 @@ class Entity extends EventEmitter {
 	 * @static
 	 */
 	static getReverseMappedRawValue(property) {
+		if (!property.hasMapping) {
+			const obj = {};
+			obj[property.name] = property.rawValue;
+			return obj;
+		}
 		const mapStack = property.mapping.split('.'),
 			rawValue = property.getRawValue();
 
@@ -589,6 +624,37 @@ class Entity extends EventEmitter {
 			}
 		}
 		return value;
+	}
+
+	/**
+	 * Builds up an object of original values for this entity, from which another entity could be easily created
+	 * @return {object} value - An object representing the 'path' to the raw value.
+	 * e.g. With a mapping of 'a.b.c' and a property rawValue of '47', the 
+	 * following object will be returned:{ a: { b: { c: '47' }, }, }
+	 */
+	getReverseMappedRawValues = () => {
+		if (this.isDestroyed) {
+			throw Error('this.getReverseMappedRawValues is no longer valid. Entity has been destroyed.');
+		}
+		
+		let propertyValues = {};
+		_.forOwn(this.properties, (property) => {
+			const reverseMapped = Entity.getReverseMappedRawValue(property);
+			_.assign(propertyValues, reverseMapped);
+		});
+		return propertyValues;
+	}
+
+	/**
+	 * Convenience function
+	 * Build a new entity with this data
+	 */
+	getDataForNewEntity = () => {
+		if (this.isDestroyed) {
+			throw Error('this.getDataForNewEntity is no longer valid. Entity has been destroyed.');
+		}
+		
+		return this.getReverseMappedRawValues();
 	}
 
 	/**

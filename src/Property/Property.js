@@ -406,6 +406,17 @@ export default class Property extends EventEmitter {
 	}
 
 	/**
+	 * Gets the mapped name of this Property.
+	 * @return {string} name
+	 */
+	getMapping = () => {
+		if (this.isDestroyed) {
+			throw Error('this.getMappedName is no longer valid. Property has been destroyed.');
+		}
+		return this.mapping;
+	}
+
+	/**
 	 * Destroy this object.
 	 * - Removes all circular references to parent objects
 	 * - Removes child objects

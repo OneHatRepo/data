@@ -108,6 +108,10 @@ describe('Property', function() {
 			const property = entity.getProperty('bar');
 			expect(property.isDisplayProperty).to.be.true;
 		});
+	
+		it('getMapping', function() {
+			expect(this.property.getMapping()).to.be.eq('id');
+		});
 
 	});
 
