@@ -411,7 +411,7 @@ export default class Property extends EventEmitter {
 	 */
 	getMapping = () => {
 		if (this.isDestroyed) {
-			throw Error('this.getMappedName is no longer valid. Property has been destroyed.');
+			throw Error('this.getMapping is no longer valid. Property has been destroyed.');
 		}
 		return this.mapping;
 	}
