@@ -511,6 +511,12 @@ describe('Repository Base', function() {
 			expect(didFireAdd).to.be.true;
 		});
 
+		it('createStandaloneEntity', async function() {
+			const entity = await this.repository.createStandaloneEntity({ key: 6, value: 'six' });
+			expect(entity.id).to.be.eq(6);
+			expect(_.size(this.repository.entities)).to.be.eq(5);
+		});
+
 		it('addMultiple', async function() {
 			await this.repository.addMultiple([
 				{ key: 6, value: 'six' },

@@ -879,6 +879,27 @@ export default class Repository extends EventEmitter {
 	}
 
 	/**
+	 * Creates a new static Entity that does NOT persist in storage medium.
+	 * @param {object} data - Either raw data object or Entity. If raw data, keys are Property names, Values are Property values.
+	 * @param {boolean} isPersisted - Whether the new entity should be marked as already being persisted in storage medium.
+	 * @param {boolean} originalIsMapped - Has data already been mapped according to schema?
+	 * @return {object} entity - new Entity object
+	 */
+	createStandaloneEntity = async (data, isPersisted = false, originalIsMapped = false) => {
+		if (this.isDestroyed) {
+			throw Error('this.createStandaloneEntity is no longer valid. Repository has been destroyed.');
+		}
+		
+		const entity = Repository._createEntity(this.schema, data, this, isPersisted, originalIsMapped);
+
+		if (entity.isPhantom) {
+			entity.createId(); // either a UUID or a temp id
+		}
+
+		return entity;
+	}
+
+	/**
 	 * Convenience function to add entity with mapped data.
 	 */
 	addMapped = (data, isPersisted = false) => {
