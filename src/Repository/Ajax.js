@@ -395,7 +395,7 @@ class AjaxRepository extends Repository {
 						});
 				
 						// Set the total records that pass filter
-						this.total = total;				
+						this.total = total;
 						this._setPaginationVars();
 				
 						this.isLoading = false;

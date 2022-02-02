@@ -19,6 +19,14 @@ describe('IntegerProperty', function() {
 			expect(className).to.be.eq('Integer');
 		});
 
+		it('newId', function() {
+			const id1 = this.property.newId();
+			expect(id1.valueOf()).to.be.eq(this.property.idStartsAt);
+
+			const id2 = this.property.newId();
+			expect(id2.valueOf()).to.be.eq(this.property.idStartsAt +1);
+		});
+
 		// it('default value', function() {
 		// 	const property = this.property,
 		// 		rawValue = property.getDefaultValue();

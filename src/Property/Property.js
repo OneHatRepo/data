@@ -83,6 +83,12 @@ export default class Property extends EventEmitter {
 			 * @member {boolean} isSortable - Whether this property type is sortable
 			 */
 			isSortable: true,
+			
+			/**
+			 * @member {boolean} isTempId - Whether this property's ID is temporary
+			 */
+			isTempId: false,
+
 
 
 			// OneBuild META attributes, just bring these over wholesale for now

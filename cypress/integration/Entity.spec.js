@@ -44,7 +44,7 @@ describe('Entity', function() {
 			expect(this.entity.id).to.be.eq(1);
 		});
 
-		it('createId, isTempId', function() {
+		it('createTempId, isTempId', function() {
 			const schema = new Schema({
 					name: 'baz',
 					model: {
@@ -62,33 +62,14 @@ describe('Entity', function() {
 				entity = new Entity(schema, data);
 			entity.initialize();
 			expect(entity.id).to.be.null;
+			expect(entity.isTempId).to.be.false;
 
-			entity.createId();
+			entity.createTempId();
 			expect(entity.id).to.be.not.null;
-			expect(Entity.isTempId(entity.id)).to.be.true;
+			expect(entity.isTempId).to.be.true;
 
-
-
-			const schema2 = new Schema({
-					name: 'baz',
-					model: {
-						idProperty: 'foo',
-						displayProperty: 'bar',
-						properties: [
-							{ name: 'foo', type: 'uuid' }, // MOD
-							{ name: 'bar' },
-						],
-					},
-				}),
-				entity2 = new Entity(schema2, data);
-			
-			entity2.initialize();
-			expect(entity2.id).to.be.null;
-
-			entity2.createId();
-			expect(entity2.id).to.be.not.null;
-			const idProperty = entity2.getIdProperty();
-			expect(Entity.isTempId(entity2.id)).to.be.false;
+			entity.markSaved();
+			expect(entity.isTempId).to.be.false;
 		});
 		
 	
@@ -407,6 +388,12 @@ describe('Entity', function() {
 			const entity = new Entity(this.schema, {});
 			entity.initialize();
 			expect(entity.isPhantom).to.be.true;
+
+			entity.createTempId();
+			expect(entity.isPhantom).to.be.true;
+			
+			entity.markSaved();
+			expect(entity.isPhantom).to.be.false;
 		});
 
 		it('isDirty', function() {
@@ -469,6 +456,15 @@ describe('Entity', function() {
 			expect(this.entity.isDirty).to.be.true;
 		});
 
+		it('setId', function() {
+			expect(this.entity.foo).to.be.eq(1);
+			expect(this.entity.isTempId).to.be.false;
+			
+			this.entity.setId(2);
+			expect(this.entity.foo).to.be.eq(2);
+			expect(this.entity.isTempId).to.be.false;
+		});
+
 		it('_recalculateDependentProperties', function() {
 			const schema = new Schema({
 					name: 'baz',
@@ -508,6 +504,7 @@ describe('Entity', function() {
 			
 			entity.bar = 'Test';
 			entity.markSaved();
+			expect(entity.isTempId).to.be.false;
 
 			expect(entity.isPersisted).to.be.true;
 			const expected = {

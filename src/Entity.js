@@ -4,8 +4,6 @@ import EventEmitter from '@onehat/events';
 import PropertyTypes from './Property';
 import _ from 'lodash';
 
-const TEMP_PREFIX = 'TEMP-';
-
 /**
  * Class represents a single Entity (i.e. a record)
  * which is a collection of Properties with current values.
@@ -158,31 +156,24 @@ class Entity extends EventEmitter {
 
 	/**
 	 * Generates a new unique id and assigns it to this entity.
-	 * If the idProperty is of type 'uuid', then it generates a new UUID.
-	 * If not, then it generates a temp id.
 	 */
-	createId = () => {
+	createTempId = () => {
 		if (this.isDestroyed) {
-			throw Error('this.generateTempId is no longer valid. Entity has been destroyed.');
+			throw Error('this.createTempId is no longer valid. Entity has been destroyed.');
 		}
 		if (!_.isNil(this.id)) {
 			throw new Error('Entity id already exists.');
 		}
-		const idProperty = this.getIdProperty(),
-			id = (idProperty.type === 'uuid') ? idProperty.newId() : _.uniqueId(TEMP_PREFIX);
-		this.setId(id);
-	}
 
-	/**
-	 * Determines whether submitted id is a "temp" id.
-	 * @param {any} id
-	 * @return {boolean} isTempId
-	 */
-	static isTempId(id) {
-		if (_.isString(id) && id.match(new RegExp('^' + TEMP_PREFIX))) {
-			return true;
+		const idProperty = this.getIdProperty();
+		
+		if (!idProperty.newId) {
+			throw new Error('idProperty.newId() does not exist');
 		}
-		return false;
+
+		this.setId(idProperty.newId());
+
+		idProperty.isTempId = true;
 	}
 
 	/**
@@ -740,6 +731,14 @@ class Entity extends EventEmitter {
 	}
 
 	/**
+	 * Is this Entity's idProperty using a temporary ID?
+	 * @return {boolean} isTempId
+	 */
+	get isTempId() {
+		return this.getIdProperty().isTempId;
+	}
+
+	/**
 	 * Gets the "Display" Property object for this Entity.
 	 * This is the Property whose value can easily identify the whole Entity itself.
 	 * @return {Property} Display Property
@@ -793,13 +792,13 @@ class Entity extends EventEmitter {
 		const idProperty = this.getIdProperty(),
 			id = idProperty.getSubmitValue();
 
-		// No id
+		// No ID
 		if (_.isNil(id)) {
 			return true;
 		}
 
-		// Temp id
-		if (Entity.isTempId(id)) {
+		// ID is temporary
+		if (idProperty.isTempId) {
 			return true;
 		}
 
@@ -851,23 +850,25 @@ class Entity extends EventEmitter {
 	 */
 	setId = (id, force = false) => {
 		let isChanged = false;
-		const property = this.getIdProperty();
+		const idProperty = this.getIdProperty();
 
-		property.pauseEvents(); // We don't need property_change to fire
-		if (property.setValue(id)) {
+		idProperty.pauseEvents(); // We don't need property_change to fire
+		if (idProperty.setValue(id)) {
 			isChanged = true;
 		}
-		property.resumeEvents();
+		idProperty.resumeEvents();
 
 		if (isChanged || force) {
 			// Set this id on the _originalData* objects
-			if (property.hasMapping) {
-				_.merge(this._originalData, Entity.getReverseMappedRawValue(property));
+			if (idProperty.hasMapping) {
+				_.merge(this._originalData, Entity.getReverseMappedRawValue(idProperty));
 			} else {
-				this._originalData[property.name] = property.getRawValue();
+				this._originalData[idProperty.name] = idProperty.getRawValue();
 			}
-			this._originalDataParsed[property.name] = property.getParsedValue();
+			this._originalDataParsed[idProperty.name] = idProperty.getParsedValue();
 		}
+		
+		idProperty.isTempId = false;
 
 		return isChanged;
 	}
@@ -973,6 +974,7 @@ class Entity extends EventEmitter {
 			throw Error('this.markSaved is no longer valid. Entity has been destroyed.');
 		}
 		this.isPersisted = true;
+		this.getIdProperty().isTempId = false;
 		this._originalData = this._getReconstructedOriginalData();
 		this._originalDataParsed = this.getParsedValues();
 	}

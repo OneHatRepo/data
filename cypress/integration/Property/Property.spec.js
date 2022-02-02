@@ -112,6 +112,20 @@ describe('Property', function() {
 		it('getMapping', function() {
 			expect(this.property.getMapping()).to.be.eq('id');
 		});
+	
+		it('getMapping', function() {
+			expect(this.property.getMapping()).to.be.eq('id');
+		});
+	
+		it('isTempId', function() {
+			const definition = {
+					type: 'int',
+					isTempId: true,
+				},
+				Property = PropertyTypes[definition.type];
+			const property = new Property(definition);
+			expect(property.isTempId).to.be.true;
+		});
 
 	});
 

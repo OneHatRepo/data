@@ -134,7 +134,7 @@ class MemoryRepository extends Repository {
 		// Add to internal store
 		_.each(entities, (entity) => {
 			if (entity.isPhantom) {
-				entity.createId();
+				entity.createTempId();
 			}
 			this._keyedEntities[entity.id] = entity;
 		});

@@ -10,9 +10,21 @@ describe('StringProperty', function() {
 		this.property = new Property(definition);
 	});
 
-	it('className', function() {
-		const className = this.property.getClassName();
-		expect(className).to.be.eq('String');
+	describe('general', function() {
+
+		it('className', function() {
+			const className = this.property.getClassName();
+			expect(className).to.be.eq('String');
+		});
+
+		it('newId', function() {
+			const id1 = this.property.newId();
+			expect(id1.valueOf()).to.be.eq('TEMP-1');
+
+			const id2 = this.property.newId();
+			expect(id2.valueOf()).to.be.eq('TEMP-2');
+		});
+
 	});
 
 	describe('parse', function() {

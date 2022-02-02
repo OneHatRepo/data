@@ -622,11 +622,18 @@ describe('Repository Base', function() {
 			expect(_.isEqual(entity, deleted[0])).to.be.true;
 		});
 
-		it('isInRepository', function() {
+		it('isInRepository, hasId', function() {
 			this.repository.setAutoSave(false);
-			const entity = this.repository.getByIx(0),
-				result = this.repository.isInRepository(entity);
-			
+			const id = 1,
+				entity = this.repository.getById(id);
+
+			let result = this.repository.isInRepository(entity);
+			expect(result).to.be.true;
+
+			result = this.repository.isInRepository(id);
+			expect(result).to.be.true;
+
+			result = this.repository.hasId(id);
 			expect(result).to.be.true;
 		});
 

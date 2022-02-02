@@ -865,8 +865,8 @@ export default class Repository extends EventEmitter {
 		this.entities.push(entity);
 
 		// Create id if needed
-		if (entity.isPhantom) {
-			entity.createId(); // either a UUID or a temp id
+		if (entity.isPhantom) { // i.e. idProperty has no value
+			entity.createTempId();
 		}
 
 		this.emit('add', entity);
@@ -893,7 +893,7 @@ export default class Repository extends EventEmitter {
 		const entity = Repository._createEntity(this.schema, data, this, isPersisted, originalIsMapped);
 
 		if (entity.isPhantom) {
-			entity.createId(); // either a UUID or a temp id
+			entity.createTempId();
 		}
 
 		return entity;
@@ -1166,6 +1166,15 @@ export default class Repository extends EventEmitter {
 			return this.entities.indexOf(idOrEntity) !== -1;
 		}
 		return !_.isNil(this.getById(idOrEntity));
+	}
+
+	/**
+	 * Convenience function
+	 * Alias for isInRepository
+	 * NOTE: It only searches in memory. Doesn't query server
+	 */
+	hasId = (id) => {
+		return this.isInRepository(id);
 	}
 
 	/**
