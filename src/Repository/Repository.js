@@ -1064,20 +1064,19 @@ export default class Repository extends EventEmitter {
 	/**
 	 * Get a single Entity by its id
 	 * @param {integer} id - id of record to retrieve
-	 * @return {Entity} The Entity with matching id
+	 * @return {Entity} The Entity with matching id, or undefined
 	 */
 	getById = (id) => {
 		if (this.isDestroyed) {
 			throw Error('this.getById is no longer valid. Repository has been destroyed.');
 		}
-		const result = this.getBy((entity) => entity.id === id);
-		return result.length > 0 ? result[0] : null;
+		return this.getFirstBy(entity => entity.id === id);
 	}
 
 	/**
 	 * Get an array of Entities by supplied filter function
 	 * @param {function} filter - Filter function to apply to all entities
-	 * @return {Entity[]} Entities that passed through filter
+	 * @return {Entity[]} Entities that passed through filter, or []
 	 */
 	getBy = (filter) => {
 		if (this.isDestroyed) {
@@ -1093,7 +1092,7 @@ export default class Repository extends EventEmitter {
 	 * filters into account. Defaults to false.
 	 * 
 	 * @param {function} filter - Filter function to search by
-	 * @return {Entity} First Entity found
+	 * @return {Entity} First Entity found, or undefined
 	 */
 	getFirstBy = (filter) => {
 		if (this.isDestroyed) {
@@ -1104,7 +1103,7 @@ export default class Repository extends EventEmitter {
 
 	/**
 	 * Get all phantom (unsaved) Entities
-	 * @return {Entity[]} Array of phantom Entities
+	 * @return {Entity[]} Array of phantom Entities, or []
 	 */
 	getPhantom = () => {
 		if (this.isDestroyed) {
@@ -1115,7 +1114,7 @@ export default class Repository extends EventEmitter {
 
 	/**
 	 * Get all Entities not yet persisted to a storage medium
-	 * @return {Entity[]} Array of dirty Entities
+	 * @return {Entity[]} Array of dirty Entities, or []
 	 */
 	getNonPersisted = () => {
 		if (this.isDestroyed) {
@@ -1128,7 +1127,7 @@ export default class Repository extends EventEmitter {
 
 	/**
 	 * Get all dirty (having unsaved changes) Entities
-	 * @return {Entity[]} Array of dirty Entities
+	 * @return {Entity[]} Array of dirty Entities, or []
 	 */
 	getDirty = () => {
 		if (this.isDestroyed) {
@@ -1141,7 +1140,7 @@ export default class Repository extends EventEmitter {
 
 	/**
 	 * Get all deleted Entities
-	 * @return {Entity[]} Array of deleted Entities
+	 * @return {Entity[]} Array of deleted Entities, or []
 	 */
 	getDeleted = () => {
 		if (this.isDestroyed) {

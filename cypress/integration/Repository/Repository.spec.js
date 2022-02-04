@@ -581,6 +581,23 @@ describe('Repository Base', function() {
 			expect(result.value).to.be.eq('three');
 		});
 
+		it('getById', function() {
+			const result = this.repository.getById(3);
+			expect(result.value).to.be.eq('three');
+		});
+
+		it('getBy', function() {
+			const result = this.repository.getBy(entity => entity.id === 2 || entity.id === 3);
+			expect(result.length).to.be.eq(2);
+			expect(result[0].value).to.be.eq('two');
+			expect(result[1].value).to.be.eq('three');
+		});
+
+		it('getFirstBy', function() {
+			const result = this.repository.getFirstBy(entity => entity.id === 3);
+			expect(result.value).to.be.eq('three');
+		});
+
 		it('getByRange', function() {
 			const result = this.repository.getByRange(1, 4);
 			expect(_.size(result)).to.be.eq(4);
