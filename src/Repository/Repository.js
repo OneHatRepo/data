@@ -973,6 +973,15 @@ export default class Repository extends EventEmitter {
 	}
 
 	/**
+	 * Deletes all locally cached entities in repository,
+	 * usually, the current "page".
+	 * Does not actually affect anything on the server.
+	 */
+	clear = async () => {
+		this._destroyEntities();
+	}
+
+	/**
 	 * Gets an array of "submit" values objects for the entities
 	 * @return {array} map - 
 	 */

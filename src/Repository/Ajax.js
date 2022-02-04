@@ -678,15 +678,6 @@ class AjaxRepository extends Repository {
 			}));
 	}
 
-	/**
-	 * Deletes all locally cached entities in repository,
-	 * usually, the current "page".
-	 * Does not actually affect anything on the server.
-	 */
-	clear = async () => {
-		this._destroyEntities();
-	}
-
 }
 
 AjaxRepository.className = 'Ajax';

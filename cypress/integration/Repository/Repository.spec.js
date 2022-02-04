@@ -685,6 +685,11 @@ describe('Repository Base', function() {
 
 	describe('deleting', function() {
 
+		it('clear', function() {
+			this.repository.clear();
+			expect(this.repository.entities.length).to.be.eq(0);
+		});
+
 		it('delete', function() {
 			let didFire = false;
 			this.repository.on('delete', () => {
