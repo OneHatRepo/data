@@ -1411,8 +1411,8 @@ export default class Repository extends EventEmitter {
 	 * Helper for delete()
 	 */
 	 removeEntity = async (entity) => {
-		 this.entities = _.filter(this.entities, e => e !== entity);
-		 entity.destroy();
+		this.entities = _.filter(this.entities, e => e !== entity);
+		entity.destroy();
 	}
 
 	/**
