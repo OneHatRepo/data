@@ -1374,7 +1374,7 @@ export default class Repository extends EventEmitter {
 	
 	/**
 	 * Marks entities for deletion from storage medium.
-	 * Actual deletion takes place in save()
+	 * Actual deletion takes place in save(), unless isPhantom
 	 * @param {object|array} entities - one or more entities to delete
 	 * @fires delete
 	 */
@@ -1390,7 +1390,12 @@ export default class Repository extends EventEmitter {
 			return;
 		}
 		_.each(entities, (entity) => {
-			entity.markDeleted(); // Entity is still there, it's just marked for deletion
+			if (entity.isPhantom) {
+				// Just auto-remove it. Don't bother saving to storage medium.
+				this.removeEntity(entity);
+			} else {
+				entity.markDeleted(); // Entity is still there, it's just marked for deletion
+			}
 		});
 
 		this.emit('delete', entities);
@@ -1398,6 +1403,16 @@ export default class Repository extends EventEmitter {
 		if (this.autoSave) {
 			await this.save();
 		}
+	}
+
+	/**
+	 * Removes an Entity from the current page
+	 * Mainly used for phantom Entities
+	 * Helper for delete()
+	 */
+	 removeEntity = async (entity) => {
+		 this.entities = _.filter(this.entities, e => e !== entity);
+		 entity.destroy();
 	}
 
 	/**

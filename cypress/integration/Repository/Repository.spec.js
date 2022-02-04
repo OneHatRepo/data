@@ -703,6 +703,13 @@ describe('Repository Base', function() {
 			expect(didFire).to.be.true;
 		});
 
+		it('delete() / removeEntity', async function() {
+			this.repository.setAutoSave(false);
+			const entity = await this.repository.add({ value: 'six' });
+			this.repository.delete(entity);
+			expect(this.repository.entities.length).to.be.eq(5);
+		});
+
 
 		// I'm going to skip these, as they're just combinations of other, tested functions
 		// deleteByIx
