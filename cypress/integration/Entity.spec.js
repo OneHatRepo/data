@@ -17,6 +17,13 @@ describe('Entity', function() {
 					{ name: 'baz', mapping: 'baz.test.val', type: 'bool', defaultValue: null, },
 				],
 			},
+			entity: {
+				methods: {
+					testMethod: function() {
+						this.bar = 'test me';
+					},
+				},
+			},
 		});
 		this.data = {
 			foo: 1,
@@ -71,7 +78,6 @@ describe('Entity', function() {
 			entity.markSaved();
 			expect(entity.isTempId).to.be.false;
 		});
-		
 	
 		it('clone', function() {
 			const entity = this.entity;
@@ -99,6 +105,11 @@ describe('Entity', function() {
 			expect(entity.properties.foo.name).to.be.eq('foo');
 			expect(entity.properties.bar.name).to.be.eq('bar');
 			expect(entity.properties.baz.name).to.be.eq('baz');
+		});
+
+		it('_createMethods', function() {
+			this.entity.testMethod();
+			expect(this.entity.bar).to.be.eq('test me');
 		});
 		
 		it('loadOriginalData', function() {

@@ -27,6 +27,14 @@ const GroupsUsers = {
 
 	},
 
+	entity: {
+		methods: {
+			testMethod: function() {
+				this.users__login_count = this.users__login_count +1;
+			},
+		},
+	},
+
 	repository: 'onebuild',
 
 };

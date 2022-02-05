@@ -11,6 +11,7 @@ describe('Schema', function() {
 		expect(this.schema instanceof Schema).to.be.true;
 		expect(this.schema.name).to.be.eq('GroupsUsers');
 		expect(this.schema.repository.type).to.be.eq('onebuild');
+		expect(this.schema.entity.methods.testMethod).to.be.a('function');
 	});
 
 	it('clone', function() {

@@ -150,8 +150,26 @@ class Entity extends EventEmitter {
 
 	initialize = () => {
 		this.properties = this._createProperties();
+		this._createMethods();
 		this.reset();
 		this.isInitialized = true;
+	}
+
+	/**
+	 * Creates the methods for this Entity, based on Schema.
+	 * @private
+	 */
+	_createMethods = () => {
+		if (this.isDestroyed) {
+			throw Error('this._createMethods is no longer valid. Entity has been destroyed.');
+		}
+		const methodDefinitions = this.schema.entity.methods;
+		if (_.isEmpty(methodDefinitions)) {
+			return;
+		}
+		_.each(methodDefinitions, (method, name) => {
+			this[name] = method; // NOTE: Methods must be defined in schema as "function() {}", not as "() => {}" so "this" will be assigned correctly
+		});
 	}
 
 	/**

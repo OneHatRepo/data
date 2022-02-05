@@ -5,11 +5,12 @@ import _ from 'lodash';
 
 /**
  * Class represents the Schema definition for Model and Source
- * This is basically just a big config object, used to instantiate a Model and Source.
+ * This is basically just a big config object, used to instantiate an Entity, and Repository.
  * Usage:
  * - const schema = new Schema({
  * 		name: 'Users',
  * 		model: {},
+ * 		entity: {},
  * 		repository: {},
  * });
  * 
@@ -95,6 +96,10 @@ export default class Schema extends EventEmitter {
 					 */
 					belongsToMany: [],
 				},
+			},
+			
+			entity: {
+				methods: {}, // NOTE: Methods must be defined as "function() {}", not as "() => {}" so "this" will be assigned correctly
 			},
 
 			/**
