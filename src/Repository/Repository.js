@@ -23,7 +23,7 @@ export default class Repository extends EventEmitter {
 	 * - name {string} - Optional. Defaults to schema.name
 	 * - schema - Schema object
 	 */
-	constructor(config = {}) {
+	constructor(config = {}, oneHatData = null) {
 		super(...arguments);
 		
 		const { schema } = config;
@@ -213,6 +213,11 @@ export default class Repository extends EventEmitter {
 		 * @member {boolean} isDestroyed - Whether this object has been destroyed
 		 */
 		this.isDestroyed = false;
+
+		/**
+		 * @member {boolean} oneHatData - The global @onehat/data object
+		 */
+		this.oneHatData = oneHatData;
 
 		this.registerEvents([
 			'add',

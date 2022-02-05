@@ -10,8 +10,9 @@ describe('Schema', function() {
 	it('schema is valid', function() {
 		expect(this.schema instanceof Schema).to.be.true;
 		expect(this.schema.name).to.be.eq('GroupsUsers');
-		expect(this.schema.repository.type).to.be.eq('onebuild');
+		expect(this.schema.model.associations.hasOne).to.be.an('array');
 		expect(this.schema.entity.methods.testMethod).to.be.a('function');
+		expect(this.schema.repository.type).to.be.eq('onebuild');
 	});
 
 	it('clone', function() {

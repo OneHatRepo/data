@@ -851,6 +851,31 @@ class Entity extends EventEmitter {
 		return this._originalData;
 	}
 
+	/**
+	 * Gets the associated Repository
+	 * @param {string} repositoryName - Name of the Repository to retrieve
+	 * @return {boolean} hasProperty
+	 */
+	getAssociatedRepository = (repositoryName) => {
+		if (this.isDestroyed) {
+			throw Error('this.getAssociatedRepository is no longer valid. Entity has been destroyed.');
+		}
+
+		const schema = this.getSchema();
+		if (!schema.associations.hasOne.includes(repositoryName) &&
+			!schema.associations.hasMany.includes(repositoryName) &&
+			!schema.associations.belongsTo.includes(repositoryName) &&
+			!schema.associations.belongsToMany.includes(repositoryName)
+			) {
+			throw Error(repositoryName + ' is not associated with ' + this.getRepository().name);
+		}
+		const repository = this.getRepository();
+		if (!repository.oneHatData) {
+			throw Error('No global oneHatData object');
+		}
+		return repository.oneHatData.getRepository(repositoryName);
+	}
+
 
 
 	//    _____      __  __

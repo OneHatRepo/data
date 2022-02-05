@@ -370,7 +370,7 @@ class AjaxRepository extends Repository {
 		}
 
 		const repository = this;
-		const data = _.assign({}, this._baseParams, this._params);
+		const data = _.merge({}, this._baseParams, this._params);
 		
 		return this._send(this.methods.get, this.api.get, data)
 					.then(result => {

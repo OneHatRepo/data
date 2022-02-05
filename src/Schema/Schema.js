@@ -109,7 +109,7 @@ export default class Schema extends EventEmitter {
 
 		};
 
-		this._originalConfig = _.assign({}, defaults, config);
+		this._originalConfig = _.merge({}, defaults, config);
 		_.merge(this, this._originalConfig);
 
 		/**

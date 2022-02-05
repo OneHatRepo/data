@@ -254,8 +254,8 @@ export class OneHatData extends EventEmitter {
 			}
 
 			// Apply the general config settings to each specific one
-			const localConfig = _.assign({}, generalConfig, config.local),
-				remoteConfig = _.assign({}, generalConfig, config.remote);
+			const localConfig = _.merge({}, generalConfig, config.local),
+				remoteConfig = _.merge({}, generalConfig, config.remote);
 			
 			// Actually create the local and remote repositories
 			config.local = await this.createRepository(localConfig);
@@ -263,7 +263,7 @@ export class OneHatData extends EventEmitter {
 		}
 
 		const Repository = this._repositoryTypes[config.type],
-			repository = new Repository(config);
+			repository = new Repository(config, this);
 		await repository.initialize();
 		
 		return repository;
