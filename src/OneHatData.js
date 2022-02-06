@@ -443,6 +443,19 @@ export class OneHatData extends EventEmitter {
 	}
 
 	/**
+	 * Checks whether the requested bound Repository exists.
+	 * @param {string} name - Name of Schema
+	 * @return {boolean} hasRepository
+	 */
+	hasRepository = (name) => {
+		if (this.isDestroyed) {
+			throw new Error('this.getRepository is no longer valid. OneHatData has been destroyed.');
+		}
+		const repository = this.getRepository(name);
+		return !!repository;
+	}
+
+	/**
 	 * Get Repositories by a filter function
 	 * @param {function} filter - Filter function
 	 * @param {boolean} firstOnly - Whether to retrieve only the first item that passes the filter

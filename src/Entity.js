@@ -399,6 +399,17 @@ class Entity extends EventEmitter {
 	}
 
 	/**
+	 * Gets the Repository object
+	 * @return {Repository} repository
+	 */
+	getRepository = () => {
+		if (this.isDestroyed) {
+			throw Error('this.getRepository is no longer valid. Entity has been destroyed.');
+		}
+		return this.repository;
+	}
+
+	/**
 	 * Alias for this.properties
 	 */
 	get prop() {
@@ -862,18 +873,30 @@ class Entity extends EventEmitter {
 		}
 
 		const schema = this.getSchema();
-		if (!schema.associations.hasOne.includes(repositoryName) &&
-			!schema.associations.hasMany.includes(repositoryName) &&
-			!schema.associations.belongsTo.includes(repositoryName) &&
-			!schema.associations.belongsToMany.includes(repositoryName)
+		if (!schema.model.associations.hasOne.includes(repositoryName) &&
+			!schema.model.associations.hasMany.includes(repositoryName) &&
+			!schema.model.associations.belongsTo.includes(repositoryName) &&
+			!schema.model.associations.belongsToMany.includes(repositoryName)
 			) {
-			throw Error(repositoryName + ' is not associated with ' + this.getRepository().name);
+			throw Error(repositoryName + ' is not associated with this schema');
 		}
+
 		const repository = this.getRepository();
-		if (!repository.oneHatData) {
+		if (!repository) {
+			throw Error('No repository on this entity');
+		}
+
+		const oneHatData = repository.oneHatData;
+		if (!oneHatData) {
 			throw Error('No global oneHatData object');
 		}
-		return repository.oneHatData.getRepository(repositoryName);
+
+		const associatedRepository = oneHatData.getRepository(repositoryName);
+		if (!associatedRepository) {
+			throw Error('Repository ' + repositoryName + ' cannot be found');
+		}
+		
+		return associatedRepository;
 	}
 
 

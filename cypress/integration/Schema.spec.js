@@ -11,6 +11,9 @@ describe('Schema', function() {
 		expect(this.schema instanceof Schema).to.be.true;
 		expect(this.schema.name).to.be.eq('GroupsUsers');
 		expect(this.schema.model.associations.hasOne).to.be.an('array');
+		expect(this.schema.model.associations.hasMany).to.be.an('array');
+		expect(this.schema.model.associations.belongsTo).to.be.an('array');
+		expect(this.schema.model.associations.belongsToMany).to.be.an('array');
 		expect(this.schema.entity.methods.testMethod).to.be.a('function');
 		expect(this.schema.repository.type).to.be.eq('onebuild');
 	});

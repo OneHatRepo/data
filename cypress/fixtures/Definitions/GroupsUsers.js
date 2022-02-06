@@ -25,6 +25,13 @@ const GroupsUsers = {
 			{ name: 'users__last_login',	mapping: 'user.last_login',	type: 'datetime' },
 		],
 
+		associations: {
+			hasOne: [
+				'Groups',
+				'Users',
+			],
+		},
+
 	},
 
 	entity: {

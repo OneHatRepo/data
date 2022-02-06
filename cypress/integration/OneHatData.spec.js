@@ -175,6 +175,21 @@ describe('OneHatData', function() {
 		})();
 	});
 
+	it('hasRepository', function() {
+		(async function() {
+			await beforeEach();
+
+			const oneHatData = new OneHatData();
+			oneHatData.createSchemas([
+				{ name: 'foo', },
+			]);
+			oneHatData.createBoundRepositories();
+			expect(oneHatData.hasRepository('foo')).to.be.true;
+
+			afterEach();
+		})();
+	});
+
 	it('hasRepositoryWithId', function() {
 		(async function() {
 			await beforeEach();
