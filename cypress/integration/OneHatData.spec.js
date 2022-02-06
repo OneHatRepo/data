@@ -1,4 +1,10 @@
 import { OneHatData } from '../../src/OneHatData';
+import GroupsDefinition from '../fixtures/Definitions/Groups';
+import GroupsUsersDefinition from '../fixtures/Definitions/GroupsUsers';
+import UsersDefinition from '../fixtures/Definitions/Users';
+import groupsUserData from '../fixtures/Data/GroupsUser';
+import KeyValues from '../../src/Schema/KeyValues';
+
 
 // NOTE: Cypress can't handle async functions for beforeEach,
 // so we have to manually apply it to every test. Ugh!
@@ -110,7 +116,7 @@ describe('OneHatData', function() {
 		(async function() {
 			await beforeEach();
 
-			const repository = this.oneHatData.createRepository('bar');
+			const repository = await this.oneHatData.createRepository('bar');
 			expect(repository.id).to.be.not.eq(this.repository.id);
 
 			afterEach();
@@ -128,7 +134,7 @@ describe('OneHatData', function() {
 				{ name: 'baz', },
 			]);
 			const schemas = oneHatData.schemas;
-			oneHatData.createRepositories(schemas);
+			await oneHatData.createRepositories(schemas);
 	
 			const result = oneHatData.getAllRepositories();
 			expect(_.size(result)).to.be.eq(3);
@@ -147,7 +153,7 @@ describe('OneHatData', function() {
 				{ name: 'bar', },
 				{ name: 'baz', },
 			]);
-			oneHatData.createBoundRepositories();
+			await oneHatData.createBoundRepositories();
 	
 			const schemas = oneHatData.schemas;
 			let bound = 0;
@@ -183,8 +189,30 @@ describe('OneHatData', function() {
 			oneHatData.createSchemas([
 				{ name: 'foo', },
 			]);
-			oneHatData.createBoundRepositories();
+			await oneHatData.createBoundRepositories();
 			expect(oneHatData.hasRepository('foo')).to.be.true;
+
+			afterEach();
+		})();
+	});
+
+	it('Entity.getAssociatedRepository', function() {
+		(async function() {
+			await beforeEach();
+
+			const oneHatData = new OneHatData();
+
+			await oneHatData.createSchemas([
+				GroupsDefinition,
+				GroupsUsersDefinition,
+				UsersDefinition,
+			]);
+			await oneHatData.createBoundRepositories();
+			const GroupsUsers = oneHatData.getRepository('GroupsUsers');
+			const groupsUser = await GroupsUsers.add(groupsUserData);
+			const Users = groupsUser.getAssociatedRepository('Users');
+
+			expect(Users).to.be.not.null;
 
 			afterEach();
 		})();
@@ -264,9 +292,9 @@ describe('OneHatData', function() {
 			await beforeEach();
 
 			const oneHatData = this.oneHatData;
-			oneHatData.createRepository('bar');
-			oneHatData.createRepository('bar');
-			oneHatData.createRepository('bar');
+			await oneHatData.createRepository('bar');
+			await oneHatData.createRepository('bar');
+			await oneHatData.createRepository('bar');
 			const result = oneHatData.getRepositoriesBySchema(this.schema);
 			expect(_.size(result)).to.be.eq(4);
 
@@ -274,22 +302,22 @@ describe('OneHatData', function() {
 		})();
 	});
 
-	it('createGlobalErrorHandler', function() {
-		(async function() {
-			await beforeEach();
+	// it('createGlobalErrorHandler', function() {
+	// 	(async function() {
+	// 		await beforeEach();
 
-			let message = '';
-			const oneHatData = this.oneHatData,
-				errorHandler = (a, b) => {
-					debugger;
-				};
-			oneHatData.createGlobalErrorHandler(errorHandler);
-			oneHatData.emitError();
-			expect(message).to.be.eq('Test here');
+	// 		let message = '';
+	// 		const oneHatData = this.oneHatData,
+	// 			errorHandler = (a, b) => {
+	// 				debugger;
+	// 			};
+	// 		oneHatData.createGlobalErrorHandler(errorHandler);
+	// 		oneHatData.emitError();
+	// 		expect(message).to.be.eq('Test here');
 
-			afterEach();
-		})();
-	});
+	// 		afterEach();
+	// 	})();
+	// });
 
 	it('setOptionsOnAllRepositories', function() {
 		(async function() {
@@ -323,14 +351,16 @@ describe('OneHatData', function() {
 			await beforeEach();
 
 			const oneHatData = new OneHatData();
-			const repositories = oneHatData.createSchemas([
+
+			await oneHatData.createSchemas([
 					{ name: 'foo', },
 					{ name: 'bar', },
 					{ name: 'baz', },
 				])
-				.createBoundRepositories()
-				.getAllRepositories();
-	
+				.createBoundRepositories();
+			
+			// NOTE: Can't chain getAllRepositories() because we have to wait for createBoundRepositories to finish
+			const repositories = oneHatData.getAllRepositories();
 			expect(_.size(repositories)).to.be.eq(3);
 
 			afterEach();
@@ -349,8 +379,8 @@ describe('OneHatData', function() {
 					{ key: '4', value: 'four', },
 					{ key: '5', value: 'five', },
 				],
-				repository = oneHatData.createRepository({
-					schema: 'KeyValues',
+				repository = await oneHatData.createRepository({
+					schema: KeyValues,
 					data,
 				});
 

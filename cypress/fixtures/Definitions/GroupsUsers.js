@@ -42,7 +42,10 @@ const GroupsUsers = {
 		},
 	},
 
-	repository: 'onebuild',
+	repository: {
+		type: 'onebuild',
+		autoSave: false,
+	},
 
 };
 
