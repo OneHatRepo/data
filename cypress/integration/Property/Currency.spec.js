@@ -18,12 +18,45 @@ describe('CurrencyProperty', function() {
 		});
 
 		it('default value', function() {
-			const property = this.property,
-				rawValue = property.getDefaultValue();
-			property.pauseEvents();
-			property.setValue(rawValue);
-			property.resumeEvents();
 			expect(this.property.submitValue).to.be.eq('0.00');
+
+			const rawValue = this.property.getDefaultValue();
+			this.property.setValue(rawValue);
+			expect(this.property.submitValue).to.be.eq('0.00');
+		});
+
+		it('isZero', function() {
+			this.property.setValue('0.00');
+			expect(this.property.isZero).to.be.true;
+
+			this.property.setValue('0.01');
+			expect(this.property.isZero).to.be.false;
+
+			this.property.setValue('-0.01');
+			expect(this.property.isZero).to.be.false;
+
+			this.property.setValue(null);
+			expect(this.property.isZero).to.be.false;
+
+			this.property.setValue();
+			expect(this.property.isZero).to.be.false;
+		});
+
+		it('hasValue', function() {
+			this.property.setValue('0.00');
+			expect(this.property.hasValue).to.be.true;
+
+			this.property.setValue('0.01');
+			expect(this.property.hasValue).to.be.true;
+
+			this.property.setValue('-0.01');
+			expect(this.property.hasValue).to.be.true;
+
+			this.property.setValue(null);
+			expect(this.property.hasValue).to.be.false;
+
+			this.property.setValue();
+			expect(this.property.hasValue).to.be.false;
 		});
 		
 	});
@@ -41,8 +74,8 @@ describe('CurrencyProperty', function() {
 		});
 
 		it('numeric string', function() {
-			const parsed = this.property.parse('This is 1234 dollars.');
-			expect(parsed).to.be.eq(1234);
+			const parsed = this.property.parse('This is $1234.56 dollars.');
+			expect(parsed).to.be.eq(1234.56);
 		});
 
 		it('non-numeric string', function() {

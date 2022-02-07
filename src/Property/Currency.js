@@ -64,6 +64,28 @@ export default class CurrencyProperty extends Property {
 		return this.parsedValue;
 	}
 
+	/**
+	 * Determines if a currency is equal to 0.00
+	 * Returns false if no value set.
+	 */
+	get isZero() {
+		if (this.isDestroyed) {
+			throw Error('this.isZero is no longer valid. Property has been destroyed.');
+		}
+		return this.parsedValue === 0;
+	}
+
+	/**
+	 * Determines if a currency has a non-null value
+	 */
+	get hasValue() {
+		if (this.isDestroyed) {
+			throw Error('this.hasValue is no longer valid. Property has been destroyed.');
+		}
+		console.log(this.parsedValue);
+		return !_.isNil(this.parsedValue);
+	}
+
 };
 
 CurrencyProperty.className = 'Currency';
