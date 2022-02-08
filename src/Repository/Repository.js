@@ -1182,6 +1182,18 @@ export default class Repository extends EventEmitter {
 	}
 
 	/**
+	 * Getter of isDirty for this Repository.
+	 * Returns true if any Entities within it are dirty
+	 * @return {boolean} isDirty
+	 */
+	get isDirty() {
+		if (this.isDestroyed) {
+			throw Error('this.isDirty is no longer valid. Repository has been destroyed.');
+		}
+		return !!this.getDirty().length;
+	}
+
+	/**
 	 * Convenience function
 	 * Alias for isInRepository
 	 * NOTE: It only searches in memory. Doesn't query server

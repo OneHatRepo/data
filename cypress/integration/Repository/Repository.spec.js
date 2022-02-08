@@ -630,6 +630,15 @@ describe('Repository Base', function() {
 			expect(_.isEqual(entity, dirty[0])).to.be.true;
 		});
 
+		it('isDirty', function() {
+			expect(this.repository.isDirty).to.be.false;
+
+			this.repository.setAutoSave(false);
+			const entity = this.repository.getByIx(0);
+			entity.value = 'test';	
+			expect(this.repository.isDirty).to.be.true;
+		});
+
 		it('getDeleted', function() {
 			this.repository.setAutoSave(false);
 			const entity = this.repository.getByIx(0);
