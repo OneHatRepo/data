@@ -1478,6 +1478,44 @@ export default class Repository extends EventEmitter {
 		await this.delete(this.getPhantom());
 	}
 
+	/**
+	 * Deletes a single Entity by its index (zero-indexed) on the current page
+	 * @param {integer} ix - Index
+	 * @return {object} entity - Entity
+	 */
+	undeleteByIx = async (ix) => {
+		await this.undelete(this.getByIx(ix));
+	}
+	
+	/**
+	 * Deletes multiple Entities by their range of indices 
+	 * (zero-indexed) on the current page
+	 * @param {integer} startIx - Index
+	 * @param {integer} endIx - Index (inclusive)
+	 * @return {array} entities - Array of Entities
+	 */
+	undeleteByRange = async (startIx, endIx) => {
+		await this.undelete(this.getByRange(startIx, endIx));
+	}
+
+	/**
+	 * Remove multiple Entities by supplied filter function
+	 * @param {function} fn - Filter function to apply to all entities
+	 * @return {Entity[]} Entities that passed through filter
+	 */
+	undeleteBy = async (filter) => {
+		await this.undelete(this.getBy(filter));
+	}
+
+	/**
+	 * Remove a single Entity by its id
+	 * @param {integer} id - id of record to retrieve
+	 * @return {Entity} The Entity with matching id
+	 */
+	undeleteById = async (id) => {
+		await this.undelete(this.getById(id));
+	}
+
 
 
 

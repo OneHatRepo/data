@@ -718,6 +718,10 @@ describe('Repository Base', function() {
 		// deleteById
 		// deleteDirty
 		// deletePhantom
+		// undeleteByIx
+		// undeleteByRange
+		// undeleteBy
+		// undeleteById
 
 	});
 
