@@ -1479,7 +1479,7 @@ export default class Repository extends EventEmitter {
 	}
 
 	/**
-	 * Deletes a single Entity by its index (zero-indexed) on the current page
+	 * Undelete a single Entity by its index (zero-indexed) on the current page
 	 * @param {integer} ix - Index
 	 * @return {object} entity - Entity
 	 */
@@ -1488,7 +1488,7 @@ export default class Repository extends EventEmitter {
 	}
 	
 	/**
-	 * Deletes multiple Entities by their range of indices 
+	 * Undelete multiple Entities by their range of indices 
 	 * (zero-indexed) on the current page
 	 * @param {integer} startIx - Index
 	 * @param {integer} endIx - Index (inclusive)
@@ -1499,7 +1499,7 @@ export default class Repository extends EventEmitter {
 	}
 
 	/**
-	 * Remove multiple Entities by supplied filter function
+	 * Undelete multiple Entities by supplied filter function
 	 * @param {function} fn - Filter function to apply to all entities
 	 * @return {Entity[]} Entities that passed through filter
 	 */
@@ -1508,12 +1508,20 @@ export default class Repository extends EventEmitter {
 	}
 
 	/**
-	 * Remove a single Entity by its id
+	 * Undelete a single Entity by its id
 	 * @param {integer} id - id of record to retrieve
 	 * @return {Entity} The Entity with matching id
 	 */
 	undeleteById = async (id) => {
 		await this.undelete(this.getById(id));
+	}
+
+	/**
+	 * Undelete all deleted Entities
+	 * @return {Entity[]} Entities that passed through filter
+	 */
+	undeleteDeleted = async () => {
+		await this.undelete(this.getDeleted());
 	}
 
 

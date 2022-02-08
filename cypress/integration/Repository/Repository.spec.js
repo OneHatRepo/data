@@ -722,6 +722,7 @@ describe('Repository Base', function() {
 		// undeleteByRange
 		// undeleteBy
 		// undeleteById
+		// undeleteDeleted
 
 	});
 
