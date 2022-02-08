@@ -1077,7 +1077,7 @@ class Entity extends EventEmitter {
 	}
 
 	/**
-	 * Tells the Repository to UNdelete this entity.
+	 * Marks a deleted entity as undeleted.
 	 * Only works when autoSave is off for the containing repository
 	 * @fires delete
 	 */
