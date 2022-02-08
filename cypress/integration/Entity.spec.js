@@ -137,6 +137,12 @@ describe('Entity', function() {
 			expect(this.entity.bar).to.be.eq('one');
 			expect(this.entity.isDirty).to.be.false;
 			expect(_.isEqual(this.entity.getParsedValues(), originalData)).to.be.true;
+
+			this.entity.delete();
+			expect(this.entity.isDeleted).to.be.true;
+
+			this.entity.reset();
+			expect(this.entity.isDeleted).to.be.false;
 		});
 
 		it('getMappedValue', function() {
@@ -533,6 +539,9 @@ describe('Entity', function() {
 		it('markDeleted', function() {
 			this.entity.markDeleted();
 			expect(this.entity.isDeleted).to.be.true;
+
+			this.entity.markDeleted(false);
+			expect(this.entity.isDeleted).to.be.false;
 		});
 
 		it('delete', function() {
@@ -540,6 +549,11 @@ describe('Entity', function() {
 			expect(this.entity.isDeleted).to.be.true;
 		});
 
+		it('undelete', function() {
+			this.entity.delete();
+			this.entity.undelete();
+			expect(this.entity.isDeleted).to.be.false;
+		});
 	});
 
 	describe('events', function() {
@@ -592,6 +606,20 @@ describe('Entity', function() {
 			});
 			this.entity.delete();
 			expect(didFire).to.be.true;
+		});
+
+		it('undelete', function() {
+			this.entity.delete();
+			expect(this.entity.isDeleted).to.be.true;
+
+			let didFire = false;
+			this.entity.on('undelete', () => {
+				didFire = true;
+			});
+			this.entity.undelete();
+
+			expect(didFire).to.be.true;
+			expect(this.entity.isDeleted).to.be.false;
 		});
 
 		it('destroy', function() {

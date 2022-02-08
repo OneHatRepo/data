@@ -52,6 +52,7 @@ class Entity extends EventEmitter {
 			'reload',
 			'save',
 			'delete',
+			'undelete',
 			'destroy',
 		]);
 		
@@ -286,7 +287,7 @@ class Entity extends EventEmitter {
 
 	/**
 	 * Resets the Entity to a state as if it had just been created,
-	 * all based on _originalData.
+	 * Gets data to restore from _originalData.
 	 */
 	reset = () => {
 		if (this.isDestroyed) {
@@ -296,6 +297,10 @@ class Entity extends EventEmitter {
 		// Set property values from this._originalData
 		this._resetPropertyValues();
 		this._originalDataParsed = this.getParsedValues();
+
+		if (this.isDeleted) {
+			this.undelete();
+		}
 
 		this.emit('reset', this._proxy);
 	}
@@ -1047,18 +1052,17 @@ class Entity extends EventEmitter {
 
 	/**
 	 * Marks an entity as having been saved to storage medium.
+	 * @param {boolean} bool - How it should be marked. Defaults to true.
 	 */
-	markDeleted = () => {
+	markDeleted = (bool = true) => {
 		if (this.isDestroyed) {
 			throw Error('this.markDeleted is no longer valid. Entity has been destroyed.');
 		}
-		this.isDeleted = true;
+		this.isDeleted = bool;
 	}
 
 	/**
 	 * Tells the Repository to delete this entity from the storage medium.
-	 * @param {function} onSuccess - Optional function to execute when save operation successfully completes.
-	 * @param {function} onFailure - Optional function to execute when save operation successfully completes.
 	 * @fires delete
 	 */
 	delete = () => {
@@ -1070,6 +1074,23 @@ class Entity extends EventEmitter {
 		if (this.repository) {
 			return this.repository.save(this._proxy);
 		}
+	}
+
+	/**
+	 * Tells the Repository to UNdelete this entity.
+	 * Only works when autoSave is off for the containing repository
+	 * @fires delete
+	 */
+	undelete = () => {
+		if (this.isDestroyed) {
+			throw Error('this.undelete is no longer valid. Entity has been destroyed.');
+		}
+		const repository = this.getRepository();
+		if (repository && repository.autoSave) {
+			throw Error('Cannot undelete entities on an autoSave repository.');
+		}
+		this.markDeleted(false);
+		this.emit('undelete', this._proxy);
 	}
 
 	/**
