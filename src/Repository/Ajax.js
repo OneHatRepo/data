@@ -654,6 +654,24 @@ class AjaxRepository extends Repository {
 	}
 
 	/**
+	 * Sorts the items in the current page of memory
+	 * This is mainly used to sort isPhantom entities,
+	 * since the server normally sorts, and they haven't yet gone to server.
+	 */
+	sortInMemory = () => {
+		const sorters = this.sorters;
+		let sortNames = [],
+			sortDirections = [];
+		_.each(sorters, (sorter) => {
+			sortNames.push(sorter.name);
+			sortDirections.push(sorter.direction.toLowerCase());
+		});
+		let entities = this.entities;
+		entities = _.orderBy(entities, sortNames, sortDirections);
+		this.entities = entities;
+	}
+
+	/**
 	 * Helper for save.
 	 * Takes an array of Promises from axios. When they are all resolved,
 	 * emit save.

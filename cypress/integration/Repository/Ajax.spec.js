@@ -111,6 +111,33 @@ describe('OneBuildRepository', function() {
 			await this.repository.add({ key: 6, value: 'six' });
 			expect(_.size(this.repository.entities)).to.be.eq(1);
 		});
+
+		it.only('sortInMemory', function() {
+
+			const repository = this.repository;
+
+			// Create two phantom records, out of order
+			repository.setAutoSave(false);
+			repository.add({ key: 5, value: 'Five', });
+			repository.add({ key: 4, value: 'One', });
+			repository.add({ key: 2, value: 'Two', });
+			repository.add({ key: 3, value: 'Three', });
+			repository.add({ key: 1, value: 'One', });
+
+			repository.sorters = [
+				{ name: 'value', direction: 'DESC', }, // 2,3,4,1,5
+				{ name: 'key', direction: 'ASC', }, // 2,3,1,4,5
+			];
+			repository.sortInMemory();
+
+			// Check that they are correct order
+			const entities = repository.entities;
+			expect(entities[0].key).to.be.eq(2);
+			expect(entities[1].key).to.be.eq(3);
+			expect(entities[2].key).to.be.eq(1);
+			expect(entities[3].key).to.be.eq(4);
+			expect(entities[4].key).to.be.eq(5);
+		});
 		
 	});
 
