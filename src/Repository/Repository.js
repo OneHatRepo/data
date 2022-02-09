@@ -1243,23 +1243,26 @@ export default class Repository extends EventEmitter {
 
 			const batchOrder = this.batchOrder.split(',');
 
-			let n;
+			let n,
+				i,
+				entity,
+				entities,
+				operation,
+				result;
 			for (n = 0; n < batchOrder.length; n++) {
-				const operation = batchOrder[n];
-				let entities;
+				operation = batchOrder[n];
 				switch(operation) {
 					case 'add':
 						entities = this.getNonPersisted();
 						if (this.combineBatch) {
 
-							// TODO: Implement combined batch processing
-							throw new Error('Combined batch processing not yet implemented');
-
+								result = this.batchAsSynchronous ? await this._doBatchAdd(entities) : this._doBatchAdd(entities);
+								results.push(result);
+		
 						} else {
 							if (_.size(entities) > 0) {
-								let i;
 								for (i = 0; i < entities.length; i++) {
-									const entity = entities[i];
+									entity = entities[i];
 	
 									if (entity.isDeleted) {
 										// This entity is new, but it's also marked for deletion
@@ -1267,7 +1270,7 @@ export default class Repository extends EventEmitter {
 										continue;
 									}
 	
-									const result = this.batchAsSynchronous ? await this._doAdd(entity) : this._doAdd(entity);
+									result = this.batchAsSynchronous ? await this._doAdd(entity) : this._doAdd(entity);
 									results.push(result);
 								}
 							}
@@ -1279,14 +1282,13 @@ export default class Repository extends EventEmitter {
 						entities = this.getDirty();
 						if (this.combineBatch) {
 
-							// TODO: Implement combined batch processing
-							throw new Error('Combined batch processing not yet implemented');
+							result = this.batchAsSynchronous ? await this._doBatchEdit(entities) : this._doBatchEdit(entities);
+							results.push(result);
 
 						} else {
 							if (_.size(entities) > 0) {
-								let i;
 								for (i = 0; i < entities.length; i++) {
-									const entity = entities[i];
+									entity = entities[i];
 
 									if (entity.isDeleted) {
 										// This entity is new, but it's also marked for deletion
@@ -1294,7 +1296,7 @@ export default class Repository extends EventEmitter {
 										continue;
 									}
 
-									const result = this.batchAsSynchronous ? await this._doEdit(entity) : this._doEdit(entity);
+									result = this.batchAsSynchronous ? await this._doEdit(entity) : this._doEdit(entity);
 									results.push(result);
 								}
 							}
@@ -1304,16 +1306,14 @@ export default class Repository extends EventEmitter {
 						entities = this.getDeleted();
 						if (this.combineBatch) {
 
-							// TODO: Implement combined batch processing
-							throw new Error('Combined batch processing not yet implemented');
+								result = this.batchAsSynchronous ? await this._doBatchDelete(entities) : this._doBatchDelete(entities);
+								results.push(result);
 
 						} else {
 							if (_.size(entities) > 0) {
-								let i;
 								for (i = 0; i < entities.length; i++) {
-									const entity = entities[i];
+									entity = entities[i];
 
-									let result;
 									if (!entity.isPersisted) {
 										result = this.batchAsSynchronous ? await this._doDeleteNonPersisted(entity) : this._doDeleteNonPersisted(entity);
 									} else {
@@ -1331,8 +1331,20 @@ export default class Repository extends EventEmitter {
 		return await this._finalizeSave(results);
 	}
 
+	
 	/**
-	 * Helper for save().
+	 * Helper for save.
+	 * Add multiple entities to storage medium
+	 * @param {array} entities - Entities
+	 * @private
+	 * @abstract
+	 */
+	_doBatchAdd(entities) { // standard function notation
+		throw new Error('_doBatchAdd must be implemented by Repository subclass');
+	}
+
+	/**
+	 * Helper for save.
 	 * Add entity to storage medium
 	 * @param {object} entity - Entity
 	 * @private
@@ -1343,7 +1355,18 @@ export default class Repository extends EventEmitter {
 	}
 
 	/**
-	 * Helper for save().
+	 * Helper for save.
+	 * Edit multiple entities in storage medium
+	 * @param {array} entities - Entities
+	 * @private
+	 * @abstract
+	 */
+	_doBatchEdit(entities) { // standard function notation
+		throw new Error('_doBatchEdit must be implemented by Repository subclass');
+	}
+
+	/**
+	 * Helper for save.
 	 * Mark entity as saved
 	 * @param {object} entity - Entity
 	 * @private
@@ -1354,7 +1377,18 @@ export default class Repository extends EventEmitter {
 	}
 
 	/**
-	 * Helper for save().
+	 * Helper for save.
+	 * Delete multiple entities from storage medium
+	 * @param {array} entities - Entities
+	 * @private
+	 * @abstract
+	 */
+	_doBatchDelete(entities) { // standard function notation
+		throw new Error('_doBatchDelete must be implemented by Repository subclass');
+	}
+
+	/**
+	 * Helper for save.
 	 * Delete entity from storage medium
 	 * @param {object} entity - Entity
 	 * @private
@@ -1365,8 +1399,8 @@ export default class Repository extends EventEmitter {
 	}
 
 	/**
-	 * Helper for save().
-	 * Tells storage medium to delete entity without ever having saved it 
+	 * Helper for save.
+	 * Tells repository to delete entity without ever having saved it 
 	 * to storage medium
 	 * @private
 	 */

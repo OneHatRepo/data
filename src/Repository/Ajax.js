@@ -28,8 +28,8 @@ class AjaxRepository extends Repository {
 			 * @member {object} api - List of relative URIs to API endpoints.
 			 */
 			api: {
-				add: null,
 				get: null,
+				add: null,
 				edit: null,
 				delete: null,
 				baseURL: '', // e.g. 'https://example.com/myapp/'
@@ -39,8 +39,8 @@ class AjaxRepository extends Repository {
 			 * @member {object} methods - List of methods for all four CRUD operations
 			 */
 			methods: {
-				add: 'POST',
 				get: 'GET',
+				add: 'POST',
 				edit: 'POST',
 				delete: 'POST',
 			},
@@ -498,7 +498,7 @@ class AjaxRepository extends Repository {
 	 * @returns {promise} - Axios Promise.
 	 * @private
 	 */
-	_doAdd(entity) {
+	_doAdd(entity) { // standard function notation
 		if (!this.api.add) {
 			throw new Error('No "add" api endpoint defined.');
 		}
@@ -534,7 +534,7 @@ class AjaxRepository extends Repository {
 	 * @returns {promise} - Axios Promise.
 	 * @private
 	 */
-	_doEdit(entity) {
+	_doEdit(entity) { // standard function notation
 		if (!this.api.edit) {
 			throw new Error('No "edit" api endpoint defined.');
 		}
@@ -570,7 +570,7 @@ class AjaxRepository extends Repository {
 	 * @returns {promise} - Axios Promise.
 	 * @private
 	 */
-	_doDelete(entity) {
+	_doDelete(entity) { // standard function notation
 		if (!this.api.delete) {
 			throw new Error('No "delete" api endpoint defined.');
 		}
@@ -604,9 +604,19 @@ class AjaxRepository extends Repository {
 					});
 	}
 
+	/**
+	 * Helper for save.
+	 * Tells repository to delete entity without ever having saved it 
+	 * to storage medium
+	 * @private
+	 */
 	_doDeleteNonPersisted(entity) {
 		this.entities = _.filter(this.entities, (item) => {
-			return item !== entity;
+			const match = item === entity;
+			if (match) {
+				entity.destroy();
+			}
+			return !match;
 		});
 
 		return true;
