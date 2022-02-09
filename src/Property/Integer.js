@@ -57,7 +57,6 @@ export default class IntegerProperty extends Property {
 		}
 		return id;
 	}
-
 	
 };
 

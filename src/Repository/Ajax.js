@@ -32,6 +32,9 @@ class AjaxRepository extends Repository {
 				add: null,
 				edit: null,
 				delete: null,
+				batchAdd: null,
+				batchEdit: null,
+				batchDelete: null,
 				baseURL: '', // e.g. 'https://example.com/myapp/'
 			},
 
@@ -528,6 +531,48 @@ class AjaxRepository extends Repository {
 						entity.loadOriginalData(root[0]);
 					});
 	}
+	
+	/**
+	 * Helper for save.
+	 * Add multiple entities to storage medium
+	 * @param {array} entities - Entities
+	 * @returns {promise} - Axios Promise.
+	 * @private
+	 */
+	_doBatchAdd(entities) { // standard function notation
+		if (!this.api.batchAdd) {
+			throw new Error('No "batchAdd" api endpoint defined.');
+		}
+
+		this._operations.add = true;
+
+		const method = this.methods.add,
+			url = this.api.batchAdd,
+			data = _.map(entities, entity => entity.submitValues);
+
+		return this._send(method, url, data)
+					.then(result => {
+						if (this.debugMode) {
+							console.log(this.api.batchAdd + ' result', result);
+						}
+						const {
+							root,
+							success,
+							total,
+							message
+						} = this._processServerResponse(result);
+
+						if (!success) {
+							throw new Error(message);
+						}
+
+						// Reload each entity with new data
+						// TODO: Check this
+						_.each(entities, (entity, ix) => {
+							entity.loadOriginalData(root[ix]);
+						});
+					});
+	}
 
 	/**
 	 * Helper for save.
@@ -567,6 +612,48 @@ class AjaxRepository extends Repository {
 
 	/**
 	 * Helper for save.
+	 * Edit multiple entities in storage medium
+	 * @param {array} entities - Entities
+	 * @returns {promise} - Axios Promise.
+	 * @private
+	 */
+	_doBatchEdit(entities) { // standard function notation
+		if (!this.api.batchEdit) {
+			throw new Error('No "batchEdit" api endpoint defined.');
+		}
+
+		this._operations.edit = true;
+
+		const method = this.methods.edit,
+			url = this.api.batchEdit,
+			data = _.map(entities, entity => entity.submitValues);
+
+		return this._send(method, url, data)
+					.then(result => {
+						if (this.debugMode) {
+							console.log(this.api.batchEdit + ' result', result);
+						}
+						const {
+							root,
+							success,
+							total,
+							message
+						} = this._processServerResponse(result);
+
+						if (!success) {
+							throw new Error(message);
+						}
+
+						// Reload each entity with new data
+						// TODO: Check this
+						_.each(entities, (entity, ix) => {
+							entity.loadOriginalData(root[ix]);
+						});
+					});
+	}
+
+	/**
+	 * Helper for save.
 	 * @returns {promise} - Axios Promise.
 	 * @private
 	 */
@@ -601,6 +688,52 @@ class AjaxRepository extends Repository {
 						const id = entity.id;
 						this.entities = _.omitBy(this.entities, (entity) => entity.id === id);
 						entity.destroy();
+					});
+	}
+
+	/**
+	 * Helper for save.
+	 * Delete multiple entities from storage medium
+	 * @param {array} entities - Entities
+	 * @returns {promise} - Axios Promise.
+	 * @private
+	 */
+	_doBatchDelete(entities) { // standard function notation
+		if (!this.api.batchDelete) {
+			throw new Error('No "batchDelete" api endpoint defined.');
+		}
+
+		this._operations.delete = true;
+
+		const method = this.methods.delete,
+			url = this.api.batchDelete,
+			ids = _.map(entities, entity => entity.id),
+			data = { ids, };
+
+		return this._send(method, url, data)
+					.then(result => {
+						if (this.debugMode) {
+							console.log(this.api.batchDelete + ' result', result);
+						}
+						const {
+							root,
+							success,
+							total,
+							message
+						} = this._processServerResponse(result);
+						
+						if (!success) {
+							throw new Error(message);
+						}
+
+						// Delete it from this.entities
+						this.entities = _.filter(this.entities, (entity) => {
+							const deleteIt = ids.includes(entity.id);
+							if (deleteIt) {
+								entity.destroy();
+							}
+							return !deleteIt;
+						});
 					});
 	}
 
@@ -697,19 +830,19 @@ class AjaxRepository extends Repository {
 	 */
 	_finalizeSave = (promises) => {
 		return this.axios.all(promises)
-			.then(this.axios.spread((...batchOperationResults) => {
-				// All requests are now complete
+						.then(this.axios.spread((...batchOperationResults) => {
+							// All requests are now complete
 
-				this.isSaving = false;
-				this.emit('save', batchOperationResults);
+							this.isSaving = false;
+							this.emit('save', batchOperationResults);
 
-				// Do we need to reload?
-				if (this._operations.add || this._operations.delete) {
-					this.reload();
-				} else {
-					this.emit('changeData', this.entities);
-				}
-			}));
+							// Do we need to reload?
+							if (this._operations.add || this._operations.delete) {
+								this.reload();
+							} else {
+								this.emit('changeData', this.entities);
+							}
+						}));
 	}
 
 }

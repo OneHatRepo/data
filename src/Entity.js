@@ -257,15 +257,17 @@ class Entity extends EventEmitter {
 	 * This is mainly for updating Entity with new data 
 	 * from remote storage medium.
 	 * Assumes (and sets) isPersisted === true.
+	 * Assumes (and sets) isTempId === false.
 	 * @param {array} originalData - Raw data to load into entity.
 	 */
 	loadOriginalData = (originalData) => {
 		if (this.isDestroyed) {
 			throw Error('this.loadOriginalData is no longer valid. Entity has been destroyed.');
 		}
-		this._originalData = originalData || {};
 		this.isPersisted = true;
+		this._originalData = originalData || {};
 		this.reset();
+		this.getIdProperty().isTempId = false;
 	}
 
 	/**
