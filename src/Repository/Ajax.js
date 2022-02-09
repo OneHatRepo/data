@@ -548,7 +548,9 @@ class AjaxRepository extends Repository {
 
 		const method = this.methods.add,
 			url = this.api.batchAdd,
-			data = _.map(entities, entity => entity.submitValues);
+			data = {
+				entities: _.map(entities, entity => entity.submitValues),
+			};
 
 		return this._send(method, url, data)
 					.then(result => {
@@ -626,7 +628,9 @@ class AjaxRepository extends Repository {
 
 		const method = this.methods.edit,
 			url = this.api.batchEdit,
-			data = _.map(entities, entity => entity.submitValues);
+			data = {
+				entities: _.map(entities, entity => entity.submitValues),
+			};
 
 		return this._send(method, url, data)
 					.then(result => {
