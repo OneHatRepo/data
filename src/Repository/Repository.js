@@ -1254,13 +1254,13 @@ export default class Repository extends EventEmitter {
 				switch(operation) {
 					case 'add':
 						entities = this.getNonPersisted();
-						if (this.combineBatch) {
+						if (_.size(entities) > 0) {
+							if (this.combineBatch) {
 
 								result = this.batchAsSynchronous ? await this._doBatchAdd(entities) : this._doBatchAdd(entities);
 								results.push(result);
 		
-						} else {
-							if (_.size(entities) > 0) {
+							} else {
 								for (i = 0; i < entities.length; i++) {
 									entity = entities[i];
 	
@@ -1275,18 +1275,16 @@ export default class Repository extends EventEmitter {
 								}
 							}
 						}
-			
-			
 						break;
 					case 'edit':
 						entities = this.getDirty();
-						if (this.combineBatch) {
+						if (_.size(entities) > 0) {
+							if (this.combineBatch) {
 
-							result = this.batchAsSynchronous ? await this._doBatchEdit(entities) : this._doBatchEdit(entities);
-							results.push(result);
+								result = this.batchAsSynchronous ? await this._doBatchEdit(entities) : this._doBatchEdit(entities);
+								results.push(result);
 
-						} else {
-							if (_.size(entities) > 0) {
+							} else {
 								for (i = 0; i < entities.length; i++) {
 									entity = entities[i];
 
@@ -1304,13 +1302,13 @@ export default class Repository extends EventEmitter {
 						break;
 					case 'delete':
 						entities = this.getDeleted();
-						if (this.combineBatch) {
+						if (_.size(entities) > 0) {
+							if (this.combineBatch) {
 
 								result = this.batchAsSynchronous ? await this._doBatchDelete(entities) : this._doBatchDelete(entities);
 								results.push(result);
 
-						} else {
-							if (_.size(entities) > 0) {
+							} else {
 								for (i = 0; i < entities.length; i++) {
 									entity = entities[i];
 
