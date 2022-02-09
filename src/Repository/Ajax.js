@@ -377,6 +377,12 @@ class AjaxRepository extends Repository {
 						if (this.debugMode) {
 							console.log('load result ' + this.name, result);
 						}
+
+						if (this.isDestroyed) {
+							// If this repository gets destroyed before it has a chance
+							// to process the Ajax request, just ignore the response.
+							return;
+						}
 						
 						const {
 							root,
