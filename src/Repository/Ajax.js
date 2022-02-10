@@ -834,6 +834,9 @@ class AjaxRepository extends Repository {
 	 * @private
 	 */
 	_finalizeSave = (promises) => {
+		if (!promises.length) {
+			return;
+		}
 		return this.axios.all(promises)
 						.then(this.axios.spread((...batchOperationResults) => {
 							// All requests are now complete

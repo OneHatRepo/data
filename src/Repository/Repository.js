@@ -1398,7 +1398,9 @@ export default class Repository extends EventEmitter {
 							if (this.combineBatch) {
 
 								result = this.batchAsSynchronous ? await this._doBatchAdd(entities) : this._doBatchAdd(entities);
-								results.push(result);
+								if (result) {
+									results.push(result);
+								}
 		
 							} else {
 								for (i = 0; i < entities.length; i++) {
@@ -1411,7 +1413,9 @@ export default class Repository extends EventEmitter {
 									}
 	
 									result = this.batchAsSynchronous ? await this._doAdd(entity) : this._doAdd(entity);
-									results.push(result);
+									if (result) {
+										results.push(result);
+									}
 								}
 							}
 						}
@@ -1425,7 +1429,9 @@ export default class Repository extends EventEmitter {
 							if (this.combineBatch) {
 
 								result = this.batchAsSynchronous ? await this._doBatchEdit(entities) : this._doBatchEdit(entities);
-								results.push(result);
+								if (result) {
+									results.push(result);
+								}
 
 							} else {
 								for (i = 0; i < entities.length; i++) {
@@ -1438,7 +1444,9 @@ export default class Repository extends EventEmitter {
 									}
 
 									result = this.batchAsSynchronous ? await this._doEdit(entity) : this._doEdit(entity);
-									results.push(result);
+									if (result) {
+										results.push(result);
+									}
 								}
 							}
 						}
@@ -1452,7 +1460,9 @@ export default class Repository extends EventEmitter {
 							if (this.combineBatch) {
 
 								result = this.batchAsSynchronous ? await this._doBatchDelete(entities) : this._doBatchDelete(entities);
-								results.push(result);
+								if (result) {
+									results.push(result);
+								}
 
 							} else {
 								for (i = 0; i < entities.length; i++) {
@@ -1463,7 +1473,9 @@ export default class Repository extends EventEmitter {
 									} else {
 										result = this.batchAsSynchronous ? await this._doDelete(entity) : this._doDelete(entity);
 									}
-									results.push(result);
+									if (result) {
+										results.push(result);
+									}
 								}
 							}
 						}
