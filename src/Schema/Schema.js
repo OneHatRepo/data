@@ -100,6 +100,7 @@ export default class Schema extends EventEmitter {
 			
 			entity: {
 				methods: {}, // NOTE: Methods must be defined as "function() {}", not as "() => {}" so "this" will be assigned correctly
+				statics: {},
 			},
 
 			/**
