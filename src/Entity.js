@@ -187,7 +187,7 @@ class Entity extends EventEmitter {
 		if (this.isDestroyed) {
 			throw Error('this._createStatics is no longer valid. Entity has been destroyed.');
 		}
-		const staticsDefinitions = this.schema.entity.methods;
+		const staticsDefinitions = this.schema.entity.statics;
 		if (!_.isEmpty(staticsDefinitions)) {
 			_.each(staticsDefinitions, (value, key) => {
 				this[key] = value;
