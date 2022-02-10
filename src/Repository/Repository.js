@@ -1332,6 +1332,13 @@ export default class Repository extends EventEmitter {
 	}
 
 	/**
+	 * Convenience function
+	 */
+	saveStaged = () => {
+		return this.save(null, true);
+	}
+
+	/**
 	 * Queues up batch operations for saving
 	 * new, edited, and deleted entities to storage medium.
 	 * 
