@@ -774,6 +774,14 @@ class Entity extends EventEmitter {
 	}
 
 	/**
+	 * Marks this Entity's idProperty's isTempId field
+	 * @return {boolean} isTempId
+	 */
+	set isTempId(bool) {
+		this.getIdProperty().isTempId = bool;
+	}
+
+	/**
 	 * Gets the "Display" Property object for this Entity.
 	 * This is the Property whose value can easily identify the whole Entity itself.
 	 * @return {Property} Display Property

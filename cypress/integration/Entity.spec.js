@@ -77,6 +77,9 @@ describe('Entity', function() {
 
 			entity.markSaved();
 			expect(entity.isTempId).to.be.false;
+
+			entity.isTempId = true;
+			expect(entity.isTempId).to.be.true;
 		});
 	
 		it('clone', function() {
