@@ -238,9 +238,10 @@ class AjaxRepository extends Repository {
 			matches = name.match(re),
 			paramsToChange = isBaseParam ? this._baseParams : this._params;
 		
+		let first, second;
 		if (matches) { // name has array notation like 'conditions[username]'
-			const first = matches[1],
-				second = matches[2];
+			first = matches[1],
+			second = matches[2];
 			if (paramsToChange && !paramsToChange.hasOwnProperty(first)) {
 				paramsToChange[first] = [];
 			}

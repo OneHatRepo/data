@@ -165,12 +165,11 @@ class Entity extends EventEmitter {
 			throw Error('this._createMethods is no longer valid. Entity has been destroyed.');
 		}
 		const methodDefinitions = this.schema.entity.methods;
-		if (_.isEmpty(methodDefinitions)) {
-			return;
+		if (!_.isEmpty(methodDefinitions)) {
+			_.each(methodDefinitions, (method, name) => {
+				this[name] = method; // NOTE: Methods must be defined in schema as "function() {}", not as "() => {}" so "this" will be assigned correctly
+			});
 		}
-		_.each(methodDefinitions, (method, name) => {
-			this[name] = method; // NOTE: Methods must be defined in schema as "function() {}", not as "() => {}" so "this" will be assigned correctly
-		});
 	}
 
 	/**

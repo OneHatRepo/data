@@ -265,8 +265,26 @@ export default class Repository extends EventEmitter {
 			await this.sort();
 		}
 
+		this._createMethods();
+
 		this.isInitialized = true;
 		this.emit('initialize');
+	}
+
+	/**
+	 * Creates the methods for this Repository, based on Schema.
+	 * @private
+	 */
+	_createMethods = () => {
+		if (this.isDestroyed) {
+			throw Error('this._createMethods is no longer valid. Repository has been destroyed.');
+		}
+		const methodDefinitions = this.schema.repository.methods;
+		if (!_.isEmpty(methodDefinitions)) {
+			_.each(methodDefinitions, (method, name) => {
+				this[name] = method; // NOTE: Methods must be defined in schema as "function() {}", not as "() => {}" so "this" will be assigned correctly
+			});
+		}
 	}
 
 

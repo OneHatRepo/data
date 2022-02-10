@@ -63,6 +63,43 @@ describe('Repository Base', function() {
 			})
 			expect(repository.id).to.be.not.eq('foo');
 		});
+
+		it('_createMethods', async function() {
+
+			// There is no test method by default
+			expect(this.repository.testMethod).to.not.exist;
+
+			// Set up custom repository with testMethod
+			const schema1 = new Schema({
+					name: 'baz',
+					model: {
+						idProperty: 'key',
+						displayProperty: 'value',
+						properties: [
+							{ name: 'key', type: 'int' },
+							{ name: 'value' },
+						],
+					},
+					repository: {
+						type: 'null',
+						methods: {
+							testMethod: function() {
+								this.bar = 'test me';
+							},
+						},
+					},
+				}),
+				repository = new this.Repository({
+					schema: schema1,
+					data: [],
+				});
+			await repository.initialize();
+			schema1.setBoundRepository(repository);
+
+			// Perform testMethod test
+			repository.testMethod();
+			expect(repository.bar).to.be.eq('test me');
+		});
 	});
 
 	describe('loading', function() {
