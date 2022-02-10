@@ -12,6 +12,11 @@ describe('Repository Base', function() {
 					{ name: 'key', type: 'int' },
 					{ name: 'value' },
 				],
+				associations: {
+					hasMany: [
+						'bar'
+					],
+				},
 			},
 			repository: 'null',
 		});
