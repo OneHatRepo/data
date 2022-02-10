@@ -118,6 +118,12 @@ class Entity extends EventEmitter {
 		this.isDeleted = false;
 
 		/**
+		 * @member {boolean} isStaged - Whether this object has been marked for saving
+		 * @private
+		 */
+		this.isStaged = false;
+
+		/**
 		 * @member {boolean} isDestroyed - Whether this object has been destroyed
 		 * @private
 		 */
@@ -1057,6 +1063,7 @@ class Entity extends EventEmitter {
 		this.getIdProperty().isTempId = false;
 		this._originalData = this._getReconstructedOriginalData();
 		this._originalDataParsed = this.getParsedValues();
+		this.markStaged(false);
 	}
 
 	/**
@@ -1100,6 +1107,24 @@ class Entity extends EventEmitter {
 		}
 		this.markDeleted(false);
 		this.emit('undelete', this._proxy);
+	}
+
+	/**
+	 * Marks an entity as having been staged for saving.
+	 * @param {boolean} bool - How it should be marked. Defaults to true.
+	 */
+	markStaged = (bool = true) => {
+		if (this.isDestroyed) {
+			throw Error('this.markStaged is no longer valid. Entity has been destroyed.');
+		}
+		this.isStaged = bool;
+	}
+
+	/**
+	 * Convenience function.
+	 */
+	stage = () => {
+		this.markStaged(true);
 	}
 
 	/**

@@ -1135,52 +1135,120 @@ export default class Repository extends EventEmitter {
 
 	/**
 	 * Get all phantom (unsaved) Entities
+	 * @param {array} entities - Array of entities to filter. Optional. Defaults to this.entities
 	 * @return {Entity[]} Array of phantom Entities, or []
 	 */
-	getPhantom = () => {
+	getPhantom = (entities = null) => {
 		if (this.isDestroyed) {
 			throw Error('this.getPhantom is no longer valid. Repository has been destroyed.');
 		}
-		return _.filter(this.entities, (entity) => entity.isPhantom);
+		if (!entities) {
+			entities = this.entities;
+		}
+		return _.filter(this.entities, entity => entity.isPhantom);
 	}
 
 	/**
 	 * Get all Entities not yet persisted to a storage medium
+	 * @param {array} entities - Array of entities to filter. Optional. Defaults to this.entities
 	 * @return {Entity[]} Array of dirty Entities, or []
 	 */
-	getNonPersisted = () => {
+	getNonPersisted = (entities = null) => {
 		if (this.isDestroyed) {
 			throw Error('this.getDirty is no longer valid. Repository has been destroyed.');
 		}
-		return _.filter(this.entities, (entity) => {
-			return !entity.isPersisted;
-		});
+		if (!entities) {
+			entities = this.entities;
+		}
+		return _.filter(this.entities, entity => !entity.isPersisted);
 	}
 
 	/**
 	 * Get all dirty (having unsaved changes) Entities
+	 * @param {array} entities - Array of entities to filter. Optional. Defaults to this.entities
 	 * @return {Entity[]} Array of dirty Entities, or []
 	 */
-	getDirty = () => {
+	getDirty = (entities = null) => {
 		if (this.isDestroyed) {
 			throw Error('this.getDirty is no longer valid. Repository has been destroyed.');
 		}
-		return _.filter(this.entities, (entity) => {
-			return entity.isDirty;
-		});
+		if (!entities) {
+			entities = this.entities;
+		}
+		return _.filter(entities, entity => entity.isDirty);
 	}
 
 	/**
 	 * Get all deleted Entities
+	 * @param {array} entities - Array of entities to filter. Optional. Defaults to this.entities
 	 * @return {Entity[]} Array of deleted Entities, or []
 	 */
-	getDeleted = () => {
+	getDeleted = (entities = null) => {
 		if (this.isDestroyed) {
 			throw Error('this.getDeleted is no longer valid. Repository has been destroyed.');
 		}
-		return _.filter(this.entities, (entity) => {
-			return entity.isDeleted;
-		});
+		if (!entities) {
+			entities = this.entities;
+		}
+		return _.filter(entities, entity => entity.isDeleted);
+	}
+
+	/**
+	 * Get all staged Entities
+	 * @param {array} entities - Array of entities to filter. Optional. Defaults to this.entities
+	 * @return {Entity[]} Array of deleted Entities, or []
+	 */
+	getStaged = (entities = null) => {
+		if (this.isDestroyed) {
+			throw Error('this.getStaged is no longer valid. Repository has been destroyed.');
+		}
+		if (!entities) {
+			entities = this.entities;
+		}
+		return _.filter(entities, entity => entity.isStaged);
+	}
+
+	/**
+	 * Gets the Schema object
+	 * @return {Schema} schema
+	 */
+	getSchema = () => {
+		if (this.isDestroyed) {
+			throw Error('this.getSchema is no longer valid. Entity has been destroyed.');
+		}
+		return this.schema;
+	}
+
+	/**
+	 * Gets the associated Repository
+	 * @param {string} repositoryName - Name of the Repository to retrieve
+	 * @return {boolean} hasProperty
+	 */
+	getAssociatedRepository = (repositoryName) => {
+		if (this.isDestroyed) {
+			throw Error('this.getAssociatedRepository is no longer valid. Entity has been destroyed.');
+		}
+
+		const schema = this.getSchema();
+		if (!schema.model.associations.hasOne.includes(repositoryName) &&
+			!schema.model.associations.hasMany.includes(repositoryName) &&
+			!schema.model.associations.belongsTo.includes(repositoryName) &&
+			!schema.model.associations.belongsToMany.includes(repositoryName)
+			) {
+			throw Error(repositoryName + ' is not associated with this schema');
+		}
+
+		const oneHatData = this.oneHatData;
+		if (!oneHatData) {
+			throw Error('No global oneHatData object');
+		}
+
+		const associatedRepository = oneHatData.getRepository(repositoryName);
+		if (!associatedRepository) {
+			throw Error('Repository ' + repositoryName + ' cannot be found');
+		}
+		
+		return associatedRepository;
 	}
 
 	/**
@@ -1271,8 +1339,9 @@ export default class Repository extends EventEmitter {
 	 * this.entities until all operations have completed. We leave it to subclasses
 	 * to implement that.
 	 * @param {object} entity - Optional single entity to save (instead of doing a batch operation on everything)
+	 * @param {boolean} useStaged - Save only the staged items, not all
 	 */
-	save = async (entity = null) => {
+	save = async (entity = null, useStaged = false) => {
 		if (this.isDestroyed) {
 			throw Error('this.save is no longer valid. Repository has been destroyed.');
 		}
@@ -1315,6 +1384,9 @@ export default class Repository extends EventEmitter {
 				switch(operation) {
 					case 'add':
 						entities = this.getNonPersisted();
+						if (useStaged) {
+							entities = this.getStaged(entities);
+						}
 						if (_.size(entities) > 0) {
 							if (this.combineBatch) {
 
@@ -1339,6 +1411,9 @@ export default class Repository extends EventEmitter {
 						break;
 					case 'edit':
 						entities = this.getDirty();
+						if (useStaged) {
+							entities = this.getStaged(entities);
+						}
 						if (_.size(entities) > 0) {
 							if (this.combineBatch) {
 
@@ -1363,6 +1438,9 @@ export default class Repository extends EventEmitter {
 						break;
 					case 'delete':
 						entities = this.getDeleted();
+						if (useStaged) {
+							entities = this.getStaged(entities);
+						}
 						if (_.size(entities) > 0) {
 							if (this.combineBatch) {
 
@@ -1520,7 +1598,7 @@ export default class Repository extends EventEmitter {
 	 * Mainly used for phantom Entities
 	 * Helper for delete()
 	 */
-	 removeEntity = async (entity) => {
+	removeEntity = async (entity) => {
 		this.entities = _.filter(this.entities, e => e !== entity);
 		entity.destroy();
 	}

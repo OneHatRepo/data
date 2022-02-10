@@ -525,6 +525,7 @@ describe('Entity', function() {
 			entity.bar = 'Test';
 			entity.markSaved();
 			expect(entity.isTempId).to.be.false;
+			expect(entity.isStaged).to.be.false;
 
 			expect(entity.isPersisted).to.be.true;
 			const expected = {
@@ -556,6 +557,16 @@ describe('Entity', function() {
 			this.entity.delete();
 			this.entity.undelete();
 			expect(this.entity.isDeleted).to.be.false;
+		});
+
+		it('markStaged, stage', function() {
+			expect(this.entity.isStaged).to.be.false;
+
+			this.entity.stage();
+			expect(this.entity.isStaged).to.be.true;
+
+			this.entity.markStaged(false);
+			expect(this.entity.isStaged).to.be.false;
 		});
 	});
 

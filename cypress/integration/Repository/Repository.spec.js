@@ -650,8 +650,12 @@ describe('Repository Base', function() {
 		it('getNonPersisted', async function() {
 			this.repository.setAutoSave(false);
 			const entity = await this.repository.add({ value: 'six' }),
-				nonPersisted = this.repository.getNonPersisted();
+				entities = this.repository.entities;
 
+			let nonPersisted = this.repository.getNonPersisted();
+			expect(_.isEqual(entity, nonPersisted[0])).to.be.true;
+			
+			nonPersisted = this.repository.getNonPersisted(entities);
 			expect(_.isEqual(entity, nonPersisted[0])).to.be.true;
 		});
 
@@ -690,6 +694,15 @@ describe('Repository Base', function() {
 			expect(_.isEqual(entity, deleted[0])).to.be.true;
 		});
 
+		it('getStaged', function() {
+			this.repository.setAutoSave(false);
+			const entity = this.repository.getByIx(0);
+			
+			entity.isStaged = true;	
+			const staged = this.repository.getStaged();
+			expect(_.isEqual(entity, staged[0])).to.be.true;
+		});
+
 		it('isInRepository, hasId', function() {
 			this.repository.setAutoSave(false);
 			const id = 1,
@@ -720,6 +733,9 @@ describe('Repository Base', function() {
 			this.repository.add({ value: 'six' });
 			
 			expect(didFire).to.be.true;
+
+			// TODO: Need comprehensive test of save(), not just event firing
+
 		});
 
 		it('save by entity', async function() {
