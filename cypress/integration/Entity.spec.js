@@ -347,6 +347,18 @@ describe('Entity', function() {
 			expect(_.isEqual(result, expected)).to.be.true;
 		});
 
+		it('getChangedValues', function() {
+			this.entity.foo = 2;
+			const result = this.entity.getChangedValues(),
+				expected = {
+					foo: {
+						original: 1,
+						current: 2,
+					},
+				};
+			expect(_.isEqual(result, expected)).to.be.true;
+		});
+
 		it('data', function() {
 			const result = this.entity.data,
 				expected = {

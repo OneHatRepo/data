@@ -711,19 +711,37 @@ class Entity extends EventEmitter {
 	 * @return {array|boolean} diff - Array of property names that have changed, or false
 	 */
 	getChanged = () => {
-		const obj1 = this._originalDataParsed,
-			obj2 = this.getRawValues(),
-			diff = Object.keys(obj1).reduce((result, key) => { // from https://stackoverflow.com/a/40610459/9163076
-				if (obj2 && !obj2.hasOwnProperty(key)) {
+		const original = this._originalDataParsed,
+			current = this.getRawValues(),
+			diff = Object.keys(original).reduce((result, key) => { // from https://stackoverflow.com/a/40610459/9163076
+				if (current && !current.hasOwnProperty(key)) {
 					result.push(key);
-				} else if (_.isEqual(obj1[key], obj2[key])) {
+				} else if (_.isEqual(original[key], current[key])) {
 					const resultKeyIndex = result.indexOf(key);
 					result.splice(resultKeyIndex, 1);
 				}
 				return result;
-			}, Object.keys(obj2));
+			}, Object.keys(current));
 	
 		return !_.isEmpty(diff) ? diff : false;
+	}
+
+	/**
+	 * Gets a comprehensive analysis of what has changed since the last save
+	 * @return {object} changedPropertyValues - Object representing each changed field and both its original and current value
+	 */
+	getChangedValues = () => {
+		const original = this._originalDataParsed,
+			current = this.getRawValues(),
+			names = this.getChanged();
+		const changedPropertyValues = {};
+		_.each(names, (name) => {
+			changedPropertyValues[name] = {
+				original: original[name],
+				current: current[name],
+			};
+		});
+		return changedPropertyValues;
 	}
 
 	/**
