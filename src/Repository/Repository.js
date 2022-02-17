@@ -1256,49 +1256,6 @@ export default class Repository extends EventEmitter {
 	}
 
 	/**
-	 * Gets the Schema object
-	 * @return {Schema} schema
-	 */
-	getSchema = () => {
-		if (this.isDestroyed) {
-			throw Error('this.getSchema is no longer valid. Entity has been destroyed.');
-		}
-		return this.schema;
-	}
-
-	/**
-	 * Gets the associated Repository
-	 * @param {string} repositoryName - Name of the Repository to retrieve
-	 * @return {boolean} hasProperty
-	 */
-	getAssociatedRepository = (repositoryName) => {
-		if (this.isDestroyed) {
-			throw Error('this.getAssociatedRepository is no longer valid. Entity has been destroyed.');
-		}
-
-		const schema = this.getSchema();
-		if (!schema.model.associations.hasOne.includes(repositoryName) &&
-			!schema.model.associations.hasMany.includes(repositoryName) &&
-			!schema.model.associations.belongsTo.includes(repositoryName) &&
-			!schema.model.associations.belongsToMany.includes(repositoryName)
-			) {
-			throw Error(repositoryName + ' is not associated with this schema');
-		}
-
-		const oneHatData = this.oneHatData;
-		if (!oneHatData) {
-			throw Error('No global oneHatData object');
-		}
-
-		const associatedRepository = oneHatData.getRepository(repositoryName);
-		if (!associatedRepository) {
-			throw Error('Repository ' + repositoryName + ' cannot be found');
-		}
-		
-		return associatedRepository;
-	}
-
-	/**
 	 * Utility function.
 	 * Detects if entity is in the current page of the storage medium.
 	 * @param {object|string} entity - Either an Entity object, or an id
