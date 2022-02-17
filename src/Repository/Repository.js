@@ -267,6 +267,10 @@ export default class Repository extends EventEmitter {
 
 		this._createMethods();
 
+		if (this.schema.repository.initialize) {
+			this.schema.repository.initialize();
+		}
+
 		this.isInitialized = true;
 		this.emit('initialize');
 	}
