@@ -266,6 +266,7 @@ export default class Repository extends EventEmitter {
 		}
 
 		this._createMethods();
+		this._createStatics();
 
 		if (this.schema.repository.init) {
 			await this.schema.repository.init.call(this);
@@ -287,6 +288,22 @@ export default class Repository extends EventEmitter {
 		if (!_.isEmpty(methodDefinitions)) {
 			_.each(methodDefinitions, (method, name) => {
 				this[name] = method; // NOTE: Methods must be defined in schema as "function() {}", not as "() => {}" so "this" will be assigned correctly
+			});
+		}
+	}
+
+	/**
+	 * Creates the static properties for this Repository, based on Schema.
+	 * @private
+	 */
+	 _createStatics = () => {
+		if (this.isDestroyed) {
+			throw Error('this._createStatics is no longer valid. Entity has been destroyed.');
+		}
+		const staticsDefinitions = this.schema.repository.statics;
+		if (!_.isEmpty(staticsDefinitions)) {
+			_.each(staticsDefinitions, (value, key) => {
+				this[key] = value;
 			});
 		}
 	}
