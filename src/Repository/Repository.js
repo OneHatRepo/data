@@ -1617,7 +1617,7 @@ export default class Repository extends EventEmitter {
 	 * Mainly used for phantom Entities
 	 * Helper for delete()
 	 */
-	removeEntity = async (entity) => {
+	removeEntity(entity) { // standard function notation so it can be called by child class
 		this.entities = _.filter(this.entities, e => e !== entity);
 		entity.destroy();
 	}

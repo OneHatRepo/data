@@ -443,6 +443,21 @@ class MemoryRepository extends Repository {
 		})
 	}
 	/* */
+	
+	removeEntity(entity) { // standard function notation
+		const id = entity.id;
+
+		super.removeEntity(entity);
+
+		if (this.hasSorters) {
+			this._applySorters();
+		}
+		if (this.hasFilters) {
+			this._applyFilters();
+		}
+		delete this._keyedEntities[id];
+	}
+
 
 
 
