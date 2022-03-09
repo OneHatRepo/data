@@ -580,6 +580,21 @@ describe('Entity', function() {
 			this.entity.markStaged(false);
 			expect(this.entity.isStaged).to.be.false;
 		});
+	
+		it('setValue changed lastModified', function() {
+			let earlyLastModified,
+				lateLastModified;
+
+			earlyLastModified = this.entity.lastModified;
+			this.entity.setValue('foo', '125');
+			lateLastModified = this.entity.lastModified;
+			expect(earlyLastModified < lateLastModified).to.be.true;
+
+			earlyLastModified = this.entity.lastModified;
+			this.entity.foo = '126';
+			lateLastModified = this.entity.lastModified;
+			expect(earlyLastModified < lateLastModified).to.be.true;
+		});
 	});
 
 	describe('events', function() {

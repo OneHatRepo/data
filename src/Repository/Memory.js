@@ -95,7 +95,7 @@ class MemoryRepository extends Repository {
 		}
 
 		this.emit('beforeLoad');
-		this.isLoading = true;
+		this.markLoading();
 
 
 		const isDirectLoad = !_.isNil(data);
@@ -143,8 +143,7 @@ class MemoryRepository extends Repository {
 			await this._saveToStorage(entities);
 		}
 
-		this.isLoading = false;
-		this.isLoaded = true;
+		this.markLoaded();
 		this._recalculate(); // fires changeData if needed
 		this.emit('load', entities, this);
 		return entities;

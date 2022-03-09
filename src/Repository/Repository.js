@@ -5,6 +5,7 @@ import Entity from '../Entity';
 import {
 	v4 as uuid,
 } from 'uuid';
+import moment from 'moment';
 import _ from 'lodash';
 
 /**
@@ -195,6 +196,11 @@ export default class Repository extends EventEmitter {
 		this.isLoading = false;
 
 		/**
+		 * @member {string} lastLoaded - Last time this repository was loaded
+		 */
+		this.lastLoaded = null;
+
+		/**
 		 * @member {Boolean} isSaving - State: whether or not entities are currently being saved
 		 */
 		this.isSaving = false;
@@ -321,6 +327,22 @@ export default class Repository extends EventEmitter {
 	 */
 	load = async () => {
 		throw new Error('load must be implemented by Repository subclass');
+	}
+
+	/**
+	 * Marks this repository as loading
+	 */
+	markLoading = () => {
+		this.isLoading = true;
+	}
+
+	/**
+	 * Marks this repository as loaded
+	 */
+	markLoaded = () => {
+		this.isLoading = false;
+		this.isLoaded = true;
+		this.lastLoaded = moment(new Date()).format('YYYY-MM-DD HH:mm:ss.SSSS');
 	}
 
 	/**

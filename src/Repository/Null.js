@@ -46,7 +46,7 @@ class NullRepository extends Repository {
 			throw Error('this.load is no longer valid. Repository has been destroyed.');
 		}
 		this.emit('beforeLoad');
-		this.isLoading = true;
+		this.markLoading();
 
 		if (data) {
 			let entities = data;
@@ -65,8 +65,7 @@ class NullRepository extends Repository {
 
 		this._updateSize();
 
-		this.isLoading = false;
-		this.isLoaded = true;
+		this.markLoaded();
 		this.emit('changeData', this.entities);
 		this.emit('load', this);
 	}

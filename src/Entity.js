@@ -2,6 +2,7 @@
 
 import EventEmitter from '@onehat/events';
 import PropertyTypes from './Property';
+import moment from 'moment';
 import _ from 'lodash';
 
 /**
@@ -128,6 +129,11 @@ class Entity extends EventEmitter {
 		 * @private
 		 */
 		this.isDestroyed = false;
+
+		/**
+		 * @member {string} lastModified - Last time this entity was modified
+		 */
+		this.lastModified = null;
 
 		// This ES6 Proxy allows us to create magic getters and setters for all property values.
 		// However, these getters and setters are *not* available within the Entity itself.
@@ -325,6 +331,7 @@ class Entity extends EventEmitter {
 		if (this.isDeleted) {
 			this.undelete();
 		}
+		this.setLastModified();
 
 		this.emit('reset', this._proxy);
 	}
@@ -398,6 +405,10 @@ class Entity extends EventEmitter {
 			value = null; // dead-end in path. i.e. invalid mapping
 		}
 		return value;
+	}
+	
+	setLastModified = () => {
+		this.lastModified = moment(new Date()).format('YYYY-MM-DD HH:mm:ss.SSSS');
 	}
 
 
@@ -990,6 +1001,7 @@ class Entity extends EventEmitter {
 		}
 		
 		idProperty.isTempId = false;
+		this.setLastModified();
 
 		return isChanged;
 	}
@@ -1034,6 +1046,7 @@ class Entity extends EventEmitter {
 			}
 			property.resumeEvents();
 		});
+		this.setLastModified();
 
 		if (isChanged) {
 			this._recalculateDependentProperties();

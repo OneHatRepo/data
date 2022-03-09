@@ -362,7 +362,7 @@ class AjaxRepository extends Repository {
 			throw new Error('No "get" api endpoint defined.');
 		}
 		this.emit('beforeLoad'); // TODO: canceling beforeLoad will cancel the load operation
-		this.isLoading = true;
+		this.markLoading();
 
 
 		if (!_.isNil(params) && _.isObject(params)) {
@@ -407,9 +407,9 @@ class AjaxRepository extends Repository {
 						// Set the total records that pass filter
 						this.total = total;
 						this._setPaginationVars();
-				
-						this.isLoading = false;
-						this.isLoaded = true;
+
+						this.markLoaded();
+
 						this.emit('changeData', this.entities);
 						this.emit('load', this);
 					})
@@ -432,7 +432,7 @@ class AjaxRepository extends Repository {
 			throw new Error('No "get" api endpoint defined.');
 		}
 		this.emit('beforeLoad'); // TODO: canceling beforeLoad will cancel the load operation
-		this.isLoading = true;
+		this.markLoading();
 
 		const params = this._getReloadEntityParams(entity);
 		if (this.debugMode) {
@@ -460,8 +460,8 @@ class AjaxRepository extends Repository {
 						entity.loadOriginalData(updatedData, true);
 						entity.emit('reload', entity);
 						
-						this.isLoading = false;
-						this.isLoaded = true;
+						this.markLoaded();
+
 						this.emit('changeData', this.entities);
 						this.emit('load', this);
 						this.emit('reloadEntity', entity);
