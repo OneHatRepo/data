@@ -274,8 +274,9 @@ export default class Repository extends EventEmitter {
 		this._createMethods();
 		this._createStatics();
 
-		if (this.schema.repository.init) {
-			await this.schema.repository.init.call(this);
+		const init = this.schema.repository.init || this.originalConfig.init; // The latter is mainly for lfr repositories
+		if (init) {
+			await init.call(this);
 		}
 
 		this.isInitialized = true;
