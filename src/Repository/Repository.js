@@ -290,7 +290,7 @@ export default class Repository extends EventEmitter {
 		if (this.isDestroyed) {
 			throw Error('this._createMethods is no longer valid. Repository has been destroyed.');
 		}
-		const methodDefinitions = this.schema.repository.methods;
+		const methodDefinitions = this.schema.repository.methods || this.originalConfig.methods; // The latter is mainly for lfr repositories
 		if (!_.isEmpty(methodDefinitions)) {
 			_.each(methodDefinitions, (method, name) => {
 				this[name] = method; // NOTE: Methods must be defined in schema as "function() {}", not as "() => {}" so "this" will be assigned correctly
@@ -306,7 +306,7 @@ export default class Repository extends EventEmitter {
 		if (this.isDestroyed) {
 			throw Error('this._createStatics is no longer valid. Entity has been destroyed.');
 		}
-		const staticsDefinitions = this.schema.repository.statics;
+		const staticsDefinitions = this.schema.repository.statics || this.originalConfig.statics; // The latter is mainly for lfr repositories
 		if (!_.isEmpty(staticsDefinitions)) {
 			_.each(staticsDefinitions, (value, key) => {
 				this[key] = value;
