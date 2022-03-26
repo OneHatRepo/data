@@ -553,6 +553,30 @@ describe('Repository Base', function() {
 			expect(didFireAdd).to.be.true;
 		});
 
+		it('add already existing', async function() {
+			const value = 'another one';
+			await this.repository.add({ key: 6, value: 'six' });
+			await this.repository.add({ key: 6, value });
+			expect(_.size(this.repository.entities)).to.be.eq(6);
+
+			const entity = this.repository.getById(6);
+			expect(entity.value).to.be.eq(value);
+		})
+
+		it('add with an existing id', async function() {
+			this.repository.autoSave = false;
+
+			// ID suppied; should not be temp ID or phantom
+			const entity = await this.repository.add({ key: 6, value: 'six' });
+			expect(entity.isTempId).to.be.false;
+			expect(entity.isPhantom).to.be.false;
+
+			// No ID suppled. Make it phantom and temp ID
+			const entity2 = await this.repository.add({ value: 'seven' });
+			expect(entity2.isTempId).to.be.true;
+			expect(entity2.isPhantom).to.be.true;
+		});
+
 		it('createStandaloneEntity', async function() {
 			const entity = await this.repository.createStandaloneEntity({ key: 6, value: 'six' });
 			expect(entity.id).to.be.eq(6);

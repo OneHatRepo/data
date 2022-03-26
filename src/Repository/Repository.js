@@ -923,6 +923,19 @@ export default class Repository extends EventEmitter {
 			throw Error('this.add is no longer valid. Repository has been destroyed.');
 		}
 		
+		// Does it already exist? If so, edit the existing
+		const idProperty = this.getSchema().model.idProperty;
+		if (data.hasOwnProperty(idProperty)) {
+			if (this.isInRepository(data[idProperty])) {
+				const existing = this.getById(data[idProperty]);
+				existing.setRawValues(data);
+				if (this.autoSave && !existing.isPersisted) {
+					await this.save(existing);
+				}
+				return existing;
+			}
+		}
+
 		let entity = data;
 		if (!(data instanceof Entity)) {
 			// Create the new entity

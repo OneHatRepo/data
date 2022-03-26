@@ -476,15 +476,40 @@ describe('Entity', function() {
 		it('setValues', function() {
 			expect(this.entity.foo).to.be.eq(1);
 			expect(this.entity.bar).to.be.eq('one');
+			expect(this.entity.baz).to.be.eq(true);
 			expect(this.entity.isDirty).to.be.false;
 	
 			this.entity.setValues({
 				foo: 2,
 				bar: 'two',
+				baz: false,
 			});
 			
 			expect(this.entity.foo).to.be.eq(2);
 			expect(this.entity.bar).to.be.eq('two');
+			expect(this.entity.baz).to.be.eq(false);
+			expect(this.entity.isDirty).to.be.true;
+		});
+
+		it('setRawValues', function() {
+			expect(this.entity.foo).to.be.eq(1);
+			expect(this.entity.bar).to.be.eq('one');
+			expect(this.entity.baz).to.be.eq(true);
+			expect(this.entity.isDirty).to.be.false;
+	
+			this.entity.setRawValues({
+				foo: 2,
+				bar: 'two',
+				baz: {
+					test: {
+						val: false,
+					},
+				},
+			});
+			
+			expect(this.entity.foo).to.be.eq(2);
+			expect(this.entity.bar).to.be.eq('two');
+			expect(this.entity.baz).to.be.eq(false);
 			expect(this.entity.isDirty).to.be.true;
 		});
 

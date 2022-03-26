@@ -1022,23 +1022,58 @@ class Entity extends EventEmitter {
 		propertyValues[propertyName] = rawValue;
 		return this.setValues(propertyValues);
 	}
+	
+	/**
+	 * Sets Property values
+	 * @param {object} rawData - Raw data object. These are prior to mapping, 
+	 * similar to what you'd use to create a brand new Entity. Make sure *all*
+	 * values are here, not just a few.
+	 * @return {boolean} isChanged - Whether any values were actually changed
+	 */
+	 setRawValues = (rawData) => {
+		if (this.isDestroyed) {
+			throw Error('this.setRawValues is no longer valid. Entity has been destroyed.');
+		}
+
+		const [dependentProperties, nonDependentProperties] = _.partition(this.properties, (property) => {
+			return property.hasDepends;
+		});
+		const mappedData = {};
+		function setMappedValue(property) {
+			let rawValue;
+			if (property.hasMapping) {
+				rawValue = Entity.getMappedValue(property.mapping, rawData);
+			} else {
+				rawValue = rawData[property.name];
+			}
+			if (_.isNil(rawValue)) {
+				rawValue = property.getDefaultValue();
+			}
+			mappedData[property.name] = rawValue;
+		}
+		
+		_.each(nonDependentProperties, setMappedValue);
+		_.each(dependentProperties, setMappedValue);
+
+		return this.setValues(mappedData);
+	}
 
 	/**
 	 * Sets Property values
-	 * @param {object} rawData - Raw data object. Keys are Property names, Values are Property values.
+	 * @param {object} data - Raw data object. Keys are Property names, Values are Property values.
 	 * @return {boolean} isChanged - Whether any values were actually changed
 	 * @fires change
 	 */
-	setValues = (rawData) => {
+	setValues = (data) => {
 		if (this.isDestroyed) {
 			throw Error('this.setValues is no longer valid. Entity has been destroyed.');
 		}
-		if (_.indexOf(rawData, this.getIdProperty().name) !== -1) {
+		if (_.indexOf(data, this.getIdProperty().name) !== -1) {
 			throw new Error('Cannot change id via entity.setValues(). Must use entity.setId() first.');
 		}
 
 		let isChanged = false;
-		_.each(rawData, (value, propertyName) => {
+		_.each(data, (value, propertyName) => {
 			const property = this.getProperty(propertyName);
 			property.pauseEvents(); // We don't need property_change to fire
 			if (property.setValue(value)) {
