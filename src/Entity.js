@@ -331,6 +331,7 @@ class Entity extends EventEmitter {
 		if (this.isDeleted) {
 			this.undelete();
 		}
+		this.markStaged(false);
 		this.setLastModified();
 
 		this.emit('reset', this._proxy);
