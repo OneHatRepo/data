@@ -103,6 +103,11 @@ class AjaxRepository extends Repository {
 		this.allowsMultiSort = false;
 
 		/**
+		 * @member {object} lastSendOptions - Last options sent to server
+		 */
+		this.lastSendOptions = null;
+
+		/**
 		 * @member {Object} _params - Object of query params to submit to server
 		 * @private
 		 */
@@ -785,6 +790,8 @@ class AjaxRepository extends Repository {
 		if (this.debugMode) {
 			console.log(url, options);
 		}
+		
+		this.lastSendOptions = options;
 		
 		return this.axios(options)
 					.catch(error => {

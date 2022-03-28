@@ -113,6 +113,8 @@ class OneBuildRepository extends AjaxRepository {
 			console.log(url, options);
 		}
 		
+		this.lastSendOptions = options;
+		
 		return this.axios(options)
 					.catch(error => {
 						// BEGIN MOD
