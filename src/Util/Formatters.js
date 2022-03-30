@@ -168,9 +168,12 @@ class Formatters {
 		return value.toFixed(precision) + '%';
 	}
 
-	static FormatPercentInt = (str) => {
+	static FormatPercentInt = (str, omitZeros = false) => {
 		if (_.isNil(str)) {
 			return str;
+		}
+		if (omitZeros) {
+			str = parseFloat(str).toString();
 		}
 		return '' + str + '%';
 	}

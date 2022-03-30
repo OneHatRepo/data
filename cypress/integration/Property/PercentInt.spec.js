@@ -21,4 +21,26 @@ describe('PercentProperty', function() {
 		expect(this.property.displayValue).to.be.eq('12.325%');
 	});
 
+	it('omitZeros', function() {
+		this.property.setValue('1234.56');
+		expect(this.property.displayValue).to.be.eq('1234.560%');
+
+		this.property.setValue('1234.50');
+		expect(this.property.displayValue).to.be.eq('1234.500%');
+
+		this.property.setValue('1234.00');
+		expect(this.property.displayValue).to.be.eq('1234.000%');
+
+		this.property.omitZeros = true;
+
+		this.property.setValue('1234.56');
+		expect(this.property.displayValue).to.be.eq('1234.56%');
+
+		this.property.setValue('1234.50');
+		expect(this.property.displayValue).to.be.eq('1234.5%');
+
+		this.property.setValue('1234.00');
+		expect(this.property.displayValue).to.be.eq('1234%');
+	});
+
 });
