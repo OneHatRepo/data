@@ -2,6 +2,7 @@
 
 import FloatProperty from './Float';
 import Formatters from '../Util/Formatters';
+import _ from 'lodash';
 
 /**
  * Class represents a Property that stores a percentage value.
