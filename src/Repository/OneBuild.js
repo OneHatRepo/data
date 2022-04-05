@@ -291,6 +291,36 @@ class OneBuildRepository extends AjaxRepository {
 			});
 	}
 
+	forgotPassword = (email = null, username = null) => {
+		const data = {
+			url: 'forgotPassword',
+			data: qs.stringify({
+				email,
+				username,
+			}),
+			method: 'POST',
+			baseURL: this.api.baseURL,
+		};
+
+		if (this.debugMode) {
+			console.log('forgotPassword', data);
+		}
+
+		return this.axios(data)
+			.then((result) => {
+				if (this.debugMode) {
+					console.log('forgotPassword result', result);
+				}
+
+				const response = result.data;
+				if (!response.success) {
+					throw new Error(response.data);
+				}
+
+				return response;
+			});
+	}
+
 }
 
 
