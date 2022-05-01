@@ -152,9 +152,11 @@ class Entity extends EventEmitter {
 			},
 			set (target, name, value, receiver) {
 				if (!Reflect.has(target, name)) {
-					return target.setValue(name, value);
+					target.setValue(name, value);
+				} else {
+					Reflect.set(target, name, value, receiver);
 				}
-				return Reflect.set(target, name, value, receiver);
+				return true; // Return true, or else we sometimes get a proxy trap type error. https://developer.mozilla.org/en-US/docs/web/javascript/reference/global_objects/proxy/proxy/set
 			},
 		});
 
