@@ -163,7 +163,7 @@ class OneBuildRepository extends AjaxRepository {
 			}
 		});
 
-		if (this.isLoaded) {
+		if (this.isLoaded && this.autoLoad) {
 			return this.reload();
 		}
 	}
@@ -183,7 +183,7 @@ class OneBuildRepository extends AjaxRepository {
 			this.setBaseParam('order', sorterStrings.join(','));
 		}
 		
-		if (this.isLoaded) {
+		if (this.isLoaded && this.autoLoad) {
 			return this.reload();
 		}
 	}
