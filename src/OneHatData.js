@@ -50,6 +50,12 @@ export class OneHatData extends EventEmitter {
 		 * @private
 		 */
 		this.repositories = {};
+
+		/**
+		 * @member {Object} uniqueRepositoriesMap - Object map of all unique Repositories, with signature of { mapName: id }
+		 * @private
+		 */
+		this.uniqueRepositoriesMap = {};
 		
 		/**
 		 * @member {boolean} isDestroyed - Whether this object has been destroyed
@@ -440,6 +446,34 @@ export class OneHatData extends EventEmitter {
 			return null;
 		}
 		return schema.getBoundRepository();
+	}
+
+	/**
+	 * Gets or creates a unique repository with the supplied schemaName and name
+	 * @param {string} schemaName - Name of Schema
+	 * @param {string} mapName - Name of unique repository (will be internally mapped to an id)
+	 * @return {Repository} repository
+	 */
+	getOrCreateUniqueRepository = async (mapName, schemaName) => {
+		if (this.isDestroyed) {
+			throw new Error('this.getUniqueRepository is no longer valid. OneHatData has been destroyed.');
+		}
+		
+		// Try to get it
+		const id = this.uniqueRepositoriesMap[mapName];
+		if (id) {
+			return this.getRepositoryById(id);
+		}
+
+		// Try to create it
+		const schema = this.getSchema(schemaName);
+		if (!schema) {
+			return null;
+		}
+
+		const repository = await this.createRepository(schemaName);
+		this.uniqueRepositoriesMap[mapName] = repository.id;
+		return repository;
 	}
 
 	/**
