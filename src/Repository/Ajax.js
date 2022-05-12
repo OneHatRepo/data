@@ -357,9 +357,10 @@ class AjaxRepository extends Repository {
 	 * Loads data into the Repository.
 	 * This loads only a single page of data.
 	 * @param {object} params - Params to send to server
+	 * @param {function} callback - Function to call after loading is complete
 	 * @fires beforeLoad,changeData,load,error
 	 */
-	load = async (params) => {
+	load = async (params, callback = null) => {
 		if (this.isDestroyed) {
 			throw Error('this.load is no longer valid. Repository has been destroyed.');
 		}
@@ -417,6 +418,10 @@ class AjaxRepository extends Repository {
 
 						this.emit('changeData', this.entities);
 						this.emit('load', this);
+
+						if (callback) {
+							callback(this.entities);
+						}
 					})
 					.finally(() => {
 						this.isLoading = false;
@@ -426,10 +431,11 @@ class AjaxRepository extends Repository {
 	/**
 	 * Reload a single entity from storage. 
 	 * If the entity is in the internal representation, update it.
+	 * @param {function} callback - Function to call after loading is complete
 	 * @returns {entity} The newly updated entity
 	 * @fires reloadEntity,beforeLoad,changeData,load,error
 	 */
-	reloadEntity = async (entity) => {
+	reloadEntity = async (entity, callback = null) => {
 		if (this.isDestroyed) {
 			throw Error('this.reloadEntity is no longer valid. Repository has been destroyed.');
 		}
@@ -470,6 +476,10 @@ class AjaxRepository extends Repository {
 						this.emit('changeData', this.entities);
 						this.emit('load', this);
 						this.emit('reloadEntity', entity);
+
+						if (callback) {
+							callback(entity);
+						}
 					})
 					.finally(() => {
 						this.isLoading = false;
