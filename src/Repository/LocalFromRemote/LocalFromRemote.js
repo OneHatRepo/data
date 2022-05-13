@@ -285,7 +285,7 @@ class LocalFromRemoteRepository extends EventEmitter {
 	/**
 	 * Syncs local and remote repositories, based on operation mode.
 	 */
-	sync = async (entity) => {
+	sync = async (entity, callback = null) => {
 		try {
 			if (!this.isOnline) {
 				this._doAutoSync(true);
@@ -405,6 +405,9 @@ class LocalFromRemoteRepository extends EventEmitter {
 		} finally {
 			this.isSyncing = false;
 			this.emit('endSync', this);
+			if (callback) {
+				callback();
+			}
 		}
 	
 	}
