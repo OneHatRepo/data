@@ -183,7 +183,7 @@ export default class Property extends EventEmitter {
 	}
 
 	/**
-	 * Gets "raw" value, prior to any parsing
+	 * Gets "raw" value
 	 * @return {any} rawValue
 	 */
 	getRawValue = () => {
@@ -191,6 +191,17 @@ export default class Property extends EventEmitter {
 			throw Error('this.getRawValue is no longer valid. Property has been destroyed.');
 		}
 		return this.rawValue;
+	}
+
+	/**
+	 * Gets "raw" value in its parsed form
+	 * @return {any} rawValue
+	 */
+	getParsedRawValue = () => {
+		if (this.isDestroyed) {
+			throw Error('this.getParsedRawValue is no longer valid. Property has been destroyed.');
+		}
+		return this.parse(this.rawValue);
 	}
 
 	/**

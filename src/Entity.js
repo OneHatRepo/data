@@ -584,7 +584,7 @@ class Entity extends EventEmitter {
 	 */
 	getRawValues = () => {
 		if (this.isDestroyed) {
-			throw Error('this.getSubmitValues is no longer valid. Entity has been destroyed.');
+			throw Error('this.getRawValues is no longer valid. Entity has been destroyed.');
 		}
 		let propertyValues = {};
 		_.forOwn(this.properties, (property) => {
@@ -602,6 +602,33 @@ class Entity extends EventEmitter {
 			throw Error('this.rawValues is no longer valid. Entity has been destroyed.');
 		}
 		return this.getRawValues();
+	}
+
+	/**
+	 * Gets an object of values for this Entity,
+	 * Values are the "raw" values in their parsed form, not the "parsed" or "submit" or "display" values.
+	 * @return {object} propertyValues
+	 */
+	getParsedRawValues = () => {
+		if (this.isDestroyed) {
+			throw Error('this.getParsedRawValues is no longer valid. Entity has been destroyed.');
+		}
+		let propertyValues = {};
+		_.forOwn(this.properties, (property) => {
+			propertyValues[property.name] = property.getParsedRawValue();
+		});
+		return propertyValues;
+	}
+
+	/**
+	 * Gets "raw" values in their parsed form for this Entity.
+	 * @return {object} values
+	 */
+	get parsedRawValues() {
+		if (this.isDestroyed) {
+			throw Error('this.parsedRawValues is no longer valid. Entity has been destroyed.');
+		}
+		return this.getParsedRawValues();
 	}
 
 	/**
@@ -726,7 +753,7 @@ class Entity extends EventEmitter {
 	 */
 	getChanged = () => {
 		const original = this._originalDataParsed,
-			current = this.getRawValues(),
+			current = this.getParsedRawValues(),
 			diff = Object.keys(original).reduce((result, key) => { // from https://stackoverflow.com/a/40610459/9163076
 				if (current && !current.hasOwnProperty(key)) {
 					result.push(key);

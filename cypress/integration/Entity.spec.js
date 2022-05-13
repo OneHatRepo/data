@@ -232,6 +232,17 @@ describe('Entity', function() {
 			expect(_.isEqual(this.entity.rawValues, expected)).to.be.true;
 		});
 
+		it('getParsedRawValues & parsedRawValues', function() {
+			const result = this.entity.getParsedRawValues(),
+				expected = {
+					foo: 1,
+					bar: 'one',
+					baz: true,
+				};
+			expect(_.isEqual(result, expected)).to.be.true;
+			expect(_.isEqual(this.entity.parsedRawValues, expected)).to.be.true;
+		});
+
 		it('getParsedValues & parsedValues', function() {
 			const result = this.entity.getParsedValues(),
 				expected = {
