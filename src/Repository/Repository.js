@@ -716,10 +716,12 @@ export default class Repository extends EventEmitter {
 			isChanged = true;
 			this.filters = filters;
 			this.resetPagination();
-			this.emit('changeFilters');
+			let ret;
 			if (this._onChangeFilters) {
-				return this._onChangeFilters();
+				ret = this._onChangeFilters();
 			}
+			this.emit('changeFilters');
+			return ret;
 		}
 		return isChanged;
 	}
