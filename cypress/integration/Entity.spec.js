@@ -631,6 +631,22 @@ describe('Entity', function() {
 			lateLastModified = this.entity.lastModified;
 			expect(earlyLastModified < lateLastModified).to.be.true;
 		});
+	
+		it('freeze', function() {
+			this.entity.freeze();
+			expect(this.entity.isFrozen).to.be.true;
+
+			this.entity.destroy();
+			expect(this.entity.isDestroyed).to.be.false;
+
+			let isError = false;
+			try {
+				this.entity.foo = 2;
+			} catch(e) {
+				isError = true;
+			}
+			expect(isError).to.be.true;
+		});
 	});
 
 	describe('events', function() {

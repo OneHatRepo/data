@@ -135,6 +135,12 @@ class Entity extends EventEmitter {
 		 */
 		this.lastModified = null;
 
+		/**
+		 * @member {string} isFrozen - Prevent the entity from being destroyed, but don't let it be changed either.
+		 */
+		this.isFrozen = false;
+		
+
 		// This ES6 Proxy allows us to create magic getters and setters for all property values.
 		// However, these getters and setters are *not* available within the Entity itself.
 		this._proxy = new Proxy(this, {
@@ -151,6 +157,9 @@ class Entity extends EventEmitter {
 				return Reflect.get(target, name, receiver);
 			},
 			set (target, name, value, receiver) {
+				if (this.isFrozen) {
+					throw Error('Entity is frozen.');
+				}
 				if (!Reflect.has(target, name)) {
 					target.setValue(name, value);
 				} else {
@@ -1011,6 +1020,9 @@ class Entity extends EventEmitter {
 	 * @return {boolean} isChanged - Whether id was actually changed
 	 */
 	setId = (id, force = false) => {
+		if (this.isFrozen) {
+			throw Error('Entity is frozen.');
+		}
 		let isChanged = false;
 		const idProperty = this.getIdProperty();
 
@@ -1045,6 +1057,9 @@ class Entity extends EventEmitter {
 	 * @return {boolean} isChanged - Whether any values were actually changed
 	 */
 	setValue = (propertyName, rawValue) => {
+		if (this.isFrozen) {
+			throw Error('Entity is frozen.');
+		}
 		if (this.isDestroyed) {
 			throw Error('this.setValue is no longer valid. Entity has been destroyed.');
 		}
@@ -1061,6 +1076,9 @@ class Entity extends EventEmitter {
 	 * @return {boolean} isChanged - Whether any values were actually changed
 	 */
 	 setRawValues = (rawData) => {
+		if (this.isFrozen) {
+			throw Error('Entity is frozen.');
+		}
 		if (this.isDestroyed) {
 			throw Error('this.setRawValues is no longer valid. Entity has been destroyed.');
 		}
@@ -1095,6 +1113,9 @@ class Entity extends EventEmitter {
 	 * @fires change
 	 */
 	setValues = (data) => {
+		if (this.isFrozen) {
+			throw Error('Entity is frozen.');
+		}
 		if (this.isDestroyed) {
 			throw Error('this.setValues is no longer valid. Entity has been destroyed.');
 		}
@@ -1156,6 +1177,9 @@ class Entity extends EventEmitter {
 	 * @fires save
 	 */
 	save = () => {
+		if (this.isFrozen) {
+			throw Error('Entity is frozen.');
+		}
 		if (this.isDestroyed) {
 			throw Error('this.save is no longer valid. Entity has been destroyed.');
 		}
@@ -1169,6 +1193,9 @@ class Entity extends EventEmitter {
 	 * Marks an entity as having been saved to storage medium.
 	 */
 	markSaved = () => {
+		if (this.isFrozen) {
+			throw Error('Entity is frozen.');
+		}
 		if (this.isDestroyed) {
 			throw Error('this.markSaved is no longer valid. Entity has been destroyed.');
 		}
@@ -1184,6 +1211,9 @@ class Entity extends EventEmitter {
 	 * @param {boolean} bool - How it should be marked. Defaults to true.
 	 */
 	markDeleted = (bool = true) => {
+		if (this.isFrozen) {
+			throw Error('Entity is frozen.');
+		}
 		if (this.isDestroyed) {
 			throw Error('this.markDeleted is no longer valid. Entity has been destroyed.');
 		}
@@ -1195,6 +1225,9 @@ class Entity extends EventEmitter {
 	 * @fires delete
 	 */
 	delete = () => {
+		if (this.isFrozen) {
+			throw Error('Entity is frozen.');
+		}
 		if (this.isDestroyed) {
 			throw Error('this.delete is no longer valid. Entity has been destroyed.');
 		}
@@ -1211,6 +1244,9 @@ class Entity extends EventEmitter {
 	 * @fires delete
 	 */
 	undelete = () => {
+		if (this.isFrozen) {
+			throw Error('Entity is frozen.');
+		}
 		if (this.isDestroyed) {
 			throw Error('this.undelete is no longer valid. Entity has been destroyed.');
 		}
@@ -1227,6 +1263,9 @@ class Entity extends EventEmitter {
 	 * @param {boolean} bool - How it should be marked. Defaults to true.
 	 */
 	markStaged = (bool = true) => {
+		if (this.isFrozen) {
+			throw Error('Entity is frozen.');
+		}
 		if (this.isDestroyed) {
 			throw Error('this.markStaged is no longer valid. Entity has been destroyed.');
 		}
@@ -1241,6 +1280,13 @@ class Entity extends EventEmitter {
 	}
 
 	/**
+	 * Prevent the entity from being destroyed, but don't let it be changed either.
+	 */
+	freeze = () => {
+		this.isFrozen = true;
+	}
+
+	/**
 	 * Destroy this object.
 	 * - Removes all circular references to parent objects
 	 * - Removes child objects
@@ -1248,6 +1294,9 @@ class Entity extends EventEmitter {
 	 * @fires destroy
 	 */
 	destroy = () => {
+		if (this.isFrozen) {
+			return;
+		}
 		this._id = this.id; // save id, so we can query it later--even on a destroyed entity
 
 		// parent objects
