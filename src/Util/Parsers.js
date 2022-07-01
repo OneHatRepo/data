@@ -1,7 +1,7 @@
 import moment from 'moment';
 import momentAlt from 'relative-time-parser'; // Notice this version of moment is imported from 'relative-time-parser', and may be out of sync with our general 'moment' package
 import accounting from 'accounting-js';
-import * as chrono from 'chrono-node';
+// import * as chrono from 'chrono-node';
 import _ from 'lodash';
 
 class Parsers {
@@ -90,16 +90,16 @@ class Parsers {
 			result = moment(value, format);
 		} catch(err) {}
 		
-		if (!result || !result.isValid()) {
-			// try using chrono
-			const parsed = chrono.parse(value);
-			if (parsed && parsed[0] && parsed[0].date) {
-				const dateString = parsed[0].date();
-				try {
-					result = moment(dateString);
-				} catch(err) {}
-			}
-		}
+		// if ((!result || !result.isValid() && chrono)) {
+		// 	// try using chrono
+		// 	const parsed = chrono.parse(value);
+		// 	if (parsed && parsed[0] && parsed[0].date) {
+		// 		const dateString = parsed[0].date();
+		// 		try {
+		// 			result = moment(dateString);
+		// 		} catch(err) {}
+		// 	}
+		// }
 		return result;
 	}
 
