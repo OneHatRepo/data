@@ -1322,10 +1322,7 @@ class Entity extends EventEmitter {
 	}
 
 	get [Symbol.toStringTag]() {
-		if (this.isDestroyed) {
-			throw Error('this.toStringTag is no longer valid. Entity has been destroyed.');
-		}
-		return 'Entity {' + this.id + '} - ' + this.displayValue;
+		return 'Entity {' + this.id + '} - ' + (this.isDestroyed ? 'destroyed' : this.displayValue);
 	}
 
 	get toJSON() {
