@@ -1297,6 +1297,10 @@ class Entity extends EventEmitter {
 		if (this.isFrozen) {
 			return;
 		}
+
+		// Save destroyed properties
+		this.destroyedProperties = this.displayValues;
+
 		this._id = this.id; // save id, so we can query it later--even on a destroyed entity
 
 		// parent objects
