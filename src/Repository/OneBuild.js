@@ -110,7 +110,7 @@ class OneBuildRepository extends AjaxRepository {
 			};
 		
 		if (this.debugMode) {
-			console.log(url, options);
+			console.log('Sending ' + url, options);
 		}
 		
 		this.lastSendOptions = options;
@@ -251,7 +251,7 @@ class OneBuildRepository extends AjaxRepository {
 		return this.axios(data)
 			.then((result) => {
 				if (this.debugMode) {
-					console.log('login result', result);
+					console.log('login response', result);
 				}
 
 				const response = result.data;
@@ -281,7 +281,7 @@ class OneBuildRepository extends AjaxRepository {
 			})
 			.then((result) => {
 				if (this.debugMode) {
-					console.log('logout result', result);
+					console.log('logout response', result);
 				}
 				const response = result.data;
 				if (!response.success) {
@@ -309,7 +309,7 @@ class OneBuildRepository extends AjaxRepository {
 		return this.axios(data)
 			.then((result) => {
 				if (this.debugMode) {
-					console.log('forgotPassword result', result);
+					console.log('forgotPassword response', result);
 				}
 
 				const response = result.data;

@@ -374,10 +374,6 @@ class AjaxRepository extends Repository {
 		if (!_.isNil(params) && _.isObject(params)) {
 			this.setParams(params);
 		}
-		
-		if (this.debugMode) {
-			console.log('loading ' + this.name, params);
-		}
 
 		const repository = this;
 		const data = _.merge({}, this._baseParams, this._params);
@@ -385,7 +381,7 @@ class AjaxRepository extends Repository {
 		return this._send(this.methods.get, this.api.get, data)
 					.then(result => {
 						if (this.debugMode) {
-							console.log('load result ' + this.name, result);
+							console.log('Response for ' + this.name, result);
 						}
 
 						if (this.isDestroyed) {
@@ -453,7 +449,7 @@ class AjaxRepository extends Repository {
 		return this._send(this.methods.get, this.api.get, params)
 					.then(result => {
 						if (this.debugMode) {
-							console.log('reloadEntity result ' + entity.id, result);
+							console.log('reloadEntity response ' + entity.id, result);
 						}
 						
 						const {
@@ -531,7 +527,7 @@ class AjaxRepository extends Repository {
 		return this._send(method, url, data)
 					.then(result => {
 						if (this.debugMode) {
-							console.log(this.api.add + ' result', result);
+							console.log(this.api.add + ' response', result);
 						}
 						const {
 							root,
@@ -571,7 +567,7 @@ class AjaxRepository extends Repository {
 		return this._send(method, url, data)
 					.then(result => {
 						if (this.debugMode) {
-							console.log(this.api.batchAdd + ' result', result);
+							console.log(this.api.batchAdd + ' response', result);
 						}
 						const {
 							root,
@@ -611,7 +607,7 @@ class AjaxRepository extends Repository {
 		return this._send(method, url, data)
 					.then(result => {
 						if (this.debugMode) {
-							console.log(this.api.edit + ' result', result);
+							console.log(this.api.edit + ' response', result);
 						}
 						const {
 							root,
@@ -651,7 +647,7 @@ class AjaxRepository extends Repository {
 		return this._send(method, url, data)
 					.then(result => {
 						if (this.debugMode) {
-							console.log(this.api.batchEdit + ' result', result);
+							console.log(this.api.batchEdit + ' response', result);
 						}
 						const {
 							root,
@@ -691,7 +687,7 @@ class AjaxRepository extends Repository {
 		return this._send(method, url, data)
 					.then(result => {
 						if (this.debugMode) {
-							console.log(this.api.delete + ' result', result);
+							console.log(this.api.delete + ' response', result);
 						}
 						const {
 							root,
@@ -733,7 +729,7 @@ class AjaxRepository extends Repository {
 		return this._send(method, url, data)
 					.then(result => {
 						if (this.debugMode) {
-							console.log(this.api.batchDelete + ' result', result);
+							console.log(this.api.batchDelete + ' response', result);
 						}
 						const {
 							root,
