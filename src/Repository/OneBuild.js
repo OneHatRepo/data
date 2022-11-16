@@ -117,6 +117,10 @@ class OneBuildRepository extends AjaxRepository {
 		
 		return this.axios(options)
 					.catch(error => {
+						if (this.debugMode) {
+							console.log(url + ' error', error);
+							console.log('response:', error.response);
+						}
 						// BEGIN MOD
 						if (error && error.response && error.response.status === 401) {
 							this.emit('logout');
@@ -124,10 +128,6 @@ class OneBuildRepository extends AjaxRepository {
 							return false;
 						}
 						// END MOD
-						if (this.debugMode) {
-							console.log(url + ' error', error);
-							console.log('response:', error.response);
-						}
 						this.emit('error', error);
 					});
 	}
