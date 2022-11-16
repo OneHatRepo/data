@@ -77,13 +77,18 @@ export class OneHatData extends EventEmitter {
 	 * Sets global config settings that will be passed into all Repositories.
 	 * Chainable.
 	 * @param {object} globals - Schema config object
+	 * @param {boolean} merge - Whether to merge or replace the globals
 	 * @return this
 	 */
-	setRepositoryGlobals = (globals) => {
+	setRepositoryGlobals = (globals, merge = true) => {
 		if (this.isDestroyed) {
 			throw new Error('this.setRepositoryGlobals is no longer valid. OneHatData has been destroyed.');
 		}
-		_.merge(this._repositoryGlobals, globals);
+		if (merge) {
+			_.merge(this._repositoryGlobals, globals);
+		} else {
+			_.assign(this._repositoryGlobals, globals);
+		}
 		return this;
 	}
 
