@@ -42,12 +42,10 @@ class AsyncStorageRepository extends OfflineRepository {
 					value = result; // Invalid JSON, just return raw result
 				}
 			}
-			
 			return value;
 		} catch (error) {
 			if (this.debugMode) {
 				const msg = error && error.message;
-				console.log('_storageGetValue error', msg);
 				debugger;
 			}
 		}
@@ -67,7 +65,7 @@ class AsyncStorageRepository extends OfflineRepository {
 			const results = await AsyncStorage.multiGet(this._namespace(keys));
 
 			if (this.debugMode) {
-				console.log(this.name, 'AsyncStorage.multiGet results', results);
+				console.log(this.name, 'AsyncStorage.multiGet results', name, results);
 			}
 
 			let values = [];
@@ -84,7 +82,6 @@ class AsyncStorageRepository extends OfflineRepository {
 						// Delete the index to this record
 						const re = new RegExp('^' + this.name + '\-' + '(.*)'),
 							matches = key.match(re);
-debugger;
 						const id = parseInt(matches, 10);
 						this._deleteFromIndex(id);
 					} else {
@@ -101,7 +98,6 @@ debugger;
 		} catch (error) {
 			if (this.debugMode) {
 				const msg = error && error.message;
-				console.log('_storageGetMultiple error', msg);
 				debugger;
 			}
 		}
@@ -121,7 +117,6 @@ debugger;
 		} catch (error) {
 			if (this.debugMode) {
 				const msg = error && error.message;
-				console.log('_storageSetValue error', msg);
 				debugger;
 			}
 		}
@@ -154,7 +149,6 @@ debugger;
 		} catch (error) {
 			if (this.debugMode) {
 				const msg = error && error.message;
-				console.log('_storageSetMultiple error', msg);
 				debugger;
 			}
 		}
@@ -175,7 +169,6 @@ debugger;
 		} catch (error) {
 			if (this.debugMode) {
 				const msg = error && error.message;
-				console.log('_storageDeleteValue error', msg);
 				debugger;
 			}
 		}
@@ -196,19 +189,16 @@ debugger;
 		} catch (error) {
 			if (this.debugMode) {
 				const msg = error && error.message;
-				console.log('_storageDeleteMultiple error', msg);
 				debugger;
 			}
 		}
 	}
 
-	_clearAll = async () => {
-		await AsyncStorage.clear();
-		this._keyedEntities = {};
-		this.reload();
+	clearAll = async () => {
+		await this.load([]);
 	}
 
-	_getAllKeys = async () => {
+	getAllKeys = async () => {
 		return await AsyncStorage.getAllKeys();
 	}
 
