@@ -83,7 +83,7 @@ export class OneHatData extends EventEmitter {
 		if (this.isDestroyed) {
 			throw new Error('this.setRepositoryGlobals is no longer valid. OneHatData has been destroyed.');
 		}
-		_.assign(this._repositoryGlobals, globals);
+		_.merge(this._repositoryGlobals, globals);
 		return this;
 	}
 
