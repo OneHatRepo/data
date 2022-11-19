@@ -1615,6 +1615,9 @@ export default class Repository extends EventEmitter {
 			return false;
 		}
 		_.each(entities, (entity) => {
+			if (!entity) {
+				return;
+			}
 			if (entity.isPhantom) {
 				// Just auto-remove it. Don't bother saving to storage medium.
 				this.removeEntity(entity);
