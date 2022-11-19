@@ -1606,13 +1606,13 @@ export default class Repository extends EventEmitter {
 			throw Error('this.delete is no longer valid. Repository has been destroyed.');
 		}
 		if (!entities) {
-			return;
+			return false;
 		}
 		if (!_.isArray(entities)) {
 			entities = [entities];
 		}
 		if (!entities.length) {
-			return;
+			return false;
 		}
 		_.each(entities, (entity) => {
 			if (entity.isPhantom) {
