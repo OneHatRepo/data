@@ -6,7 +6,7 @@ import {
 	MODE_LOCAL_MIRROR,
 	MODE_COMMAND_QUEUE,
 	MODE_REMOTE_WITH_OFFLINE,
-} from './Repository/LocalFromRemote/LocalFromRemote/index.js';
+} from './Repository/LocalFromRemote/index.js';
 import {
 	default as Schema,
 	CoreSchemas,
