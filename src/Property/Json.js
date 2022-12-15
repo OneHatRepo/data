@@ -1,6 +1,6 @@
 /** @module Property */
 
-import Property from './Property';
+import Property from './Property.js';
 import _ from 'lodash';
 
 /**

@@ -1,8 +1,8 @@
 /** @module Repository */
 
 import EventEmitter from '@onehat/events';
-import Repository from '../Repository';
-import Command from './Command';
+import Repository from '../Repository.js';
+import Command from './Command.js';
 import moment from 'relative-time-parser'; // Notice this version of moment is imported from 'relative-time-parser', and may be out of sync with our general 'moment' package
 import {
 	v4 as uuid,

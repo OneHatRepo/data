@@ -1,6 +1,6 @@
 /** @module Reader */
 
-import Reader from './Reader';
+import Reader from './Reader.js';
 import _ from 'lodash';
 
 /**

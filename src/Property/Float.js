@@ -1,7 +1,7 @@
 /** @module Property */
 
-import Property from './Property';
-import Parsers from '../Util/Parsers';
+import Property from './Property.js';
+import Parsers from '../Util/Parsers.js';
 import _ from 'lodash';
 
 /**

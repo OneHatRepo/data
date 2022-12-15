@@ -1,6 +1,6 @@
 /** @module Writer */
 
-import Writer from './Writer'
+import Writer from './Writer.js'
 import { j2xParser as Parser } from 'fast-xml-parser';
 import he from 'he'; 
 

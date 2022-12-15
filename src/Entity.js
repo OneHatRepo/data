@@ -1,7 +1,7 @@
 /** @module Entity */
 
 import EventEmitter from '@onehat/events';
-import PropertyTypes from './Property';
+import PropertyTypes from './Property/index.js';
 import moment from 'moment';
 import _ from 'lodash';
 

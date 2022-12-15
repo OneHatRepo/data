@@ -1,8 +1,8 @@
 /** @module Property */
 
-import Property from './Property';
-import Formatters from '../Util/Formatters';
-import Parsers from '../Util/Parsers';
+import Property from './Property.js';
+import Formatters from '../Util/Formatters.js';
+import Parsers from '../Util/Parsers.js';
 import _ from 'lodash';
 
 /**

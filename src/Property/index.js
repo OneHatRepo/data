@@ -1,19 +1,19 @@
  /** @module Property */
  
-import Base64Property from './Base64';
-import BooleanProperty from './Boolean';
-import CurrencyProperty from './Currency';
-import DateProperty from './Date';
-import DateTimeProperty from './DateTime';
-import FileProperty from './File';
-import FloatProperty from './Float';
-import IntegerProperty from './Integer';
-import JsonProperty from './Json';
-import PercentProperty from './Percent';
-import PercentIntProperty from './PercentInt';
-import StringProperty from './String';
-import TimeProperty from './Time';
-import UuidProperty from './Uuid';
+import Base64Property from './Base64.js';
+import BooleanProperty from './Boolean.js';
+import CurrencyProperty from './Currency.js';
+import DateProperty from './Date.js';
+import DateTimeProperty from './DateTime.js';
+import FileProperty from './File.js';
+import FloatProperty from './Float.js';
+import IntegerProperty from './Integer.js';
+import JsonProperty from './Json.js';
+import PercentProperty from './Percent.js';
+import PercentIntProperty from './PercentInt.js';
+import StringProperty from './String.js';
+import TimeProperty from './Time.js';
+import UuidProperty from './Uuid.js';
 
 const PropertyTypes = {
 	[Base64Property.type]: Base64Property,

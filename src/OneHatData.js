@@ -1,16 +1,16 @@
 /** @module OneHatData */
 
 import EventEmitter from '@onehat/events';
-import CoreRepositoryTypes from './Repository';
+import CoreRepositoryTypes from './Repository/index.js';
 import {
 	MODE_LOCAL_MIRROR,
 	MODE_COMMAND_QUEUE,
 	MODE_REMOTE_WITH_OFFLINE,
-} from './Repository/LocalFromRemote/LocalFromRemote';
+} from './Repository/LocalFromRemote/LocalFromRemote/index.js';
 import {
 	default as Schema,
 	CoreSchemas,
-} from './Schema';
+} from './Schema/index.js';
 import _ from 'lodash';
 
 /**

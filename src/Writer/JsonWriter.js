@@ -1,6 +1,6 @@
 /** @module Writer */
 
-import Writer from './Writer'
+import Writer from './Writer.js'
 import _ from 'lodash';
 
 /**

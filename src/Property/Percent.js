@@ -1,8 +1,8 @@
 /** @module Property */
 
-import PercentIntProperty from './PercentInt';
-import Formatters from '../Util/Formatters';
-import Parsers from '../Util/Parsers';
+import PercentIntProperty from './PercentInt.js';
+import Formatters from '../Util/Formatters.js';
+import Parsers from '../Util/Parsers.js';
 
 /**
  * Class represents a Property that stores a percentage value.

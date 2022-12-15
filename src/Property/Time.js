@@ -1,6 +1,6 @@
 /** @module Property */
 
-import DateProperty from './Date';
+import DateProperty from './Date.js';
 import _ from 'lodash';
 
 /**

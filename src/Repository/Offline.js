@@ -1,6 +1,6 @@
 /** @module Repository */
 
-import MemoryRepository from './Memory';
+import MemoryRepository from './Memory.js';
 import _ from 'lodash';
 import moment from 'moment';
 

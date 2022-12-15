@@ -1,7 +1,7 @@
 /** @module Property */
 
-import FloatProperty from './Float';
-import Formatters from '../Util/Formatters';
+import FloatProperty from './Float.js';
+import Formatters from '../Util/Formatters.js';
 import _ from 'lodash';
 
 /**

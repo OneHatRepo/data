@@ -1,6 +1,6 @@
 /** @module Reader */
 
-import Reader from './Reader';
+import Reader from './Reader.js';
 import parser from 'fast-xml-parser';
 import he from 'he';
 import _ from 'lodash';

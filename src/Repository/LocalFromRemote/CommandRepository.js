@@ -1,6 +1,6 @@
 /** @module Repository */
 
-import OneBuildRepository from '../OneBuild';
+import OneBuildRepository from '../OneBuild.js';
 import _ from 'lodash';
 
 /**

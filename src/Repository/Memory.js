@@ -1,7 +1,7 @@
 /** @module Repository */
 
-import Repository from './Repository';
-import Entity from '../Entity';
+import Repository from './Repository.js';
+import Entity from '../Entity.js';
 import _ from 'lodash';
 
 const MEM_PREFIX = 'MEM-';

@@ -1,8 +1,8 @@
 /** @module Repository */
 
-import Repository from './Repository';
-import ReaderTypes from '../Reader';
-import WriterTypes from '../Writer';
+import Repository from './Repository.js';
+import ReaderTypes from '../Reader/index.js';
+import WriterTypes from '../Writer/index.js';
 import axios from 'axios';
 import qs from 'qs';
 import _ from 'lodash';

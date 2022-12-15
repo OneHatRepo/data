@@ -5,7 +5,7 @@
 import {
 	default as oneHatData,
 	OneHatData,
-} from './OneHatData';
+} from './OneHatData.js';
 
 export default oneHatData;
 export {

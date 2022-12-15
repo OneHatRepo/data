@@ -1,6 +1,6 @@
 /** @module Repository */
 
-import AjaxRepository from './Ajax';
+import AjaxRepository from './Ajax.js';
 import qs from 'qs';
 import _ from 'lodash';
 

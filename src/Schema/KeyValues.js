@@ -1,6 +1,6 @@
 /** @module Schema */
 
-import Schema from './Schema';
+import Schema from './Schema.js';
 
 const KeyValues = new Schema({
 	name: 'KeyValues',

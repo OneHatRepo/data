@@ -1,12 +1,12 @@
 /** @module Repository */
 
-import AjaxRepository from './Ajax';
-import CommandRepository from './LocalFromRemote/CommandRepository';
-import LocalFromRemoteRepository from './LocalFromRemote';
-import MemoryRepository from './Memory';
-import NullRepository from './Null';
-import OneBuildRepository from './OneBuild';
-import RestRepository from './Rest';
+import AjaxRepository from './Ajax.js';
+import CommandRepository from './LocalFromRemote/CommandRepository.js';
+import LocalFromRemoteRepository from './LocalFromRemote/index.js';
+import MemoryRepository from './Memory.js';
+import NullRepository from './Null.js';
+import OneBuildRepository from './OneBuild.js';
+import RestRepository from './Rest.js';
 
 const CoreRepositoryTypes = {
 	[AjaxRepository.type]: AjaxRepository,

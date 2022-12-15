@@ -1,6 +1,6 @@
  /** @module Property */
 
-import Base64Property from './Base64';
+import Base64Property from './Base64.js';
 import _ from 'lodash';
 
 /**

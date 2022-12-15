@@ -1,7 +1,7 @@
 /** @module Reader */
 
-import JsonReader from './JsonReader';
-import XmlReader from './XmlReader';
+import JsonReader from './JsonReader.js';
+import XmlReader from './XmlReader.js';
 
 const ReaderTypes = {
 	[JsonReader.type]: JsonReader,
