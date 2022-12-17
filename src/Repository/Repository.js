@@ -740,7 +740,7 @@ export default class Repository extends EventEmitter {
 	 * Resets the pagination to page one
 	 * @fires changePageSize
 	 */
-	resetPagination = (pageSize) => {
+	resetPagination = () => {
 		if (this.isDestroyed) {
 			throw Error('this.resetPagination is no longer valid. Repository has been destroyed.');
 		}
@@ -758,11 +758,13 @@ export default class Repository extends EventEmitter {
 		if (!this.isPaginated) {
 			return false;
 		}
+		
+		pageSize = parseInt(pageSize, 10);
 		if (_.isEqual(this.pageSize, pageSize)) {
 			return false;
 		}
 
-		// Reset to page 1
+		// Reset to page 1 (don't use setPage(), so we can skip _onChangePagination, which we'll do later)
 		this.page = 1;
 		this.emit('changePage');
 
