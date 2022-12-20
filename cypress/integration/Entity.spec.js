@@ -39,8 +39,12 @@ describe('Entity', function() {
 	});
 
 	afterEach(function() {
-		this.entity.destroy();
-		this.schema.destroy();
+		if (!this.entity.isDestroyed) {
+			this.entity.destroy();
+		}
+		if (!this.schema.isDestroyed) {
+			this.schema.destroy();
+		}
 	});
 
 	describe('constructor', function() {
