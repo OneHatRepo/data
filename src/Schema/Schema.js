@@ -182,6 +182,24 @@ export default class Schema extends EventEmitter {
 	}
 
 	/**
+	 * Gets a single Property definition by name,
+	 * @param {string} propertyName - Name of the Property to retrieve
+	 * @return {object} property - The named Property
+	 */
+	getProperty = (propertyName) => {
+		if (this.isDestroyed) {
+			throw Error('this.getProperty is no longer valid. Schema has been destroyed.');
+		}
+		const property = _.find(this.properties, (propertyDefinition) => {
+			propertyDefinition.name === propertyName;
+		});
+		if (!property) {
+			throw new Error('Property ' + propertyName + ' not found. Are you sure you initialized this Entity?');
+		}
+		return property;
+	}
+
+	/**
 	 * Clones this Schema.
 	 * @return {object} Schema - The clone
 	 * @memberOf Schema
