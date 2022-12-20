@@ -155,11 +155,19 @@ describe('MemoryRepository', function() {
 	
 			// setPageSize
 			this.repository.setPageSize(2);
+			this.repository.setPage(2);
 			expect(this.repository.pageTotal).to.be.eq(2);
+			let entitiesOnPage = this.repository.getEntitiesOnPage();
+			expect(_.size(entitiesOnPage)).to.be.eq(2);
+
+			expect(entitiesOnPage[0].id).to.be.eq(3);
+			expect(entitiesOnPage[1].id).to.be.eq(4);
 	
 			// setPage
 			this.repository.setPage(3);
 			expect(this.repository.pageTotal).to.be.eq(1);
+			entitiesOnPage = this.repository.getEntitiesOnPage();
+			expect(_.size(entitiesOnPage)).to.be.eq(1);
 	
 			// prevPage
 			this.repository.prevPage();

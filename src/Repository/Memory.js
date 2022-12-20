@@ -430,6 +430,27 @@ class MemoryRepository extends Repository {
 	/* */
 
 	/**
+	 * Get an array of all active Entities on current page,
+	 * with sorting and filtering applied.
+	 * @return {array} Entities that passed through filter
+	 */
+	getEntitiesOnPage = () => {
+		if (this.isDestroyed) {
+			throw Error('this.getPagedEntities is no longer valid. Repository has been destroyed.');
+		}
+		const entities = this.getEntities();
+		if (!this.isPaginated) {
+			return entities;
+		}
+		const
+			pageIx = this.page -1, // zero-indexed page#
+			start = pageIx * this.pageSize,
+			end = start + this.pageSize;
+		return entities.slice(start, end);
+	}
+	/* */
+
+	/**
 	 * Get an array of all Entities
 	 * @return {Entity[]} Entities that passed through filter
 	 * /
@@ -564,9 +585,6 @@ class MemoryRepository extends Repository {
 
 	destroy() {
 		// objects associated with this RepositoryType
-		_.each(this._keyedEntities, (entity) => {
-			entity.destroy();
-		})
 		this._keyedEntities = null;
 		this._unsortedEntities = null;
 		this._filteredEntities = null;
