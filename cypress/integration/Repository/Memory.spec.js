@@ -8,6 +8,12 @@ describe('MemoryRepository', function() {
 			model: {
 				idProperty: 'key',
 				displayProperty: 'value',
+				sorters: [
+					{
+						name: 'key',
+						direction: 'ASC',
+					},
+				],
 				properties: [
 					{ name: 'key', type: 'int' },
 					{ name: 'value' },
@@ -19,6 +25,7 @@ describe('MemoryRepository', function() {
 			id: 'foo',
 			schema: this.schema,
 			isPaginated: true,
+			isSorted: true,
 			data: [
 				{ key: 1, value: 'one', },
 				{ key: 2, value: 'two', },
@@ -206,7 +213,7 @@ describe('MemoryRepository', function() {
 			const result = this.repository.getFirstBy((entity) => {
 				return entity.id > 2;
 			});
-			expect(result.id).to.be.eq(5);
+			expect(result.id).to.be.eq(3);
 		});
 
 		it('Repository.* retrieve methods, after delete/add', async function() {
@@ -465,9 +472,13 @@ describe('MemoryRepository', function() {
 
 	});
 
-	it('toString', function() {
-		const str = this.repository.toString();
-		expect(str).to.be.eq('MemoryRepository {bar} - foo');
+	describe('toString', function() {
+
+		it('toString', function() {
+			const str = this.repository.toString();
+			expect(str).to.be.eq('MemoryRepository {bar} - foo');
+		});
+
 	});
 
 });
