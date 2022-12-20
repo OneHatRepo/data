@@ -417,36 +417,15 @@ class MemoryRepository extends Repository {
 	}
 
 	/**
-	 * Get an array of all active Entities,
-	 * with sorting and filtering applied.
+	 * Override Repository.getEntities, so we can get an array of 
+	 * all *active* Entities, with sorting and filtering applied.
 	 * @return {array} Entities that passed through filter
 	 */
 	getEntities = () => {
 		if (this.isDestroyed) {
-			throw Error('this.getAll is no longer valid. Repository has been destroyed.');
+			throw Error('this.getEntities is no longer valid. Repository has been destroyed.');
 		}
 		return this._getActiveEntities();
-	}
-	/* */
-
-	/**
-	 * Get an array of all active Entities on current page,
-	 * with sorting and filtering applied.
-	 * @return {array} Entities that passed through filter
-	 */
-	getEntitiesOnPage = () => {
-		if (this.isDestroyed) {
-			throw Error('this.getPagedEntities is no longer valid. Repository has been destroyed.');
-		}
-		const entities = this.getEntities();
-		if (!this.isPaginated) {
-			return entities;
-		}
-		const
-			pageIx = this.page -1, // zero-indexed page#
-			start = pageIx * this.pageSize,
-			end = start + this.pageSize;
-		return entities.slice(start, end);
 	}
 	/* */
 

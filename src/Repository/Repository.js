@@ -1225,6 +1225,41 @@ export default class Repository extends EventEmitter {
 	}
 
 	/**
+	 * Get an array of all Entities.
+	 * Can be overridden by subclasses.
+	 * @return {array} Entities that passed through filter
+	 */
+	getEntities = () => {
+		if (this.isDestroyed) {
+			throw Error('this.getEntities is no longer valid. Repository has been destroyed.');
+		}
+		return this.entities;
+	}
+	/* */
+
+	/**
+	 * Get an array of all Entities on current page,
+	 * which for the base Repository, means all entities.
+	 * Subclasses may change this behavior.
+	 * @return {array} Entities
+	 */
+	getEntitiesOnPage = () => {
+		if (this.isDestroyed) {
+			throw Error('this.getPagedEntities is no longer valid. Repository has been destroyed.');
+		}
+		const entities = this.getEntities();
+		if (!this.isPaginated) {
+			return entities;
+		}
+		const
+			pageIx = this.page -1, // zero-indexed page#
+			start = pageIx * this.pageSize,
+			end = start + this.pageSize;
+		return entities.slice(start, end);
+	}
+	/* */
+
+	/**
 	 * Get all dirty (having unsaved changes) Entities
 	 * @param {array} entities - Array of entities to filter. Optional. Defaults to this.entities
 	 * @return {Entity[]} Array of dirty Entities, or []
