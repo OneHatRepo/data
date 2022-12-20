@@ -59,7 +59,7 @@ export default class Schema extends EventEmitter {
 				displayProperty: null,
 
 				/**
-				 * @member {array} propertyDefinitions - Array of Property definition objects
+				 * @member {array} properties - Array of Property definition objects
 				 */
 				properties: [],
 
@@ -183,20 +183,20 @@ export default class Schema extends EventEmitter {
 
 	/**
 	 * Gets a single Property definition by name,
-	 * @param {string} propertyName - Name of the Property to retrieve
-	 * @return {object} property - The named Property
+	 * @param {string} propertyName - Name of the property definition to retrieve
+	 * @return {object} propertyDefinition - The property definition
 	 */
-	getProperty = (propertyName) => {
+	getPropertyDefinition = (propertyName) => {
 		if (this.isDestroyed) {
-			throw Error('this.getProperty is no longer valid. Schema has been destroyed.');
+			throw Error('this.getPropertyDefinition is no longer valid. Schema has been destroyed.');
 		}
-		const property = _.find(this.model.properties, (propertyDefinition) => {
+		const propertyDefinition = _.find(this.model.properties, (propertyDefinition) => {
 			return propertyDefinition.name === propertyName;
 		});
-		if (!property) {
-			throw new Error('Property ' + propertyName + ' not found. Are you sure you initialized this Entity?');
+		if (!propertyDefinition) {
+			throw new Error('Property definition ' + propertyName + ' not found.');
 		}
-		return property;
+		return propertyDefinition;
 	}
 
 	/**

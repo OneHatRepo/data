@@ -25,9 +25,9 @@ describe('Schema', function() {
 		expect(_.isEqual(clone._originalConfig, this.schema._originalConfig)).to.be.true;
 	});
 
-	it('getProperty', function() {
-		const property = this.schema.getProperty('groups_users__id');
-		expect(_.isEqual(property.name, 'groups_users__id')).to.be.true;
+	it('getPropertyDefinition', function() {
+		const propertyDefinition = this.schema.getPropertyDefinition('groups_users__id');
+		expect(_.isEqual(propertyDefinition.name, 'groups_users__id')).to.be.true;
 	});
 
 });
