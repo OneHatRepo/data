@@ -417,6 +417,24 @@ class MemoryRepository extends Repository {
 	}
 
 	/**
+	 * Get a single Entity's index by its id.
+	 * Overrides Repository method, to limite results to only the current page.
+	 * @param {integer} id - id of record to retrieve
+	 * @return {integer} The numerical index, or undefined
+	 */
+	getIxById = (id) => {
+		if (this.isDestroyed) {
+			throw Error('this.getIxById is no longer valid. Repository has been destroyed.');
+		}
+
+		const ix = this.getEntitiesOnPage().findIndex((entity) => entity.id === id);
+		if (ix >= 0) {
+			return ix;
+		}
+		return undefined;
+	}
+
+	/**
 	 * Override Repository.getEntities, so we can get an array of 
 	 * all *active* Entities, with sorting and filtering applied.
 	 * @return {array} Entities that passed through filter

@@ -652,6 +652,14 @@ describe('Repository Base', function() {
 			expect(result.value).to.be.eq('three');
 		});
 
+		it('getIxById', function() {
+			let ix = this.repository.getIxById(1);
+			expect(ix).to.be.eq(0);
+
+			ix = this.repository.getIxById(3);
+			expect(ix).to.be.eq(2);
+		});
+
 		it('getBy', function() {
 			const result = this.repository.getBy(entity => entity.id === 2 || entity.id === 3);
 			expect(result.length).to.be.eq(2);

@@ -210,6 +210,19 @@ describe('MemoryRepository', function() {
 			expect(result.value).to.be.eq('four');
 		});
 
+		it.only('getIxById', function() {
+			this.repository.setPage(1);
+			this.repository.setPageSize(2);
+			let ix = this.repository.getIxById(1);
+			expect(ix).to.be.eq(0);
+
+			ix = this.repository.getIxById(2);
+			expect(ix).to.be.eq(1);
+
+			ix = this.repository.getIxById(3);
+			expect(ix).to.be.undefined;
+		});
+
 		it('getBy', function() {
 			const results = this.repository.getBy((entity) => {
 				return entity.id > 2;

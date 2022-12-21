@@ -1167,6 +1167,23 @@ export default class Repository extends EventEmitter {
 	}
 
 	/**
+	 * Get a single Entity's index by its id.
+	 * @param {integer} id - id of record to retrieve
+	 * @return {integer} The numerical index, or undefined
+	 */
+	getIxById = (id) => {
+		if (this.isDestroyed) {
+			throw Error('this.getIxById is no longer valid. Repository has been destroyed.');
+		}
+
+		const ix = this.entities.findIndex((entity) => entity.id === id);
+		if (ix >= 0) {
+			return ix;
+		}
+		return undefined;
+	}
+
+	/**
 	 * Get an array of Entities by supplied filter function
 	 * @param {function} filter - Filter function to apply to all entities
 	 * @return {Entity[]} Entities that passed through filter, or []
