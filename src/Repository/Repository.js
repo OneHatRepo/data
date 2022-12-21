@@ -305,7 +305,7 @@ export default class Repository extends EventEmitter {
 	 */
 	 _createStatics = () => {
 		if (this.isDestroyed) {
-			throw Error('this._createStatics is no longer valid. Entity has been destroyed.');
+			throw Error('this._createStatics is no longer valid. Repository has been destroyed.');
 		}
 		const staticsDefinitions = this.schema.repository.statics || this.originalConfig.statics; // The latter is mainly for lfr repositories
 		if (!_.isEmpty(staticsDefinitions)) {
@@ -1327,9 +1327,37 @@ export default class Repository extends EventEmitter {
 	 */
 	getSchema = () => {
 		if (this.isDestroyed) {
-			throw Error('this.getSchema is no longer valid. Entity has been destroyed.');
+			throw Error('this.getSchema is no longer valid. Repository has been destroyed.');
 		}
 		return this.schema;
+	}
+
+	/**
+	 * Gets the sort field, if only one sorter is applied.
+	 * @return {Schema} schema
+	 */
+	getSortField = () => {
+		if (this.isDestroyed) {
+			throw Error('this.getSortField is no longer valid. Repository has been destroyed.');
+		}
+		if (!this.allowsMultiSort || this.sorters.length < 1) {
+			return null;
+		}
+		return this.sorters[0].name;
+	}
+
+	/**
+	 * Gets the sort direction, if only one sorter is applied.
+	 * @return {Schema} schema
+	 */
+	getSortDirection = () => {
+		if (this.isDestroyed) {
+			throw Error('this.getSortDirection is no longer valid. Repository has been destroyed.');
+		}
+		if (!this.allowsMultiSort || this.sorters.length < 1) {
+			return null;
+		}
+		return this.sorters[0].direction;
 	}
 
 	/**
@@ -1339,7 +1367,7 @@ export default class Repository extends EventEmitter {
 	 */
 	getAssociatedRepository = (repositoryName) => {
 		if (this.isDestroyed) {
-			throw Error('this.getAssociatedRepository is no longer valid. Entity has been destroyed.');
+			throw Error('this.getAssociatedRepository is no longer valid. Repository has been destroyed.');
 		}
 
 		const schema = this.getSchema();

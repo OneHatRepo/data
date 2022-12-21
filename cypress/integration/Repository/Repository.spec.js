@@ -229,6 +229,16 @@ describe('Repository Base', function() {
 			expect(didFireChangeSorters).to.be.true;
 		});
 
+		it('getSortField', function() {
+			const sortField = this.repository.getSortField();
+			expect(sortField).to.be.eq('value');
+		});
+
+		it('getSortDirection', function() {
+			const sortDirection = this.repository.getSortDirection();
+			expect(sortDirection).to.be.eq('ASC');
+		});
+
 	});
 
 	describe('filtering', function() {
