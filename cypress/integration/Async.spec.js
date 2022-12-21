@@ -1,4 +1,4 @@
-import { OneHatData } from '../../src/OneHatData';
+import { OneHatData } from '../../src/OneHatData.js';
 
 describe('Async playground', function() {
 

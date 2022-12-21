@@ -1,6 +1,6 @@
-import Entity from '../../src/Entity';
-import Schema from '../../src/Schema';
-import PropertyTypes from '../../src/Property';
+import Entity from '../../src/Entity.js';
+import Schema from '../../src/Schema/index.js';
+import PropertyTypes from '../../src/Property/index.js';
 
 
 describe('Entity', function() {

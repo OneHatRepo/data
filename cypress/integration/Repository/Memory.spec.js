@@ -1,5 +1,5 @@
-import RepositoryTypes from '../../../src/Repository';
-import Schema from '../../../src/Schema';
+import RepositoryTypes from '../../../src/Repository/index.js';
+import Schema from '../../../src/Schema/index.js';
 
 describe('MemoryRepository', function() {
 	beforeEach(function() {
@@ -108,6 +108,32 @@ describe('MemoryRepository', function() {
 			expect(result3).to.be.eq(1);
 		});
 
+		it('natsort', function() {
+			const entities = this.repository.getEntitiesOnPage();
+			entities[0].value = 'foo1';
+			entities[1].value = 'foo12';
+			entities[2].value = 'foo2';
+
+			const before = this.repository.getRawValues();
+			expect(before[0].value).to.be.eq('foo1');
+			expect(before[1].value).to.be.eq('foo12');
+			expect(before[2].value).to.be.eq('foo2');
+			expect(before[3].value).to.be.eq('four');
+			expect(before[4].value).to.be.eq('five');
+
+			this.repository.sort({
+				name: 'value',
+				direction: 'ASC',
+				fn: 'natsort',
+			});
+			const after = this.repository.getRawValues();
+			expect(after[0].value).to.be.eq('five');
+			expect(after[1].value).to.be.eq('foo1');
+			expect(after[2].value).to.be.eq('foo2');
+			expect(after[3].value).to.be.eq('foo12');
+			expect(after[4].value).to.be.eq('four');
+		});
+
 	});
 
 	describe('filtering', function() {
@@ -210,7 +236,7 @@ describe('MemoryRepository', function() {
 			expect(result.value).to.be.eq('four');
 		});
 
-		it.only('getIxById', function() {
+		it('getIxById', function() {
 			this.repository.setPage(1);
 			this.repository.setPageSize(2);
 			let ix = this.repository.getIxById(1);

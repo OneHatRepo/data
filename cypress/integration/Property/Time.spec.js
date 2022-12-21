@@ -1,4 +1,4 @@
-import PropertyTypes from '../../../src/Property';
+import PropertyTypes from '../../../src/Property/index.js';
 
 describe('TimeProperty', function() {
 	

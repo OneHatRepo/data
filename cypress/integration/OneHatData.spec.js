@@ -1,9 +1,9 @@
-import { OneHatData } from '../../src/OneHatData';
-import GroupsDefinition from '../fixtures/Definitions/Groups';
-import GroupsUsersDefinition from '../fixtures/Definitions/GroupsUsers';
-import UsersDefinition from '../fixtures/Definitions/Users';
-import groupsUserData from '../fixtures/Data/GroupsUser';
-import KeyValues from '../../src/Schema/KeyValues';
+import { OneHatData } from '../../src/OneHatData.js';
+import GroupsDefinition from '../fixtures/Definitions/Groups.js';
+import GroupsUsersDefinition from '../fixtures/Definitions/GroupsUsers.js';
+import UsersDefinition from '../fixtures/Definitions/Users.js';
+import groupsUserData from '../fixtures/Data/GroupsUser.js';
+import KeyValues from '../../src/Schema/KeyValues.js';
 
 
 // NOTE: Cypress can't handle async functions for beforeEach,

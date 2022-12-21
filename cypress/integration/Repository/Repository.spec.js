@@ -1,5 +1,5 @@
-import RepositoryTypes from '../../../src/Repository';
-import Schema from '../../../src/Schema';
+import RepositoryTypes from '../../../src/Repository/index.js';
+import Schema from '../../../src/Schema/index.js';
 
 describe('Repository Base', function() {
 	beforeEach(function() {
@@ -9,8 +9,9 @@ describe('Repository Base', function() {
 				idProperty: 'key',
 				displayProperty: 'value',
 				properties: [
-					{ name: 'key', type: 'int' },
-					{ name: 'value' },
+					{ name: 'key', type: 'int', },
+					{ name: 'value', },
+					{ name: 'json', type: 'json', },
 				],
 				associations: {
 					hasMany: [
@@ -215,6 +216,7 @@ describe('Repository Base', function() {
 				expected = {
 					direction: 'ASC',
 					name: 'value',
+					fn: 'default',
 				};
 			expect(_.isEqual(sorters[0], expected)).to.be.true;
 		});
@@ -227,6 +229,28 @@ describe('Repository Base', function() {
 			this.repository.clearSort();
 			
 			expect(didFireChangeSorters).to.be.true;
+		});
+
+		it('sort by non-existant field', function() {
+			let didError = false;
+			try {
+				this.repository.sort('foo');
+			} catch(err) {
+				expect(err).to.match(/Sorting property does not exist/);
+				didError = true;
+			}
+			expect(didError).to.be.true;
+		});
+
+		it('sort by non-sortable field', function() {
+			let didError = false;
+			try {
+				this.repository.sort('json');
+			} catch(err) {
+				expect(err).to.match(/Sorting property type is not sortable/);
+				didError = true;
+			}		
+			expect(didError).to.be.true;
 		});
 
 		it('getSortField', function() {

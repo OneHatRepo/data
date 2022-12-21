@@ -1,7 +1,8 @@
 /** @module Repository */
 
 import EventEmitter from '@onehat/events';
-import Entity from '../Entity.js';
+import Entity from '../Entity.js'
+import PropertyTypes from '../Property/index.js';
 import {
 	v4 as uuid,
 } from 'uuid';
@@ -420,6 +421,9 @@ export default class Repository extends EventEmitter {
 	 * - repository.sort(); // Reverts back to default sort. To actually *clear* all sorters, use this.clearSort()
 	 * - repository.sort('last_name'); // sort by one property, ASC
 	 * - repository.sort('last_name', 'ASC'); // sort by one property
+	 * - repository.sort('last_name', 'ASC', 'natsort'); // sort by one property with specific function
+	 * - repository.sort('last_name', 'ASC', (a, b) => { ... })); // sort by one property with custom function
+	 * - repository.sort((a, b) => { ... }); // sort by custom function
 	 * - repository.sort({ // sort by one property, object notation
 	 * 		name: 'last_name',
 	 * 		direction: 'ASC',
@@ -428,6 +432,7 @@ export default class Repository extends EventEmitter {
 	 * 		{
 	 * 			name: 'last_name',
 	 * 			direction: 'ASC',
+	 * 			fn: 'natsort',
 	 * 		},
 	 * 		{
 	 * 			name: 'first_name',
@@ -438,7 +443,7 @@ export default class Repository extends EventEmitter {
 	 * 
 	 * @return this
 	 */
-	sort = (arg1 = null, arg2 = null) => {
+	sort = (arg1 = null, arg2 = 'ASC', arg3 = null) => {
 		if (this.isDestroyed) {
 			throw Error('this.sort is no longer valid. Repository has been destroyed.');
 		}
@@ -446,18 +451,18 @@ export default class Repository extends EventEmitter {
 		let sorters = [];
 		if (_.isNil(arg1)) {
 			sorters = this.getDefaultSorters();
-		} else if (_.isArray(arg1)) {
-			sorters = arg1;
-		} else if (_.isObject(arg1)) { // includes functions
-			sorters = [arg1];
 		} else if (_.isString(arg1)) {
-			if (_.isNil(arg2)) {
-				arg2 = 'ASC';
-			}
 			sorters = [{
 				name: arg1,
 				direction: arg2,
+				fn: arg3,
 			}];
+		} else if (_.isPlainObject(arg1)) {
+			sorters = [arg1];
+		} else if (_.isArray(arg1)) {
+			sorters = arg1;
+		} else if (_.isFunction(arg1)) {
+			sorters = [arg1];
 		}
 
 		this.setSorters(sorters);
@@ -480,7 +485,8 @@ export default class Repository extends EventEmitter {
 			} else if (!_.isNil(this.schema.model.displayProperty)) {
 				sorters = [{
 					name: this.schema.model.displayProperty,
-					direction: 'ASC'
+					direction: 'ASC',
+					fn: 'default',
 				}];
 			}
 		}
@@ -508,16 +514,14 @@ export default class Repository extends EventEmitter {
 				if (_.isFunction(sorter)) {
 					return; // skip
 				}
-				// This is kind of a hack!
-				// We get the first entity (assuming any exist) and check its properties.
-				// TODO: refactor this so we can check even if no entities exist
-				const entity = this.entities[0];
-				if (entity) {
-					const property = entity.getProperty(sorter.name);
-					if (!property) {
-						throw new Error('Sorting property does not exist.');
-					}
-					if (!property.isSortable) {
+				const propertyDefinition = _.find(this.schema.model.properties, (property) => property.name === sorter.name);
+				if (!propertyDefinition) {
+					throw new Error('Sorting property does not exist.');
+				}
+				const propertyType = propertyDefinition.type;
+				if (propertyType && PropertyTypes[propertyType]) {
+					const propertyInstance = new PropertyTypes[propertyType]();
+					if (!propertyInstance.isSortable) {
 						throw new Error('Sorting property type is not sortable.');
 					}
 				}

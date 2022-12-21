@@ -1,7 +1,7 @@
-import { OneHatData } from '../../../src/OneHatData';
-import UsersDefinition from '../../fixtures/Definitions/Users';
-import GroupsDefinition from '../../fixtures/Definitions/Groups';
-import UserData from '../../fixtures/Data/User';
+import { OneHatData } from '../../../src/OneHatData.js';
+import UsersDefinition from '../../fixtures/Definitions/Users.js';
+import GroupsDefinition from '../../fixtures/Definitions/Groups.js';
+import UserData from '../../fixtures/Data/User.js';
 
 const baseURL = Cypress.env('baseURL'),
 	creds = {

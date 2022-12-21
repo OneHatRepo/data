@@ -1,4 +1,4 @@
-import PropertyTypes from '../../../src/Property';
+import PropertyTypes from '../../../src/Property/index.js';
 import _ from 'lodash';
 
 describe('JsonProperty', function() {

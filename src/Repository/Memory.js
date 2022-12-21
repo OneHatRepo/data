@@ -2,6 +2,7 @@
 
 import Repository from './Repository.js';
 import Entity from '../Entity.js';
+import natsort from 'natsort';
 import _ from 'lodash';
 
 const MEM_PREFIX = 'MEM-';
@@ -212,6 +213,13 @@ class MemoryRepository extends Repository {
 			if (_.isFunction(sorter)) {
 				return sorter;
 			}
+			if (sorter.fn && sorter.fn !== 'default') {
+				if (sorter.fn === 'natsort') {
+					return MemoryRepository._getNatSort(sorter);
+				} else if (_.isFunction(sorter.fn)) {
+					return sorter.fn;
+				}
+			}
 			return MemoryRepository._getCompareFunction(sorter);
 		});
 		
@@ -242,11 +250,34 @@ class MemoryRepository extends Repository {
 	 * @private
 	 * @static
 	 */
+	static _getNatSort = (sorter) => {
+		const
+			name = sorter.name,
+			direction = sorter.direction.toUpperCase(),
+			sortFn = natsort.default({ desc: direction !== 'ASC', });
+		return (entity1, entity2) => {
+			const
+				a = entity1[name],
+				b = entity2[name];
+			return sortFn(a, b);
+		};
+	}
+
+	/**
+	 * Helper for _applySorters().
+	 * Takes a sorter object and returns a valid compare function for use with Array.prototype.sort
+	 * @param {object} sorter - Object with two properties: 'name' & 'direction'
+	 * @return {function} - Compare function
+	 * @private
+	 * @static
+	 */
 	static _getCompareFunction = (sorter) => {
-		const name = sorter.name,
+		const
+			name = sorter.name,
 			direction = sorter.direction.toUpperCase();
 		return (entity1, entity2) => {
-			const a = entity1[name],
+			const
+				a = entity1[name],
 				b = entity2[name];
 			if (a === b) {
 				return 0;

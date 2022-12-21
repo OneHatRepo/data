@@ -65,9 +65,10 @@ export default class Schema extends EventEmitter {
 
 				/**
 				 * @member {object[]} sorters - Array of sorter definitions.
-				 * Each definition is an object with two keys:
+				 * Each definition is an object with two or three keys:
 				 * - *name* - Name of Property to sort by.
 				 * - *direction* - 'ASC'|'DESC'
+				 * - *fn* (optional) - The sort function to use. Can be either a name like 'nasort', 'default', or a sorting fn
 				 */
 				sorters: [],
 

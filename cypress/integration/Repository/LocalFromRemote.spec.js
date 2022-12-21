@@ -2,9 +2,9 @@ import {
 	default as LocalFromRemoteRepository,
 	MODE_LOCAL_MIRROR,
 	MODE_COMMAND_QUEUE,
-} from '../../../src/Repository/LocalFromRemote';
-import MemoryRepository from '../../../src/Repository/Memory';
-import Schema from '../../../src/Schema';
+} from '../../../src/Repository/LocalFromRemote/index.js';
+import MemoryRepository from '../../../src/Repository/Memory.js';
+import Schema from '../../../src/Schema/index.js';
 import momentAlt from 'relative-time-parser';
 
 describe('LocalFromRemote', function() {

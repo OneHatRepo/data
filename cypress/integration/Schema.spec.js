@@ -1,5 +1,5 @@
-import Schema from '../../src/Schema';
-import GroupsUsersDefinition from '../fixtures/Definitions/GroupsUsers';
+import Schema from '../../src/Schema/index.js';
+import GroupsUsersDefinition from '../fixtures/Definitions/GroupsUsers.js';
 
 
 describe('Schema', function() {

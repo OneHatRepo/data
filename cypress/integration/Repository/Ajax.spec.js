@@ -1,5 +1,5 @@
-import RepositoryTypes from '../../../src/Repository';
-import Schema from '../../../src/Schema';
+import RepositoryTypes from '../../../src/Repository/index.js';
+import Schema from '../../../src/Schema/index.js';
 
 describe('OneBuildRepository', function() {
 	beforeEach(function() {
