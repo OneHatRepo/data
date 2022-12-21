@@ -1365,6 +1365,20 @@ export default class Repository extends EventEmitter {
 	}
 
 	/**
+	 * Gets the sort function, if only one sorter is applied.
+	 * @return {Schema} schema
+	 */
+	getSortFn = () => {
+		if (this.isDestroyed) {
+			throw Error('this.getSortDirection is no longer valid. Repository has been destroyed.');
+		}
+		if (!this.allowsMultiSort || this.sorters.length < 1) {
+			return null;
+		}
+		return this.sorters[0].fn;
+	}
+
+	/**
 	 * Gets the associated Repository
 	 * @param {string} repositoryName - Name of the Repository to retrieve
 	 * @return {boolean} hasProperty

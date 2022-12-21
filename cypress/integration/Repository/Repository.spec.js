@@ -263,6 +263,17 @@ describe('Repository Base', function() {
 			expect(sortDirection).to.be.eq('ASC');
 		});
 
+		it('getSortFn', function() {
+			this.repository.setSorters([{
+				name: 'value',
+				direction: 'ASC',
+				fn: 'natsort',
+			}]);
+
+			const sortFn = this.repository.getSortFn();
+			expect(sortFn).to.be.eq('natsort');
+		});
+
 	});
 
 	describe('filtering', function() {
