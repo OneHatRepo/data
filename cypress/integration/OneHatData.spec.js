@@ -12,6 +12,15 @@ async function beforeEach() {
 	this.oneHatData = new OneHatData();
 	this.schema = this.oneHatData.createSchema({
 		name: 'bar',
+		model: {
+			idProperty: 'key',
+			displayProperty: 'value',
+			properties: [
+				{ name: 'key', },
+				{ name: 'value', },
+			],
+		},
+		repository: 'memory',
 	});
 	await this.oneHatData.createRepository({
 		id: 'foo',
@@ -329,6 +338,23 @@ describe('OneHatData', function() {
 			});
 			const repository = oneHatData.getRepository('bar');
 			expect(repository.test).to.be.eq(1);
+
+			afterEach();
+		})();
+	});
+
+	it('isEntity', async function() {
+		(async function() {
+			debugger;
+			await beforeEach();
+			const oneHatData = this.oneHatData;
+			const repository = oneHatData.getRepository('bar');
+			const entity = await repository.add({ key: 1, value: 'value', });
+
+			expect(isEntity(entity)).to.be.true;
+			expect(isEntity({})).to.be.false;
+			expect(isEntity(2)).to.be.false;
+			expect(isEntity([1,2])).to.be.false;
 
 			afterEach();
 		})();

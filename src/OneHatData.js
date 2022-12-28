@@ -2,6 +2,7 @@
 
 import EventEmitter from '@onehat/events';
 import CoreRepositoryTypes from './Repository/index.js';
+import Entity from './Entity.js';
 import {
 	MODE_LOCAL_MIRROR,
 	MODE_COMMAND_QUEUE,
@@ -619,6 +620,24 @@ export class OneHatData extends EventEmitter {
 		this.emit('deleteRepository', repository);
 		return this;
 	}
+
+
+
+
+	//  _    __      ___     __      __     
+	// | |  / /___ _/ (_)___/ /___ _/ /____ 
+	// | | / / __ `/ / / __  / __ `/ __/ _ \
+	// | |/ / /_/ / / / /_/ / /_/ / /_/  __/
+	// |___/\__,_/_/_/\__,_/\__,_/\__/\___/
+
+	/**
+	 * Determines if submitted object is an entity
+	 * @return boolean
+	 */
+	isEntity = (obj) => {
+		return obj?.__proto__?.constructor === Entity;
+	}
+
 
 	/**
 	 * Destroy this object.

@@ -7,6 +7,13 @@ const KeyValues = new Schema({
 	model: {
 		idProperty: 'key',
 		displayProperty: 'value',
+		sorters: [
+			{
+				name: 'value',
+				direction: 'ASC',
+				fn: 'natsort',
+			}
+		],
 		properties: [
 			{ name: 'key', },
 			{ name: 'value', },
