@@ -1,3 +1,4 @@
+import Joi from 'Joi';
 import Entity from '../../src/Entity.js';
 import Schema from '../../src/Schema/index.js';
 import PropertyTypes from '../../src/Property/index.js';
@@ -16,12 +17,16 @@ describe('Entity', function() {
 					{ name: 'bar' },
 					{ name: 'baz', mapping: 'baz.test.val', type: 'bool', defaultValue: null, },
 				],
+				validator: null,
 			},
 			entity: {
 				methods: {
 					testMethod: function() {
-						this.bar = 'test me';
+						this.azx = 'test me';
 					},
+				},
+				statics: {
+					azx: null,
 				},
 			},
 		});
@@ -116,7 +121,7 @@ describe('Entity', function() {
 
 		it('_createMethods', function() {
 			this.entity.testMethod();
-			expect(this.entity.bar).to.be.eq('test me');
+			expect(this.entity.azx).to.be.eq('test me');
 		});
 		
 		it('loadOriginalData', function() {
@@ -737,7 +742,42 @@ describe('Entity', function() {
 			property.setValue('Test');
 			expect(didFire).to.be.true;
 		});
+	});
 
+	describe('validators', function() {
+
+		it('whole validation process', function() {
+			let didFire = false;
+			this.entity.on('changeValidity', (entity) => {
+				didFire = true;
+			});
+
+			// Initial condition
+			expect(this.entity.isValid).to.be.null;
+
+			// Add validators
+			this.schema.model.validator = Joi.object({
+				foo: Joi.number()
+						.integer(),
+				bar: Joi.string()
+						.alphanum()
+						.required(),
+				baz: Joi.any(),
+			});
+			const result = this.entity.validate();
+			expect(result).to.be.true;
+
+			// Set a property to be invalid
+			this.entity.bar = null;
+			expect(didFire).to.be.true;
+			expect(this.entity.isValid).to.be.false;
+			expect(this.entity.validationError).to.match(/"bar" must be a string/);
+
+			// Restore validity
+			this.entity.bar = 'test';
+			expect(this.entity.isValid).to.be.true;
+			expect(this.entity.validationError).to.be.null;
+		});
 	});
 
 });

@@ -73,6 +73,11 @@ export default class Schema extends EventEmitter {
 				sorters: [],
 
 				/**
+				 * @member {object} validators - A JOI schema. See JOI docs for more info (https://joi.dev)
+				 */
+				validator: null,
+
+				/**
 				 * @member {object} associations - List of associated Models
 				 */
 				associations: {
