@@ -73,7 +73,7 @@ export default class Schema extends EventEmitter {
 				sorters: [],
 
 				/**
-				 * @member {object} validators - A JOI schema. See JOI docs for more info (https://joi.dev)
+				 * @member {object} validators - A validator schema. Could use Joi (https://joi.dev), Yup (https://github.com/jquense/yup), or another comparable library
 				 */
 				validator: null,
 
