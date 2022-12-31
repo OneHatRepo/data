@@ -160,17 +160,6 @@ export default class Property extends EventEmitter {
 		 * @private
 		 */
 		this.isDestroyed = false;
-
-		/**
-		 * @member {boolean} isValid - Whether this Property passes validation
-		 * @private
-		 */
-		this.isValid = null;
-
-		/**
-		 * @member {object} validationError - Any error in last validation.
-		 */
-		this.validationError = null;
 		
 	}
 
@@ -369,7 +358,6 @@ export default class Property extends EventEmitter {
 		if (isChanged) {
 			this.rawValue = rawValue;
 			this.parsedValue = newValue;
-			this.validate();
 			this.emit('change', this, oldValue, newValue);
 		}
 
@@ -444,43 +432,6 @@ export default class Property extends EventEmitter {
 			throw Error('this.getMapping is no longer valid. Property has been destroyed.');
 		}
 		return this.mapping;
-	}
-
-	//  _    __      ___     __      __  _
-	// | |  / /___ _/ (_)___/ /___ _/ /_(_)___  ____
-	// | | / / __ `/ / / __  / __ `/ __/ / __ \/ __ \
-	// | |/ / /_/ / / / /_/ / /_/ / /_/ / /_/ / / / /
-	// |___/\__,_/_/_/\__,_/\__,_/\__/_/\____/_/ /_/
-
-	/**
-	 * Gets whether or not the Property validates according to schema's validation rules
-	 * @return {boolean} isValid
-	 */
-	validate = () => {
-		if (this.isDestroyed) {
-			throw Error('this.validate is no longer valid. Entity has been destroyed.');
-		}
-
-		let isValid = null,
-			error;
-
-		if (this._entity?.schema?.model?.validator) {
-			const obj = {};
-			obj[this.name] = this.submitValue;
-			const validationResult = this._entity.schema.model.validator.validate(obj);
-			error = validationResult && validationResult.error || null;
-			isValid = !error;
-			if (this.validationError !== error) {
-				this.validationError = error;
-			}
-		}
-
-		if (this.isValid !== isValid) {
-			this.emit('changeValidity', this._proxy, isValid);
-			this.isValid = isValid;
-		}
-
-		return isValid;
 	}
 
 	/**

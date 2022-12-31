@@ -1,4 +1,5 @@
 import Joi from 'Joi';
+import * as yup from 'yup';
 import Entity from '../../src/Entity.js';
 import Schema from '../../src/Schema/index.js';
 import PropertyTypes from '../../src/Property/index.js';
@@ -746,37 +747,148 @@ describe('Entity', function() {
 
 	describe('validators', function() {
 
-		it('whole validation process', function() {
-			let didFire = false;
-			this.entity.on('changeValidity', (entity) => {
-				didFire = true;
-			});
+		it('Yup integration', function() {
+			(async () => {
 
-			// Initial condition
-			expect(this.entity.isValid).to.be.null;
+				// Recreate everything from beforeEach()
+				const schema = new Schema({
+						name: 'baz',
+						model: {
+							idProperty: 'foo',
+							displayProperty: 'bar',
+							properties: [
+								{ name: 'foo', type: 'int' },
+								{ name: 'bar' },
+								{ name: 'baz', mapping: 'baz.test.val', type: 'bool', defaultValue: null, },
+							],
+							validator: yup.object({
+								foo: yup.number()
+										.integer(),
+								bar: yup.string()
+										.required(),
+								baz: yup.mixed(),
+							}),
+						},
+						entity: {
+							methods: {
+								testMethod: function() {
+									this.azx = 'test me';
+								},
+							},
+							statics: {
+								azx: null,
+							},
+						},
+					}),
+					data = {
+						foo: 1,
+						bar: 'one',
+						baz: {
+							test: {
+								val: true,
+							},
+						},
+					},
+					entity = new Entity(schema, data);
+				entity.initialize();
+				// END recreate
 
-			// Add validators
-			this.schema.model.validator = Joi.object({
-				foo: Joi.number()
-						.integer(),
-				bar: Joi.string()
-						.alphanum()
-						.required(),
-				baz: Joi.any(),
-			});
-			const result = this.entity.validate();
-			expect(result).to.be.true;
+				let didFire = false;
+				entity.on('changeValidity', (entity) => {
+					didFire = true;
+				});
 
-			// Set a property to be invalid
-			this.entity.bar = null;
-			expect(didFire).to.be.true;
-			expect(this.entity.isValid).to.be.false;
-			expect(this.entity.validationError).to.match(/"bar" must be a string/);
+				// Initial condition
+				expect(entity.isValid).to.be.null;
+				await entity.validate();
+				expect(entity.isValid).to.be.true;
+				expect(didFire).to.be.true;
 
-			// Restore validity
-			this.entity.bar = 'test';
-			expect(this.entity.isValid).to.be.true;
-			expect(this.entity.validationError).to.be.null;
+				// Set a property to be invalid
+				entity.bar = null;
+				await entity.validate();
+				expect(entity.isValid).to.be.false;
+				expect(entity.validationError).to.match(/bar must be a `string`/);
+
+				// Restore validity
+				entity.bar = 'test';
+				await entity.validate();
+				expect(entity.isValid).to.be.true;
+				expect(!entity.validationError).to.be.true;
+				
+			})();
+		});
+
+		it('Joi integration', function() {
+			(async () => {
+
+				// Recreate everything from beforeEach()
+				const schema = new Schema({
+						name: 'baz',
+						model: {
+							idProperty: 'foo',
+							displayProperty: 'bar',
+							properties: [
+								{ name: 'foo', type: 'int' },
+								{ name: 'bar' },
+								{ name: 'baz', mapping: 'baz.test.val', type: 'bool', defaultValue: null, },
+							],
+							validator: Joi.object({
+								foo: Joi.number()
+										.integer(),
+								bar: Joi.string()
+										.required(),
+								baz: Joi.any(),
+							}),
+						},
+						entity: {
+							methods: {
+								testMethod: function() {
+									this.azx = 'test me';
+								},
+							},
+							statics: {
+								azx: null,
+							},
+						},
+					}),
+					data = {
+						foo: 1,
+						bar: 'one',
+						baz: {
+							test: {
+								val: true,
+							},
+						},
+					},
+					entity = new Entity(schema, data);
+				entity.initialize();
+				// END recreate
+
+				let didFire = false;
+				entity.on('changeValidity', (entity) => {
+					didFire = true;
+				});
+
+				// Initial condition
+				expect(entity.isValid).to.be.null;
+				await entity.validate();
+				expect(entity.isValid).to.be.true;
+				expect(didFire).to.be.true;
+
+				// Set a property to be invalid
+				entity.bar = null;
+				await entity.validate();
+				expect(entity.isValid).to.be.false;
+				expect(entity.validationError).to.match(/"bar" must be a string/);
+
+				// Restore validity
+				entity.bar = 'test';
+				await entity.validate();
+				expect(entity.isValid).to.be.true;
+				expect(!entity.validationError).to.be.true;
+				
+			})();
 		});
 	});
 

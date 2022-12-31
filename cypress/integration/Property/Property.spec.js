@@ -1,4 +1,3 @@
-import Joi from 'Joi';
 import PropertyTypes from '../../../src/Property/index.js';
 import Entity from '../../../src/Entity.js';
 import Schema from '../../../src/Schema/index.js';
@@ -232,53 +231,6 @@ describe('Property', function() {
 			expect(str).to.be.eq('Property {foo} - 125');
 		});
 
-	});
-
-	describe('validators', function() {
-
-		it('whole validation process', function() {
-			let didFire = false;
-			this.property.on('changeValidity', (entity) => {
-				didFire = true;
-			});
-
-			// Initial condition
-			expect(this.property.isValid).to.be.null;
-
-			// Add validators
-			const schema = new Schema({
-					name: 'baz',
-					model: {
-						idProperty: 'foo',
-						displayProperty: 'bar',
-						properties: [
-							{ name: 'foo', type: 'int' },
-							{ name: 'bar' },
-						],
-						validator: Joi.object({
-							foo: Joi.number()
-									.integer(),
-						}),
-					},
-				}),
-				entity = new Entity(schema);
-			entity.initialize();
-			const property = entity.getProperty('foo');
-			property.setValue(2);
-
-			const result = property.validate();
-			expect(result).to.be.true;
-
-			// Set a property to be invalid
-			property.setValue(null);
-			expect(property.isValid).to.be.false;
-			expect(property.validationError).to.match(/"foo" must be a number/);
-
-			// Restore validity
-			property.setValue(2);
-			expect(property.isValid).to.be.true;
-			expect(property.validationError).to.be.null;
-		});
 	});
 
 });

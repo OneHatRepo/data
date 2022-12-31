@@ -297,7 +297,7 @@ class Entity extends EventEmitter {
 	 */
 	_onPropertyChange = () => {
 		this._recalculateDependentProperties();
-		this.validate();
+		this.isValid = null;
 		this.emit('change', this._proxy);
 	}
 
@@ -1148,7 +1148,7 @@ class Entity extends EventEmitter {
 
 		if (isChanged) {
 			this._recalculateDependentProperties();
-			this.validate();
+			this.isValid = null;
 			this.emit('change', this._proxy);
 		}
 		return isChanged;
@@ -1310,18 +1310,26 @@ class Entity extends EventEmitter {
 	 * Gets whether or not the Entity validates according to schema's validation rules
 	 * @return {boolean} isValid
 	 */
-	validate = () => {
+	validate = async () => {
 		if (this.isDestroyed) {
 			throw Error('this.validate is no longer valid. Entity has been destroyed.');
 		}
 
+		const submitValues = this.submitValues;
 		let isValid = null,
+			validationResult,
 			error;
 
 		if (this.schema.model.validator) {
-			const validationResult = this.schema.model.validator.validate(this.submitValues);
-			error = validationResult && validationResult.error || null;
-			isValid = !error;
+			const validator = this.schema.model.validator;
+			try {
+				validationResult = await validator.validate(submitValues);
+				error = validationResult.error; // Joi would populate 'error' if validation error. Yup would throw Error
+				isValid = !error; // 'error' would be truthy if Joi error occurs, would never *get* here if an error with Yup
+			} catch(e) {
+				error = e; // yup error only
+				isValid = false;
+			}
 			if (this.validationError !== error) {
 				this.validationError = error;
 			}
