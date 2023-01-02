@@ -253,8 +253,11 @@ class MemoryRepository extends Repository {
 	static _getNatSort = (sorter) => {
 		const
 			name = sorter.name,
-			direction = sorter.direction.toUpperCase(),
-			sortFn = natsort.default({ desc: direction !== 'ASC', });
+			direction = sorter.direction.toUpperCase();
+	
+		const ns = natsort.default || natsort; // When imported into cypress, natsort has default, when in React Native, it doesn't.
+
+		const sortFn = ns({ desc: direction !== 'ASC', });
 		return (entity1, entity2) => {
 			const
 				a = entity1[name],
