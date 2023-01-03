@@ -23,7 +23,7 @@ import _ from 'lodash';
  * - entity.getPropertySubmitValue('users__last_name');
  * 
  * @extends EventEmitter
- * @fires ['change', 'reset', 'save', 'delete', 'destroy']
+ * @fires ['change', 'changeValidity', 'reset', 'reload', 'save', 'delete', 'undelete', 'destroy']
  */
 class Entity extends EventEmitter {
 

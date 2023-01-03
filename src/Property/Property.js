@@ -8,7 +8,7 @@ import _ from 'lodash';
  * This class should not be instantiated directly.
  * Rather, instantiate a subclass, like StringProperty
  * @extends EventEmitter
- * @fires ['change', 'destroy']
+ * @fires ['change', 'changeValidity', 'destroy']
  */
 export default class Property extends EventEmitter {
 
