@@ -12,6 +12,9 @@ import {
 	default as Schema,
 	CoreSchemas,
 } from './Schema/index.js';
+import {
+	v4 as uuid,
+} from 'uuid';
 import _ from 'lodash';
 
 /**
@@ -443,13 +446,23 @@ export class OneHatData extends EventEmitter {
 	 * @param {string} name - Name of Schema
 	 * @return {Repository} repository
 	 */
-	getRepository = (name) => {
+	getRepository = (name, unique = false) => {
 		if (this.isDestroyed) {
 			throw new Error('this.getRepository is no longer valid. OneHatData has been destroyed.');
 		}
 		const schema = this.getSchema(name);
 		if (!schema) {
 			return null;
+		}
+		if (unique) {
+			const
+				repoToClone = schema.getBoundRepository(),
+				clone = _.cloneDeep(repoToClone);
+			
+			const id = uuid();
+			clone.name = clone.name + '-' + id;
+			clone.id = id;
+			return clone;
 		}
 		return schema.getBoundRepository();
 	}

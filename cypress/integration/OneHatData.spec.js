@@ -8,9 +8,9 @@ import KeyValues from '../../src/Schema/KeyValues.js';
 
 // NOTE: Cypress can't handle async functions for beforeEach,
 // so we have to manually apply it to every test. Ugh!
-async function beforeEach() {
-	this.oneHatData = new OneHatData();
-	this.schema = this.oneHatData.createSchema({
+async function beforeEach(that) {
+	that.oneHatData = new OneHatData();
+	that.schema = that.oneHatData.createSchema({
 		name: 'bar',
 		model: {
 			idProperty: 'key',
@@ -22,14 +22,14 @@ async function beforeEach() {
 		},
 		repository: 'memory',
 	});
-	await this.oneHatData.createRepository({
+	await that.oneHatData.createRepository({
 		id: 'foo',
-		schema: this.schema,
+		schema: that.schema,
 	}, true);
-	this.repository = this.oneHatData.getRepositoryById('foo');
+	that.repository = that.oneHatData.getRepositoryById('foo');
 }
-function afterEach() {
-	window.oneHatData.destroy();
+function afterEach(that) {
+	that.oneHatData.destroy();
 }
 
 describe('OneHatData', function() {
@@ -250,12 +250,27 @@ describe('OneHatData', function() {
 
 	it('getRepository', function() {
 		(async function() {
+
 			await beforeEach();
 
-			const result = this.oneHatData.getRepository('bar');
-			expect(result).to.be.eq(this.repository);
+			const result = that.oneHatData.getRepository('bar');
+			expect(result).to.be.eq(that.repository);
 
 			afterEach();
+		})();
+	});
+
+	it.only('getUniqueRepository', function() {
+		(async () => {
+			const that = {};
+			await beforeEach(that);
+
+			const
+				repo1 = that.oneHatData.getRepository('bar'),
+				repo2 = that.oneHatData.getRepository('bar', true);
+			expect(repo1 !== repo2).to.be.true;
+
+			afterEach(that);
 		})();
 	});
 
@@ -345,7 +360,6 @@ describe('OneHatData', function() {
 
 	it('isEntity', async function() {
 		(async function() {
-			debugger;
 			await beforeEach();
 			const oneHatData = this.oneHatData;
 			const repository = oneHatData.getRepository('bar');
