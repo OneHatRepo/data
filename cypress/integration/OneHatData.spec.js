@@ -260,7 +260,7 @@ describe('OneHatData', function() {
 		})();
 	});
 
-	it.only('getUniqueRepository', function() {
+	it('getUniqueRepository', function() {
 		(async () => {
 			const that = {};
 			await beforeEach(that);

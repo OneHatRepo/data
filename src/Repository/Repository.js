@@ -528,10 +528,10 @@ export default class Repository extends EventEmitter {
 			});
 
 			this.sorters = sorters;
-			this.emit('changeSorters');
 			if (this._onChangeSorters) {
 				return this._onChangeSorters();
 			}
+			this.emit('changeSorters');
 		}
 		return isChanged;
 	}

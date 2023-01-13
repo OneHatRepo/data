@@ -184,7 +184,11 @@ class OneBuildRepository extends AjaxRepository {
 		}
 		
 		if (this.isLoaded && this.autoLoad) {
-			return this.reload();
+			return this.reload().then(() => {
+				this.emit('changeSorters');
+			});
+		} else {
+			this.emit('changeSorters');
 		}
 	}
 
