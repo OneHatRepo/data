@@ -44,7 +44,7 @@ const GroupsUsers = {
 
 	repository: {
 		type: 'onebuild',
-		autoSave: false,
+		isAutoSave: false,
 	},
 
 };

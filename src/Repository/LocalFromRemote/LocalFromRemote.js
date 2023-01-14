@@ -94,9 +94,9 @@ class LocalFromRemoteRepository extends EventEmitter {
 			mode: MODE_LOCAL_MIRROR,
 
 			/**
-			 * @member {boolean} autoSync - Whether to auto sync this repository on initialization
+			 * @member {boolean} isAutoSync - Whether to auto sync this repository on initialization
 			 */
-			autoSync: false,
+			isAutoSync: false,
 
 			/**
 			 * @member {string} syncRate - Interval with which to sync local with remote.
@@ -201,7 +201,7 @@ class LocalFromRemoteRepository extends EventEmitter {
 			this.registerCommands(commands);
 		}
 
-		if (this.autoSync) {
+		if (this.isAutoSync) {
 			this._doAutoSync();
 		}
 	}
@@ -302,14 +302,14 @@ class LocalFromRemoteRepository extends EventEmitter {
 		
 					// Load remote data into local
 					// Local <-- Remote
-					if (!this.remote.autoLoad) {
+					if (!this.remote.isAutoLoad) {
 						await this.remote.load();
 					}
 
 					remoteData = this.remote.getOriginalData();
 					await this.local.load(remoteData);
 
-					if (!this.local.autoSave) {
+					if (!this.local.isAutoSave) {
 						await this.local.save();
 					}
 					
@@ -334,7 +334,7 @@ class LocalFromRemoteRepository extends EventEmitter {
 
 						// local --> remote
 						const remoteItem = await this.remote.add(localItem.getOriginalData());
-						if (!this.remote.autoSave) {
+						if (!this.remote.isAutoSave) {
 							await this.remote.save();
 						}
 	
@@ -369,14 +369,14 @@ class LocalFromRemoteRepository extends EventEmitter {
 
 					// Load remote data into local
 					// Local <-- Remote
-					if (!this.remote.autoLoad) {
+					if (!this.remote.isAutoLoad) {
 						await this.remote.load();
 					}
 
 					remoteData = this.remote.getOriginalData();
 					await this.local.load(remoteData);
 
-					if (!this.local.autoSave) {
+					if (!this.local.isAutoSave) {
 						await this.local.save();
 					}
 					
@@ -572,12 +572,12 @@ class LocalFromRemoteRepository extends EventEmitter {
 	/**
 	 * Sets autoSync. If autoSync is enabled, it immediately starts autosync process.
 	 */
-	setAutoSync = async (autoSync) => {
+	setAutoSync = async (isAutoSync) => {
 		let isChanged = false
-		if (this.autoSync !== autoSync) {
+		if (this.isAutoSync !== isAutoSync) {
 			isChanged = true;
-			this.autoSync = autoSync;
-			if (autoSync) {
+			this.isAutoSync = isAutoSync;
+			if (isAutoSync) {
 				await this._doAutoSync();
 			} else {
 				clearTimeout(this._timeout);
@@ -595,11 +595,11 @@ class LocalFromRemoteRepository extends EventEmitter {
 	}
 
 	/**
-	 * Sets isOnline. If isOnline and autoSync is enabled, it immediately starts autosync process.
+	 * Sets isOnline. If isOnline and autoSync is enabled, it immediately starts isAutosync process.
 	 */
 	setIsOnline = (isOnline) => {
 		this.isOnline = !!isOnline; // force convert type to boolean
-		if (isOnline && this.autoSync) {
+		if (isOnline && this.isAutoSync) {
 			this._doAutoSync();
 		}
 	}

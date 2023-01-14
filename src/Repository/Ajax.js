@@ -186,7 +186,7 @@ class AjaxRepository extends Repository {
 		}
 
 		// Sorting
-		if (this.autoSort) {
+		if (this.isAutoSort) {
 			if (!this.sorters.length) {
 				this.sorters = this.getDefaultSorters(); // Need this here, because _setInitialQueryParams() runs before this.load() in super.initialize()
 			}

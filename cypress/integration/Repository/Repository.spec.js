@@ -25,8 +25,8 @@ describe('Repository Base', function() {
 		this.repository = new this.Repository({
 			id: 'foo',
 			schema: this.schema,
-			autoLoad: true,
-			autoSave: true,
+			isAutoLoad: true,
+			isAutoSave: true,
 			isPaginated: true,
 			data: [
 				{ key: 1, value: 'one', },
@@ -142,9 +142,9 @@ describe('Repository Base', function() {
 		});
 
 		it('setAutoSave', function() {
-			expect(this.repository.autoSave).to.be.true;
+			expect(this.repository.isAutoSave).to.be.true;
 			this.repository.setAutoSave(false);
-			expect(this.repository.autoSave).to.be.false;
+			expect(this.repository.isAutoSave).to.be.false;
 		});
 
 	});
@@ -609,7 +609,7 @@ describe('Repository Base', function() {
 		})
 
 		it('add with an existing id', async function() {
-			this.repository.autoSave = false;
+			this.repository.isAutoSave = false;
 
 			// ID suppied; should not be temp ID or phantom
 			const entity = await this.repository.add({ key: 6, value: 'six' });

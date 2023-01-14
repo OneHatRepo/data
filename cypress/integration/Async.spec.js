@@ -66,7 +66,7 @@ describe('Async playground', function() {
 
 	});
 
-	it.skip('autoLoad & autoSave', function() {
+	it.skip('isAutoLoad & isAutoSave', function() {
 
 		(async () => {
 			const oneHatData = new OneHatData();
@@ -83,8 +83,8 @@ describe('Async playground', function() {
 					},
 					repository: {
 						type: 'memory',
-						autoLoad: true,
-						autoSave: true,
+						isAutoLoad: true,
+						isAutoSave: true,
 						data: [
 							{ key: 1, value: 'one', },
 							{ key: 2, value: 'two', },
@@ -140,8 +140,8 @@ describe('Async playground', function() {
 				},
 				repository: {
 					type: 'memory',
-					autoLoad: false,
-					autoSave: false,
+					isAutoLoad: false,
+					isAutoSave: false,
 					data: [
 						{ key: 1, value: 'one', },
 						{ key: 2, value: 'two', },

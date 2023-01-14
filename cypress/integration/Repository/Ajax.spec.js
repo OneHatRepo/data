@@ -18,7 +18,7 @@ describe('OneBuildRepository', function() {
 		this.repository = new this.Repository({
 			id: 'foo',
 			schema: this.schema,
-			autoSave: false,
+			isAutoSave: false,
 		});
 		this.repository.initialize();
 		this.schema.setBoundRepository(this.repository);

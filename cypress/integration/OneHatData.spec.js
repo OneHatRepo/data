@@ -465,16 +465,16 @@ describe('OneHatData', function() {
 				name: 'bar',
 				repository: {
 					type: 'lfr',
-					autoSync: true,
+					isAutoSync: true,
 					local: {
 						type: 'memory',
-						autoLoad: false,
+						isAutoLoad: false,
 						isRemote: false,
 						isLocal: true,
 					},
 					remote: {
 						type: 'memory',
-						autoLoad: false,
+						isAutoLoad: false,
 						isRemote: true, // hack
 						isLocal: false,
 					},

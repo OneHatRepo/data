@@ -46,19 +46,19 @@ export default class Repository extends EventEmitter {
 			name: schema.name,
 
 			/**
-			 * @member {boolean} autoLoad - Whether to immediately load this repository's data on instantiation
+			 * @member {boolean} isAutoLoad - Whether to immediately load this repository's data on instantiation
 			 */
-			autoLoad: false,
+			isAutoLoad: false,
 
 			/**
-			 * @member {boolean} autoSave - Whether to automatically save entity changes to permanent storage
+			 * @member {boolean} isAutoSave - Whether to automatically save entity changes to permanent storage
 			 */
-			autoSave: false,
+			isAutoSave: false,
 
 			/**
-			 * @member {boolean} autoSort - Whether to automatically sort entities in permanent storage
+			 * @member {boolean} isAutoSort - Whether to automatically sort entities in permanent storage
 			 */
-			autoSort: true,
+			isAutoSort: true,
 
 			/**
 			 * @member {boolean} isLocal - Whether this Repository saves its data to local permanent storage
@@ -253,22 +253,22 @@ export default class Repository extends EventEmitter {
 	 */
 	async initialize() {
 		// Create default sorters if none supplied
-		if (this.autoSort && !this.sorters.length) {
+		if (this.isAutoSort && !this.sorters.length) {
 			this.sorters = this.getDefaultSorters();
 		}
 		
 		// Assign event handlers
 		this.on('entity_change', async (entity) => { // Entity changed its value
-			if (this.autoSave) {
+			if (this.isAutoSave) {
 				return await this.save(entity);
 			}
 		});
 
 		// Auto load & sort
-		if (this.autoLoad) {
+		if (this.isAutoLoad) {
 			await this.load();
 		}
-		if (!this.isSorted && this.autoSort && !this.isRemoteSort) { // load may have sorted, in which case this will be skipped.
+		if (!this.isSorted && this.isAutoSort && !this.isRemoteSort) { // load may have sorted, in which case this will be skipped.
 			await this.sort();
 		}
 
@@ -365,25 +365,25 @@ export default class Repository extends EventEmitter {
 	}
 
 	/**
-	 * Sets the autoSave setting of this Repository
-	 * @param {boolean} autoSave
+	 * Sets the isAutoSave setting of this Repository
+	 * @param {boolean} isAutoSave
 	 */
-	setAutoSave = (autoSave) => {
+	setAutoSave = (isAutoSave) => {
 		if (this.isDestroyed) {
 			throw Error('this.setAutoSave is no longer valid. Repository has been destroyed.');
 		}
-		this.autoSave = autoSave
+		this.isAutoSave = isAutoSave
 	}
 
 	/**
-	 * Sets the autoLoad setting of this Repository
-	 * @param {boolean} autoLoad
+	 * Sets the isAutoLoad setting of this Repository
+	 * @param {boolean} isAutoLoad
 	 */
-	setAutoLoad = (autoLoad) => {
+	setAutoLoad = (isAutoLoad) => {
 		if (this.isDestroyed) {
 			throw Error('this.setAutoLoad is no longer valid. Repository has been destroyed.');
 		}
-		this.autoLoad = autoLoad
+		this.isAutoLoad = isAutoLoad
 	}
 
 
@@ -937,7 +937,7 @@ export default class Repository extends EventEmitter {
 			if (this.isInRepository(data[idProperty])) {
 				const existing = this.getById(data[idProperty]);
 				existing.setRawValues(data);
-				if (this.autoSave && !existing.isPersisted) {
+				if (this.isAutoSave && !existing.isPersisted) {
 					await this.save(existing);
 				}
 				return existing;
@@ -959,7 +959,7 @@ export default class Repository extends EventEmitter {
 
 		this.emit('add', entity);
 
-		if (this.autoSave && !entity.isPersisted) {
+		if (this.isAutoSave && !entity.isPersisted) {
 			await this.save(entity);
 		}
 
@@ -1728,7 +1728,7 @@ export default class Repository extends EventEmitter {
 
 		this.emit('delete', entities);
 
-		if (this.autoSave) {
+		if (this.isAutoSave) {
 			await this.save();
 		}
 	}

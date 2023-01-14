@@ -31,8 +31,8 @@ class OneBuildRepository extends AjaxRepository {
 
 		const defaults = {
 
-			autoLoad: false,
-			autoSave: true,
+			isAutoLoad: false,
+			isAutoSave: true,
 
 			api: {
 				get: this.name + '/get',
@@ -163,7 +163,7 @@ class OneBuildRepository extends AjaxRepository {
 			}
 		});
 
-		if (this.isLoaded && this.autoLoad) {
+		if (this.isLoaded && this.isAutoLoad) {
 			return this.reload();
 		}
 	}
@@ -183,7 +183,7 @@ class OneBuildRepository extends AjaxRepository {
 			this.setBaseParam('order', sorterStrings.join(','));
 		}
 		
-		if (this.isLoaded && this.autoLoad) {
+		if (this.isLoaded && this.isAutoLoad) {
 			return this.reload().then(() => {
 				this.emit('changeSorters');
 			});

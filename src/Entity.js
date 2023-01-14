@@ -322,7 +322,7 @@ class Entity extends EventEmitter {
 	}
 
 	/**
-	 * Clones this Entity in its current state.
+	 * Creates an exact copy of this Entity in its current state.
 	 * @return {object} Entity - The clone
 	 * @memberOf Entity
 	 */
@@ -1253,7 +1253,7 @@ class Entity extends EventEmitter {
 
 	/**
 	 * Marks a deleted entity as undeleted.
-	 * Only works when autoSave is off for the containing repository
+	 * Only works when isAutoSave is off for the containing repository
 	 * @fires delete
 	 */
 	undelete = () => {
@@ -1264,8 +1264,8 @@ class Entity extends EventEmitter {
 			throw Error('this.undelete is no longer valid. Entity has been destroyed.');
 		}
 		const repository = this.getRepository();
-		if (repository && repository.autoSave) {
-			throw Error('Cannot undelete entities on an autoSave repository.');
+		if (repository && repository.isAutoSave) {
+			throw Error('Cannot undelete entities on an isAutoSave repository.');
 		}
 		this.markDeleted(false);
 		this.emit('undelete', this._proxy);

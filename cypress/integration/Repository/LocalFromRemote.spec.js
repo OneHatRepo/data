@@ -44,7 +44,7 @@ describe('LocalFromRemote', function() {
 		this.repository = new this.Repository({
 			local,
 			remote,
-			autoSync: false,
+			isAutoSync: false,
 			retryRate: '+1 minute',
 		});
 		this.repository.initialize();
@@ -204,7 +204,7 @@ describe('LocalFromRemote', function() {
 					remote,
 					mode: MODE_COMMAND_QUEUE,
 					isOnline: false,
-					autoSync: false,
+					isAutoSync: false,
 					retryRate: '+1 minute',
 				});
 			

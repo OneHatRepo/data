@@ -21,9 +21,9 @@ class MemoryRepository extends Repository {
 
 		const defaults = {
 			isLocal: true,
-			autoSort: true,
-			autoLoad: true,
-			autoSave: true,
+			isAutoSort: true,
+			isAutoLoad: true,
+			isAutoSave: true,
 		};
 		_.merge(this, defaults, config);
 	}
