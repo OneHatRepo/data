@@ -78,7 +78,7 @@ class Formatters {
 				return moment(date).format(format);
 			}
 		}
-		return '';
+		return null;
 	}
 
 	static FormatDateTime = (value, format = 'MMM DD, YYYY HH:mm:ss') => {
@@ -94,7 +94,7 @@ class Formatters {
 				return moment(date).format(format);
 			}
 		}
-		return '';
+		return null;
 	}
 
 	static FormatTime = (value) => {
@@ -111,7 +111,7 @@ class Formatters {
 				return moment(date).format(format);
 			}
 		}
-		return '';
+		return null;
 	}
 
 	static FormatHours = (value) => {
