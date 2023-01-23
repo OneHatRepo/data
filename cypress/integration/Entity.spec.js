@@ -470,6 +470,14 @@ describe('Entity', function() {
 			expect(_.isEqual(result, this.data)).to.be.true;
 		});
 
+		it('hash', function() {
+			expect(this.entity.hash).to.be.eq(4635951664292355);
+
+			// change a property & check again
+			this.entity.foo = 3;
+			expect(this.entity.hash).to.be.eq(1510366977941323);
+		});
+
 	});
 
 	describe('setters', function() {
