@@ -975,7 +975,13 @@ class Entity extends EventEmitter {
 			throw Error('this.getHash is no longer valid. Entity has been destroyed.');
 		}
 
-		const str = JSON.stringify(this.submitValues);
+		const str = JSON.stringify(_.merge({}, this.submitValues, {
+			// include Entity state in hash
+			isDestroyed: this.isDestroyed,
+			isPhantom: this.isPhantom,
+			isDirty: this.isDirty,
+			isTempId: this.isTempId,
+		}));
 
 		// from https://github.com/bryc/code/blob/master/jshash/experimental/cyrb53.js
 		const seed = 0;
