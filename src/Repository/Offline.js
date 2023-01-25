@@ -169,17 +169,16 @@ class OfflineRepository extends MemoryRepository {
 		// Attempt to add
 		super._doAdd(entity);
 
-		const storageResult = this._storageSetValue(entity.id, entity.getOriginalData());
-		storageResult
-			.then(() => {
-				this._addToIndex(entity.id);
-			})
-			.catch(() => {
-				// Revert to clone
-				delete this._keyedEntities[entity.id];
-				entity.destroy();
-				this._keyedEntities[clone.id] = clone;
-			});
+		let storageResult;
+		try {
+			storageResult = await this._storageSetValue(entity.id, entity.getOriginalData());
+			this._addToIndex(entity.id);
+		} catch (e) {
+			// Revert to clone
+			delete this._keyedEntities[entity.id];
+			entity.destroy();
+			this._keyedEntities[clone.id] = clone;
+		}
 
 		return storageResult;
 	}
@@ -206,15 +205,16 @@ class OfflineRepository extends MemoryRepository {
 
 		// Attempt to edit
 		super._doEdit(entity);
-		const storageResult = this._storageSetValue(entity.id, entity.getOriginalData());
-		
-		storageResult
-			.catch(() => {
-				// Revert to clone
-				entity.isPersisted = clone.isPersisted;
-				entity._originalData = clone._originalData;
-				entity._originalDataParsed = clone._originalDataParsed;
-			});
+
+		let storageResult;
+		try {
+			storageResult = await this._storageSetValue(entity.id, entity.getOriginalData());
+		} catch (e) {
+			// Revert to clone
+			entity.isPersisted = clone.isPersisted;
+			entity._originalData = clone._originalData;
+			entity._originalDataParsed = clone._originalDataParsed;
+		}
 
 		return storageResult;
 	}
@@ -228,16 +228,16 @@ class OfflineRepository extends MemoryRepository {
 
 		// Attempt to delete
 		super._doDelete(entity);
-		const storageResult = this._storageDeleteValue(entity.id);
 
-		storageResult
-			.then(() => {
-				this._deleteFromIndex(entity.id);
-			})
-			.catch(() => {
-				// Revert to clone
-				this._keyedEntities[clone.id] = clone;
-			});
+
+		let storageResult;
+		try {
+			storageResult = await this._storageDeleteValue(entity.id);
+			this._deleteFromIndex(entity.id);
+		} catch (e) {
+			// Revert to clone
+			this._keyedEntities[clone.id] = clone;
+		}
 
 		return storageResult;
 	}
