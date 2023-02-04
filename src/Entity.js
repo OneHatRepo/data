@@ -34,7 +34,7 @@ class Entity extends EventEmitter {
 	 * @param {Repository} repository
 	 * @param {boolean} - Has rawData already been mapped according to schema?
 	 */
-	constructor(schema, rawData = {}, repository = null, originalIsMapped = false) {
+	constructor(schema, rawData = {}, repository = null, originalIsMapped = false, isDelayedSave = false) {
 		super(...arguments);
 
 		if (!schema) {
@@ -110,6 +110,7 @@ class Entity extends EventEmitter {
 		
 		/**
 		 * @member {Boolean} isInitialized - State: whether or not this entity has been completely initialized
+		 * @public
 		 */
 		this.isInitialized = false;
 
@@ -127,28 +128,37 @@ class Entity extends EventEmitter {
 
 		/**
 		 * @member {boolean} isDestroyed - Whether this object has been destroyed
-		 * @private
+		 * @public
 		 */
 		this.isDestroyed = false;
 
 		/**
-		 * @member {string} lastModified - Last time this entity was modified
+		 * @member {boolean} isFrozen - Prevent the entity from being saved, so an editor can change it before it gets saved to remote storage.
+		 * @public
+		 */
+		this.isDelayedSave = isDelayedSave;
+
+		/**
+		 * @member {boolean} lastModified - Last time this entity was modified
+		 * @public
 		 */
 		this.lastModified = null;
 
 		/**
-		 * @member {string} isFrozen - Prevent the entity from being destroyed, but don't let it be changed either.
+		 * @member {boolean} isFrozen - Prevent the entity from being destroyed, but don't let it be changed either.
+		 * @public
 		 */
 		this.isFrozen = false;
 
 		/**
 		 * @member {boolean} isValid - Whether this Entity passes validation
-		 * @private
+		 * @public
 		 */
 		this.isValid = null;
 
 		/**
 		 * @member {object} validationError - Any error in last validation.
+		 * @public
 		 */
 		this.validationError = null;
 		

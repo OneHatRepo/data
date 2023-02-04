@@ -923,10 +923,11 @@ export default class Repository extends EventEmitter {
 	 * @param {object} data - Either raw data object or Entity. If raw data, keys are Property names, Values are Property values.
 	 * @param {boolean} isPersisted - Whether the new entity should be marked as already being persisted in storage medium.
 	 * @param {boolean} originalIsMapped - Has data already been mapped according to schema?
+	 * @param {boolean} isDelayedSave - Should the repository skip autosave when immediately adding the record?
 	 * @return {object} entity - new Entity object
 	 * @fires add
 	 */
-	add = async (data, isPersisted = false, originalIsMapped = false) => {
+	add = async (data, isPersisted = false, originalIsMapped = false, isDelayedSave = false) => {
 		if (this.isDestroyed) {
 			throw Error('this.add is no longer valid. Repository has been destroyed.');
 		}
@@ -947,7 +948,7 @@ export default class Repository extends EventEmitter {
 		let entity = data;
 		if (!(data instanceof Entity)) {
 			// Create the new entity
-			entity = Repository._createEntity(this.schema, data, this, isPersisted, originalIsMapped);
+			entity = Repository._createEntity(this.schema, data, this, isPersisted, originalIsMapped, isDelayedSave);
 		}
 		this._relayEntityEvents(entity);
 		this.entities.push(entity);
@@ -959,7 +960,7 @@ export default class Repository extends EventEmitter {
 
 		this.emit('add', entity);
 
-		if (this.isAutoSave && !entity.isPersisted) {
+		if (this.isAutoSave && !entity.isPersisted && !entity.isDelayedSave) {
 			await this.save(entity);
 		}
 
@@ -973,12 +974,12 @@ export default class Repository extends EventEmitter {
 	 * @param {boolean} originalIsMapped - Has data already been mapped according to schema?
 	 * @return {object} entity - new Entity object
 	 */
-	createStandaloneEntity = async (data, isPersisted = false, originalIsMapped = false) => {
+	createStandaloneEntity = async (data, isPersisted = false, originalIsMapped = false, isDelayedSave = false) => {
 		if (this.isDestroyed) {
 			throw Error('this.createStandaloneEntity is no longer valid. Repository has been destroyed.');
 		}
 		
-		const entity = Repository._createEntity(this.schema, data, this, isPersisted, originalIsMapped);
+		const entity = Repository._createEntity(this.schema, data, this, isPersisted, originalIsMapped, isDelayedSave);
 
 		if (entity.isPhantom) {
 			entity.createTempId();
@@ -1024,8 +1025,8 @@ export default class Repository extends EventEmitter {
 	 * @return {object} entity - new Entity object
 	 * @private
 	 */
-	static _createEntity = (schema, rawData, repository = null, isPersisted = false, originalIsMapped = false) => {
-		const entity = new Entity(schema, rawData, repository, originalIsMapped);
+	static _createEntity = (schema, rawData, repository = null, isPersisted = false, originalIsMapped = false, isDelayedSave = false) => {
+		const entity = new Entity(schema, rawData, repository, originalIsMapped, isDelayedSave);
 		entity.initialize();
 		entity.isPersisted = isPersisted;
 		return entity;
