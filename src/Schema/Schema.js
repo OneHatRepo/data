@@ -59,6 +59,12 @@ export default class Schema extends EventEmitter {
 				displayProperty: null,
 
 				/**
+				 * @member {string} sortProperty - name of sort Property (e.g. 'users__sort_order')
+				 * if sortProperty has a value and sorters is left blank, an automatic sorter with this property will be created.
+				 */
+				sortProperty: null,
+
+				/**
 				 * @member {array} properties - Array of Property definition objects
 				 */
 				properties: [],

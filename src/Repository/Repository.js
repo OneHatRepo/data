@@ -479,9 +479,15 @@ export default class Repository extends EventEmitter {
 			throw Error('this.getDefaultSorters is no longer valid. Repository has been destroyed.');
 		}
 		let sorters = [];
-		if (this.schema && this.schema.model) {
+		if (this.schema?.model) {
 			if (_.size(this.schema.model.sorters) > 0) {
 				sorters = this.schema.model.sorters
+			} else if (!_.isNil(this.schema.model.sortProperty)) {
+				sorters = [{
+					name: this.schema.model.sortProperty,
+					direction: 'ASC',
+					fn: 'default',
+				}];
 			} else if (!_.isNil(this.schema.model.displayProperty)) {
 				sorters = [{
 					name: this.schema.model.displayProperty,
