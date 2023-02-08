@@ -65,7 +65,7 @@ class AsyncStorageRepository extends OfflineRepository {
 			const results = await AsyncStorage.multiGet(this._namespace(keys));
 
 			if (this.debugMode) {
-				console.log(this.name, 'AsyncStorage.multiGet results', name, results);
+				console.log(this.name, 'AsyncStorage.multiGet results', keys, results);
 			}
 
 			let values = [];
