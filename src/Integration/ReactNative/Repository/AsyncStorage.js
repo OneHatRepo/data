@@ -68,26 +68,35 @@ class AsyncStorageRepository extends OfflineRepository {
 				console.log(this.name, 'AsyncStorage.multiGet results', keys, results);
 			}
 
-			let values = [];
+			const values = [];
 			if (!_.isNil(results)) {
-				_.each(results, ([key, value]) => {
-					let parsed;
-					try {
-						parsed = JSON.parse(value);
-					} catch (e) {
-						parsed = value; // Invalid JSON, just return raw result
+				const chunks = _.chunk(results, 400); // create chunks of 400, which we'll iterate through, so we don't get "Excessive number of pending callbacks" error
+				let i, n, thisChunk, promises, promise, parsed;
+				for (i = 0; i < chunks.length; i++) { // iterate the chunks
+					thisChunk = chunks[i];
+					for (n = 0; n < thisChunk.length; n++) { // iterate the storage items
+						let [ key, value ] = thisChunk[n];
+
+						try {
+							parsed = JSON.parse(value);
+						} catch (e) {
+							parsed = value; // Invalid JSON, just return raw result
+						}
+						if (parsed === null) {
+							// Values should be stored as JSON, so it should be either {} or []. If it's null, that means the AsyncStorage can't find the record
+							// Delete the index to this record
+							const re = new RegExp('^' + this.name + '\-' + '(.*)'),
+								matches = key.match(re);
+							const id = parseInt(matches, 10);
+							promise = this._deleteFromIndex(id);
+							promises.push(promise);
+						} else {
+							values.push(parsed);
+						}
 					}
-					if (parsed === null) {
-						// Values should be stored as JSON, so it should be either {} or []. If it's null, that means the AsyncStorage can't find the record
-						// Delete the index to this record
-						const re = new RegExp('^' + this.name + '\-' + '(.*)'),
-							matches = key.match(re);
-						const id = parseInt(matches, 10);
-						this._deleteFromIndex(id);
-					} else {
-						values.push(parsed);
-					}
-				})
+
+					await Promise.all(promises);
+				}
 			}
 
 			// if (this.debugMode && _.size(keys) < 20) {
