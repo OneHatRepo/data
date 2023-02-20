@@ -232,8 +232,49 @@ class OneBuildRepository extends AjaxRepository {
 		};
 	}
 
+	
 	/**
-	 * Login to OnBuild API
+	 * Integrates with RestTrait::reorder in OneBuild API
+	 * @param {entity} dragRecord - which entity was being dragged
+	 * @param {entity} dropRecord - which entity it was dropped on to
+	 * @param {string} dropPosition - position in which it was dropped; could be 'before' or 'after'
+	 * @return {Promise}
+	 */
+	reorder = (dragRecord, dropRecord, dropPosition) => {
+		const data = {
+			url: 'reorder',
+			data: qs.stringify({
+				ids: dragRecord.id,
+				dropPosition,
+				dropRecord_id: dropRecord.id,
+			}),
+			method: 'POST',
+			baseURL: this.api.baseURL,
+		};
+
+		if (this.debugMode) {
+			console.log('reorder', data);
+		}
+
+		return this.axios(data)
+			.then((result) => {
+				if (this.debugMode) {
+					console.log('reorder response', result);
+				}
+
+				const response = result.data;
+				if (!response.success) {
+					throw new Error(response.data);
+				}
+
+				// Reload the repository, so updated sort_order values can be retrieved
+				this.reload();
+
+			});
+	}
+
+	/**
+	 * Login to OneBuild API
 	 * @param {object} creds - object with two properties:
 	 * - username,
 	 * - password,
@@ -269,7 +310,7 @@ class OneBuildRepository extends AjaxRepository {
 	}
 
 	/**
-	 * Logout from OnBuild API
+	 * Logout from OneBuild API
 	 * @return {Promise}
 	 */
 	logout = () => {
