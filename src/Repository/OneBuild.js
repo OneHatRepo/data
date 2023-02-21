@@ -95,7 +95,8 @@ class OneBuildRepository extends AjaxRepository {
 	_send = (method, url, data) => {
 
 		if (!url) {
-			throw new Error('No url submitted');
+			this.throwError('No url submitted');
+			return;
 		}
 
 		const options = {
@@ -264,7 +265,8 @@ class OneBuildRepository extends AjaxRepository {
 
 				const response = result.data;
 				if (!response.success) {
-					throw new Error(response.data);
+					this.throwError(response.data);
+					return;
 				}
 
 				// Reload the repository, so updated sort_order values can be retrieved
@@ -301,7 +303,8 @@ class OneBuildRepository extends AjaxRepository {
 
 				const response = result.data;
 				if (!response.success) {
-					throw new Error(response.data); // TODO: Fix back-end, so OneBuild submits the error message on response.message, not response.data
+					this.throwError(response.data); // TODO: Fix back-end, so OneBuild submits the error message on response.message, not response.data
+					return;
 				}
 
 				const userData = response.data;
@@ -330,7 +333,8 @@ class OneBuildRepository extends AjaxRepository {
 				}
 				const response = result.data;
 				if (!response.success) {
-					throw new Error(response.data);
+					this.throwError(response.data);
+					return;
 				}
 				return true;
 			});
@@ -359,7 +363,8 @@ class OneBuildRepository extends AjaxRepository {
 
 				const response = result.data;
 				if (!response.success) {
-					throw new Error(response.data);
+					this.throwError(response.data);
+					return;
 				}
 
 				return response;

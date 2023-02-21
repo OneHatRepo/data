@@ -92,7 +92,8 @@ class MemoryRepository extends Repository {
 	load = async (data = null) => {
 		
 		if (this.isDestroyed) {
-			throw Error('this.load is no longer valid. Repository has been destroyed.');
+			this.throwError('this.load is no longer valid. Repository has been destroyed.');
+			return;
 		}
 
 		this.emit('beforeLoad');
@@ -200,7 +201,8 @@ class MemoryRepository extends Repository {
 	 */
 	_applySorters = () => {
 		if (this.isDestroyed) {
-			throw Error('this._applySorters is no longer valid. Repository has been destroyed.');
+			this.throwError('this._applySorters is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		if (!this.hasSorters) {
 			this.isSorted = false;
@@ -309,7 +311,8 @@ class MemoryRepository extends Repository {
 	 */
 	_applyFilters = () => {
 		if (this.isDestroyed) {
-			throw Error('this._applyFilters is no longer valid. Repository has been destroyed.');
+			this.throwError('this._applyFilters is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		if (!this.hasFilters) {
 			this._filteredEntities = [];
@@ -358,7 +361,8 @@ class MemoryRepository extends Repository {
 	 */
 	_doAdd(entity) { // standard function notation
 		if (this.isDestroyed) {
-			throw Error('this._doAdd is no longer valid. Repository has been destroyed.');
+			this.throwError('this._doAdd is no longer valid. Repository has been destroyed.');
+			return;
 		}
 
 		// Give it a non-temporary ID, if needed
@@ -407,7 +411,8 @@ class MemoryRepository extends Repository {
 	 */
 	_doEdit(entity) { // standard function notation
 		if (this.isDestroyed) {
-			throw Error('this._doEdit is no longer valid. Repository has been destroyed.');
+			this.throwError('this._doEdit is no longer valid. Repository has been destroyed.');
+			return;
 		}
 
 		entity.markSaved();
@@ -422,7 +427,8 @@ class MemoryRepository extends Repository {
 	 */
 	_doDelete(entity) { // standard function notation
 		if (this.isDestroyed) {
-			throw Error('this._doDelete is no longer valid. Repository has been destroyed.');
+			this.throwError('this._doDelete is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		delete this._keyedEntities[entity.id];
 		this.entities = _.filter(this.entities, (x) => x.id !== entity.id);
@@ -445,7 +451,8 @@ class MemoryRepository extends Repository {
 	 */
 	getById = (id) => {
 		if (this.isDestroyed) {
-			throw Error('this.getById is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getById is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		return this._keyedEntities[id] ? this._keyedEntities[id] : null;
 	}
@@ -458,7 +465,8 @@ class MemoryRepository extends Repository {
 	 */
 	getIxById = (id) => {
 		if (this.isDestroyed) {
-			throw Error('this.getIxById is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getIxById is no longer valid. Repository has been destroyed.');
+			return;
 		}
 
 		const ix = this.getEntitiesOnPage().findIndex((entity) => entity.id === id);
@@ -475,7 +483,8 @@ class MemoryRepository extends Repository {
 	 */
 	getEntities = () => {
 		if (this.isDestroyed) {
-			throw Error('this.getEntities is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getEntities is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		return this._getActiveEntities();
 	}
@@ -487,7 +496,8 @@ class MemoryRepository extends Repository {
 	 * /
 	getAllData = () => {
 		if (this.isDestroyed) {
-			throw Error('this.getAllData is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getAllData is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		const entities = this._getActiveEntities();
 		return _.map(entities, (entity) => {
@@ -528,7 +538,8 @@ class MemoryRepository extends Repository {
 	 */
 	_paginate = (entities) => {
 		if (this.isDestroyed) {
-			throw Error('this._paginate is no longer valid. Repository has been destroyed.');
+			this.throwError('this._paginate is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		if (!this.isPaginated) {
 			return entities;
@@ -552,7 +563,8 @@ class MemoryRepository extends Repository {
 	 */
 	_recalculate = () => {
 		if (this.isDestroyed) {
-			throw Error('this._recalculate is no longer valid. Repository has been destroyed.');
+			this.throwError('this._recalculate is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		this._unsortedEntities = _.map(this._keyedEntities, item => item);
 		this._sortedEntities = null;
@@ -589,7 +601,8 @@ class MemoryRepository extends Repository {
 	 */
 	getGrandTotal = () => {
 		if (this.isDestroyed) {
-			throw Error('this.getGrandTotal is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getGrandTotal is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		return _.size(this._unsortedEntities);
 	}
@@ -603,7 +616,8 @@ class MemoryRepository extends Repository {
 	 */
 	_getActiveEntities = () => {
 		if (this.isDestroyed) {
-			throw Error('this._getActiveEntities is no longer valid. Repository has been destroyed.');
+			this.throwError('this._getActiveEntities is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		if (this.hasFilters) {
 			return this._filteredEntities;

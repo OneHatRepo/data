@@ -43,7 +43,8 @@ class NullRepository extends Repository {
 	 */
 	load = (data = this.data) => {
 		if (this.isDestroyed) {
-			throw Error('this.load is no longer valid. Repository has been destroyed.');
+			this.throwError('this.load is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		this.emit('beforeLoad');
 		this.markLoading();
@@ -96,7 +97,8 @@ class NullRepository extends Repository {
 	 */
 	_doEdit(entity) { // standard function notation
 		if (this.isDestroyed) {
-			throw Error('this._doEdit is no longer valid. Repository has been destroyed.');
+			this.throwError('this._doEdit is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		entity.markSaved();
 		return {

@@ -362,10 +362,12 @@ class AjaxRepository extends Repository {
 	 */
 	load = async (params, callback = null) => {
 		if (this.isDestroyed) {
-			throw Error('this.load is no longer valid. Repository has been destroyed.');
+			this.throwError('this.load is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		if (!this.api.get) {
-			throw new Error('No "get" api endpoint defined.');
+			this.throwError('No "get" api endpoint defined.');
+			return;
 		}
 		this.emit('beforeLoad'); // TODO: canceling beforeLoad will cancel the load operation
 		this.markLoading();
@@ -433,10 +435,12 @@ class AjaxRepository extends Repository {
 	 */
 	reloadEntity = async (entity, callback = null) => {
 		if (this.isDestroyed) {
-			throw Error('this.reloadEntity is no longer valid. Repository has been destroyed.');
+			this.throwError('this.reloadEntity is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		if (!this.api.get) {
-			throw new Error('No "get" api endpoint defined.');
+			this.throwError('No "get" api endpoint defined.');
+			return;
 		}
 		this.emit('beforeLoad'); // TODO: canceling beforeLoad will cancel the load operation
 		this.markLoading();
@@ -460,7 +464,8 @@ class AjaxRepository extends Repository {
 						} = this._processServerResponse(result);
 
 						if (!success) {
-							throw Error(message);
+							this.throwError(message);
+							return;
 						}
 
 						const updatedData = root[0];
@@ -515,7 +520,8 @@ class AjaxRepository extends Repository {
 	 */
 	_doAdd(entity) { // standard function notation
 		if (!this.api.add) {
-			throw new Error('No "add" api endpoint defined.');
+			this.throwError('No "add" api endpoint defined.');
+			return;
 		}
 
 		this._operations.add = true;
@@ -537,7 +543,8 @@ class AjaxRepository extends Repository {
 						} = this._processServerResponse(result);
 
 						if (!success) {
-							throw new Error(message);
+							this.throwError(message);
+							return;
 						}
 
 						entity.loadOriginalData(root[0]);
@@ -553,7 +560,8 @@ class AjaxRepository extends Repository {
 	 */
 	_doBatchAdd(entities) { // standard function notation
 		if (!this.api.batchAdd) {
-			throw new Error('No "batchAdd" api endpoint defined.');
+			this.throwError('No "batchAdd" api endpoint defined.');
+			return;
 		}
 
 		this._operations.add = true;
@@ -577,7 +585,8 @@ class AjaxRepository extends Repository {
 						} = this._processServerResponse(result);
 
 						if (!success) {
-							throw new Error(message);
+							this.throwError(message);
+							return;
 						}
 
 						// Reload each entity with new data
@@ -595,7 +604,8 @@ class AjaxRepository extends Repository {
 	 */
 	_doEdit(entity) { // standard function notation
 		if (!this.api.edit) {
-			throw new Error('No "edit" api endpoint defined.');
+			this.throwError('No "edit" api endpoint defined.');
+			return;
 		}
 
 		this._operations.edit = true;
@@ -617,7 +627,8 @@ class AjaxRepository extends Repository {
 						} = this._processServerResponse(result);
 
 						if (!success) {
-							throw new Error(message);
+							this.throwError(message);
+							return;
 						}
 
 						entity.loadOriginalData(root[0]);
@@ -633,7 +644,8 @@ class AjaxRepository extends Repository {
 	 */
 	_doBatchEdit(entities) { // standard function notation
 		if (!this.api.batchEdit) {
-			throw new Error('No "batchEdit" api endpoint defined.');
+			this.throwError('No "batchEdit" api endpoint defined.');
+			return;
 		}
 
 		this._operations.edit = true;
@@ -657,7 +669,8 @@ class AjaxRepository extends Repository {
 						} = this._processServerResponse(result);
 
 						if (!success) {
-							throw new Error(message);
+							this.throwError(message);
+							return;
 						}
 
 						// Reload each entity with new data
@@ -675,7 +688,8 @@ class AjaxRepository extends Repository {
 	 */
 	_doDelete(entity) { // standard function notation
 		if (!this.api.delete) {
-			throw new Error('No "delete" api endpoint defined.');
+			this.throwError('No "delete" api endpoint defined.');
+			return;
 		}
 
 		this._operations.delete = true;
@@ -697,7 +711,8 @@ class AjaxRepository extends Repository {
 						} = this._processServerResponse(result);
 						
 						if (!success) {
-							throw new Error(message);
+							this.throwError(message);
+							return;
 						}
 
 						// Delete it from this.entities
@@ -716,7 +731,8 @@ class AjaxRepository extends Repository {
 	 */
 	_doBatchDelete(entities) { // standard function notation
 		if (!this.api.batchDelete) {
-			throw new Error('No "batchDelete" api endpoint defined.');
+			this.throwError('No "batchDelete" api endpoint defined.');
+			return;
 		}
 
 		this._operations.delete = true;
@@ -739,7 +755,8 @@ class AjaxRepository extends Repository {
 						} = this._processServerResponse(result);
 						
 						if (!success) {
-							throw new Error(message);
+							this.throwError(message);
+							return;
 						}
 
 						// Delete it from this.entities
@@ -779,7 +796,8 @@ class AjaxRepository extends Repository {
 	_send = (method, url, data) => {
 
 		if (!url) {
-			throw new Error('No url submitted');
+			this.throwError('No url submitted');
+			return;
 		}
 
 		const options = {

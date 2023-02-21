@@ -68,16 +68,20 @@ class LocalFromRemoteRepository extends EventEmitter {
 		super(...arguments);
 
 		if (!config.local || !(config.local instanceof Repository)) {
-			throw new Error('No local repository defined.');
+			this.throwError('No local repository defined.');
+			return;
 		}
 		if (!config.local.isLocal) {
-			throw new Error('Local repository is not configured to be a local type.');
+			this.throwError('Local repository is not configured to be a local type.');
+			return;
 		}
 		if (!config.remote || !(config.remote instanceof Repository)) {
-			throw new Error('No remote repository defined.');
+			this.throwError('No remote repository defined.');
+			return;
 		}
 		if (!config.remote.isRemote) {
-			throw new Error('Remote repository is not configured to be a remote type.');
+			this.throwError('Remote repository is not configured to be a remote type.');
+			return;
 		}
 		
 		const defaults = {
@@ -139,7 +143,8 @@ class LocalFromRemoteRepository extends EventEmitter {
 		if (this.mode !== MODE_LOCAL_MIRROR && 
 			this.mode !== MODE_REMOTE_WITH_OFFLINE && 
 			this.mode !== MODE_COMMAND_QUEUE) {
-			throw new Error('Mode not recognized.');
+			this.throwError('Mode not recognized.');
+			return;
 		}
 
 		this.registerEvents([
@@ -326,10 +331,12 @@ class LocalFromRemoteRepository extends EventEmitter {
 						let command = this.commands[localItem.command];
 
 						if (!command) {
-							throw new Error('Command ' + localItem.command + ' not registered');
+							this.throwError('Command ' + localItem.command + ' not registered');
+							return;
 						}
 						if (!command.hasHandlers()) {
-							throw new Error('No command handler registered for ' + localItem.command);
+							this.throwError('No command handler registered for ' + localItem.command);
+							return;
 						}
 
 						// local --> remote
@@ -365,7 +372,8 @@ class LocalFromRemoteRepository extends EventEmitter {
 
 				case MODE_REMOTE_WITH_OFFLINE:
 
-					throw new Error('Not implemented');
+					this.throwError('Not implemented');
+					return;
 
 					// Load remote data into local
 					// Local <-- Remote

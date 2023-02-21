@@ -303,7 +303,8 @@ class OfflineRepository extends MemoryRepository {
 	 */
 	_getKeys = async () => {
 		if (!this._getAllKeys) {
-			throw new Error('Storage medium does not support _getAllKeys');
+			this.throwError('Storage medium does not support _getAllKeys');
+			return;
 		}
 		const re = new RegExp('^' + this.name + '-');
 		let keys = await this._getAllKeys();
@@ -334,7 +335,8 @@ class OfflineRepository extends MemoryRepository {
 	 * @abstract
 	 */
 	_storageGetValue = async (name) => {
-		throw new Error('this._storageGetValue must be implemented by OfflineRepository subclass.');
+		this.throwError('this._storageGetValue must be implemented by OfflineRepository subclass.');
+		return;
 	}
 
 	/**
@@ -345,7 +347,8 @@ class OfflineRepository extends MemoryRepository {
 	 * @abstract
 	 */
 	_storageSetValue = async (name, value) => {
-		throw new Error('this._storageSetValue must be implemented by OfflineRepository subclass.');
+		this.throwError('this._storageSetValue must be implemented by OfflineRepository subclass.');
+		return;
 	}
 
 	/**
@@ -355,7 +358,8 @@ class OfflineRepository extends MemoryRepository {
 	 * @abstract
 	 */
 	_storageDeleteValue = async (name) => {
-		throw new Error('this._storageDeleteValue must be implemented by OfflineRepository subclass.');
+		this.throwError('this._storageDeleteValue must be implemented by OfflineRepository subclass.');
+		return;
 	}
 
 	/**

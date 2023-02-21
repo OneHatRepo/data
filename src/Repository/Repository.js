@@ -31,7 +31,8 @@ export default class Repository extends EventEmitter {
 		const { schema } = config;
 
 		if (!schema || !schema.model) {
-			throw new Error('Schema cannot be empty');
+			this.throwError('Schema cannot be empty');
+			return;
 		}
 
 		const defaults = {
@@ -290,7 +291,8 @@ export default class Repository extends EventEmitter {
 	 */
 	_createMethods = () => {
 		if (this.isDestroyed) {
-			throw Error('this._createMethods is no longer valid. Repository has been destroyed.');
+			this.throwError('this._createMethods is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		const methodDefinitions = this.schema.repository.methods || this.originalConfig.methods; // The latter is mainly for lfr repositories
 		if (!_.isEmpty(methodDefinitions)) {
@@ -306,7 +308,8 @@ export default class Repository extends EventEmitter {
 	 */
 	 _createStatics = () => {
 		if (this.isDestroyed) {
-			throw Error('this._createStatics is no longer valid. Repository has been destroyed.');
+			this.throwError('this._createStatics is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		const staticsDefinitions = this.schema.repository.statics || this.originalConfig.statics; // The latter is mainly for lfr repositories
 		if (!_.isEmpty(staticsDefinitions)) {
@@ -328,7 +331,8 @@ export default class Repository extends EventEmitter {
 	 * @abstract
 	 */
 	load = async () => {
-		throw new Error('load must be implemented by Repository subclass');
+		this.throwError('load must be implemented by Repository subclass');
+		return;
 	}
 
 	/**
@@ -361,7 +365,8 @@ export default class Repository extends EventEmitter {
 	 * @abstract
 	 */
 	reloadEntity = async (entity) => {
-		throw new Error('reloadEntity must be implemented by Repository subclass');
+		this.throwError('reloadEntity must be implemented by Repository subclass');
+		return;
 	}
 
 	/**
@@ -370,7 +375,8 @@ export default class Repository extends EventEmitter {
 	 */
 	setAutoSave = (isAutoSave) => {
 		if (this.isDestroyed) {
-			throw Error('this.setAutoSave is no longer valid. Repository has been destroyed.');
+			this.throwError('this.setAutoSave is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		this.isAutoSave = isAutoSave
 	}
@@ -381,7 +387,8 @@ export default class Repository extends EventEmitter {
 	 */
 	setAutoLoad = (isAutoLoad) => {
 		if (this.isDestroyed) {
-			throw Error('this.setAutoLoad is no longer valid. Repository has been destroyed.');
+			this.throwError('this.setAutoLoad is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		this.isAutoLoad = isAutoLoad
 	}
@@ -398,7 +405,8 @@ export default class Repository extends EventEmitter {
 	 */
 	get hasSorters() {
 		if (this.isDestroyed) {
-			throw Error('this.hasSorters is no longer valid. Repository has been destroyed.');
+			this.throwError('this.hasSorters is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		return this.sorters.length > 0;
 	}
@@ -408,7 +416,8 @@ export default class Repository extends EventEmitter {
 	 */
 	clearSort = () => {
 		if (this.isDestroyed) {
-			throw Error('this.clearSort is no longer valid. Repository has been destroyed.');
+			this.throwError('this.clearSort is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		this.setSorters([])
 	}
@@ -445,7 +454,8 @@ export default class Repository extends EventEmitter {
 	 */
 	sort = (arg1 = null, arg2 = 'ASC', arg3 = null) => {
 		if (this.isDestroyed) {
-			throw Error('this.sort is no longer valid. Repository has been destroyed.');
+			this.throwError('this.sort is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		// Assemble sorting definition objects
 		let sorters = [];
@@ -476,7 +486,8 @@ export default class Repository extends EventEmitter {
 	 */
 	getDefaultSorters = () => {
 		if (this.isDestroyed) {
-			throw Error('this.getDefaultSorters is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getDefaultSorters is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		let sorters = [];
 		if (this.schema?.model) {
@@ -505,10 +516,12 @@ export default class Repository extends EventEmitter {
 	 */
 	setSorters = (sorters) => {
 		if (this.isDestroyed) {
-			throw Error('this.setSorters is no longer valid. Repository has been destroyed.');
+			this.throwError('this.setSorters is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		if (!this.allowsMultiSort && sorters.length > 1) {
-			throw Error('Cannot have more than one sorter at a time.');
+			this.throwError('Cannot have more than one sorter at a time.');
+			return;
 		}
 
 		let isChanged = false;
@@ -522,13 +535,15 @@ export default class Repository extends EventEmitter {
 				}
 				const propertyDefinition = _.find(this.schema.model.properties, (property) => property.name === sorter.name);
 				if (!propertyDefinition) {
-					throw new Error('Sorting property does not exist.');
+					this.throwError('Sorting property does not exist.');
+					return;
 				}
 				const propertyType = propertyDefinition.type;
 				if (propertyType && PropertyTypes[propertyType]) {
 					const propertyInstance = new PropertyTypes[propertyType]();
 					if (!propertyInstance.isSortable) {
-						throw new Error('Sorting property type is not sortable.');
+						this.throwError('Sorting property type is not sortable.');
+						return;
 					}
 				}
 			});
@@ -554,7 +569,8 @@ export default class Repository extends EventEmitter {
 	 */
 	get hasFilters() {
 		if (this.isDestroyed) {
-			throw Error('this.hasFilters is no longer valid. Repository has been destroyed.');
+			this.throwError('this.hasFilters is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		return this.filters.length > 0;
 	}
@@ -614,7 +630,8 @@ export default class Repository extends EventEmitter {
 	 */
 	filter = (arg1 = null, arg2 = null, clearFirst = true) => {
 		if (this.isDestroyed) {
-			throw Error('this.filter is no longer valid. Repository has been destroyed.');
+			this.throwError('this.filter is no longer valid. Repository has been destroyed.');
+			return;
 		}
 
 		if (_.isNil(arg1)) {
@@ -719,7 +736,8 @@ export default class Repository extends EventEmitter {
 	 */
 	_setFilters = (filters) => {
 		if (this.isDestroyed) {
-			throw Error('this._setFilters is no longer valid. Repository has been destroyed.');
+			this.throwError('this._setFilters is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		let isChanged = false;
 		if (!_.isEqual(this.filters, filters)) {
@@ -752,7 +770,8 @@ export default class Repository extends EventEmitter {
 	 */
 	resetPagination = () => {
 		if (this.isDestroyed) {
-			throw Error('this.resetPagination is no longer valid. Repository has been destroyed.');
+			this.throwError('this.resetPagination is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		this.setPage(1);
 	}
@@ -763,7 +782,8 @@ export default class Repository extends EventEmitter {
 	 */
 	setPageSize = (pageSize) => {
 		if (this.isDestroyed) {
-			throw Error('this.setPageSize is no longer valid. Repository has been destroyed.');
+			this.throwError('this.setPageSize is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		if (!this.isPaginated) {
 			return false;
@@ -792,7 +812,8 @@ export default class Repository extends EventEmitter {
 	 */
 	setPage = (page) => {
 		if (this.isDestroyed) {
-			throw Error('this.setPage is no longer valid. Repository has been destroyed.');
+			this.throwError('this.setPage is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		if (!this.isPaginated) {
 			return false;
@@ -839,7 +860,8 @@ export default class Repository extends EventEmitter {
 	 */
 	_setPaginationVars = () => {
 		if (this.isDestroyed) {
-			throw Error('this._setPaginationVars is no longer valid. Repository has been destroyed.');
+			this.throwError('this._setPaginationVars is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		if (!this.isPaginated) {
 			this.totalPages = 1;
@@ -935,7 +957,8 @@ export default class Repository extends EventEmitter {
 	 */
 	add = async (data, isPersisted = false, originalIsMapped = false, isDelayedSave = false) => {
 		if (this.isDestroyed) {
-			throw Error('this.add is no longer valid. Repository has been destroyed.');
+			this.throwError('this.add is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		
 		// Does it already exist? If so, edit the existing
@@ -982,7 +1005,8 @@ export default class Repository extends EventEmitter {
 	 */
 	createStandaloneEntity = async (data, isPersisted = false, originalIsMapped = false, isDelayedSave = false) => {
 		if (this.isDestroyed) {
-			throw Error('this.createStandaloneEntity is no longer valid. Repository has been destroyed.');
+			this.throwError('this.createStandaloneEntity is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		
 		const entity = Repository._createEntity(this.schema, data, this, isPersisted, originalIsMapped, isDelayedSave);
@@ -1046,7 +1070,8 @@ export default class Repository extends EventEmitter {
 	 */
 	_relayEntityEvents = (entity) => {
 		if (this.isDestroyed) {
-			throw Error('this._relayEntityEvents is no longer valid. Repository has been destroyed.');
+			this.throwError('this._relayEntityEvents is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		this.relayEventsFrom(entity, [
 			'change',
@@ -1146,7 +1171,8 @@ export default class Repository extends EventEmitter {
 	 */
 	getByIx = (ix) => {
 		if (this.isDestroyed) {
-			throw Error('this.getByIx is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getByIx is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		return this.entities[ix];
 	}
@@ -1160,7 +1186,8 @@ export default class Repository extends EventEmitter {
 	 */
 	getByRange = (startIx, endIx) => {
 		if (this.isDestroyed) {
-			throw Error('this.getByRange is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getByRange is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		return _.slice(this.entities, startIx, endIx+1);
 	}
@@ -1172,7 +1199,8 @@ export default class Repository extends EventEmitter {
 	 */
 	getById = (id) => {
 		if (this.isDestroyed) {
-			throw Error('this.getById is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getById is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		return this.getFirstBy(entity => entity.id === id);
 	}
@@ -1184,7 +1212,8 @@ export default class Repository extends EventEmitter {
 	 */
 	getIxById = (id) => {
 		if (this.isDestroyed) {
-			throw Error('this.getIxById is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getIxById is no longer valid. Repository has been destroyed.');
+			return;
 		}
 
 		const ix = this.entities.findIndex((entity) => entity.id === id);
@@ -1201,7 +1230,8 @@ export default class Repository extends EventEmitter {
 	 */
 	getBy = (filter) => {
 		if (this.isDestroyed) {
-			throw Error('this.getBy is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getBy is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		return _.filter(this.entities, filter);
 	}
@@ -1217,7 +1247,8 @@ export default class Repository extends EventEmitter {
 	 */
 	getFirstBy = (filter) => {
 		if (this.isDestroyed) {
-			throw Error('this.getFirstBy is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getFirstBy is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		return _.find(this.entities, filter);
 	}
@@ -1229,7 +1260,8 @@ export default class Repository extends EventEmitter {
 	 */
 	getPhantom = (entities = null) => {
 		if (this.isDestroyed) {
-			throw Error('this.getPhantom is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getPhantom is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		if (!entities) {
 			entities = this.entities;
@@ -1244,7 +1276,8 @@ export default class Repository extends EventEmitter {
 	 */
 	getNonPersisted = (entities = null) => {
 		if (this.isDestroyed) {
-			throw Error('this.getDirty is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getDirty is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		if (!entities) {
 			entities = this.entities;
@@ -1259,7 +1292,8 @@ export default class Repository extends EventEmitter {
 	 */
 	getEntities = () => {
 		if (this.isDestroyed) {
-			throw Error('this.getEntities is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getEntities is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		return this.entities;
 	}
@@ -1273,7 +1307,8 @@ export default class Repository extends EventEmitter {
 	 */
 	getEntitiesOnPage = () => {
 		if (this.isDestroyed) {
-			throw Error('this.getPagedEntities is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getPagedEntities is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		const entities = this.getEntities();
 		if (!this.isPaginated) {
@@ -1294,7 +1329,8 @@ export default class Repository extends EventEmitter {
 	 */
 	getDirty = (entities = null) => {
 		if (this.isDestroyed) {
-			throw Error('this.getDirty is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getDirty is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		if (!entities) {
 			entities = this.entities;
@@ -1309,7 +1345,8 @@ export default class Repository extends EventEmitter {
 	 */
 	getDeleted = (entities = null) => {
 		if (this.isDestroyed) {
-			throw Error('this.getDeleted is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getDeleted is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		if (!entities) {
 			entities = this.entities;
@@ -1324,7 +1361,8 @@ export default class Repository extends EventEmitter {
 	 */
 	getStaged = (entities = null) => {
 		if (this.isDestroyed) {
-			throw Error('this.getStaged is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getStaged is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		if (!entities) {
 			entities = this.entities;
@@ -1338,7 +1376,8 @@ export default class Repository extends EventEmitter {
 	 */
 	getSchema = () => {
 		if (this.isDestroyed) {
-			throw Error('this.getSchema is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getSchema is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		return this.schema;
 	}
@@ -1349,7 +1388,8 @@ export default class Repository extends EventEmitter {
 	 */
 	getSortField = () => {
 		if (this.isDestroyed) {
-			throw Error('this.getSortField is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getSortField is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		if (!this.allowsMultiSort || this.sorters.length < 1) {
 			return null;
@@ -1363,7 +1403,8 @@ export default class Repository extends EventEmitter {
 	 */
 	getSortDirection = () => {
 		if (this.isDestroyed) {
-			throw Error('this.getSortDirection is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getSortDirection is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		if (!this.allowsMultiSort || this.sorters.length < 1) {
 			return null;
@@ -1377,7 +1418,8 @@ export default class Repository extends EventEmitter {
 	 */
 	getSortFn = () => {
 		if (this.isDestroyed) {
-			throw Error('this.getSortDirection is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getSortDirection is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		if (!this.allowsMultiSort || this.sorters.length < 1) {
 			return null;
@@ -1392,7 +1434,8 @@ export default class Repository extends EventEmitter {
 	 */
 	getAssociatedRepository = (repositoryName) => {
 		if (this.isDestroyed) {
-			throw Error('this.getAssociatedRepository is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getAssociatedRepository is no longer valid. Repository has been destroyed.');
+			return;
 		}
 
 		const schema = this.getSchema();
@@ -1401,17 +1444,20 @@ export default class Repository extends EventEmitter {
 			!schema.model.associations.belongsTo.includes(repositoryName) &&
 			!schema.model.associations.belongsToMany.includes(repositoryName)
 			) {
-			throw Error(repositoryName + ' is not associated with this schema');
+			this.throwError(repositoryName + ' is not associated with this schema');
+			return;
 		}
 
 		const oneHatData = this.oneHatData;
 		if (!oneHatData) {
-			throw Error('No global oneHatData object');
+			this.throwError('No global oneHatData object');
+			return;
 		}
 
 		const associatedRepository = oneHatData.getRepository(repositoryName);
 		if (!associatedRepository) {
-			throw Error('Repository ' + repositoryName + ' cannot be found');
+			this.throwError('Repository ' + repositoryName + ' cannot be found');
+			return;
 		}
 		
 		return associatedRepository;
@@ -1425,7 +1471,8 @@ export default class Repository extends EventEmitter {
 	 */
 	isInRepository(idOrEntity) {
 		if (this.isDestroyed) {
-			throw Error('this.isInRepository is no longer valid. Repository has been destroyed.');
+			this.throwError('this.isInRepository is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		if (idOrEntity instanceof Entity) {
 			return this.entities.indexOf(idOrEntity) !== -1;
@@ -1440,7 +1487,8 @@ export default class Repository extends EventEmitter {
 	 */
 	get isDirty() {
 		if (this.isDestroyed) {
-			throw Error('this.isDirty is no longer valid. Repository has been destroyed.');
+			this.throwError('this.isDirty is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		return !!this.getDirty().length;
 	}
@@ -1473,7 +1521,8 @@ export default class Repository extends EventEmitter {
 	 */
 	save = async (entity = null, useStaged = false) => {
 		if (this.isDestroyed) {
-			throw Error('this.save is no longer valid. Repository has been destroyed.');
+			this.throwError('this.save is no longer valid. Repository has been destroyed.');
+			return;
 		}
 
 		this.emit('beforeSave'); // So subclasses can prep anything needed for saving
@@ -1619,7 +1668,8 @@ export default class Repository extends EventEmitter {
 	 * @abstract
 	 */
 	_doBatchAdd(entities) { // standard function notation
-		throw new Error('_doBatchAdd must be implemented by Repository subclass');
+		this.throwError('_doBatchAdd must be implemented by Repository subclass');
+		return;
 	}
 
 	/**
@@ -1630,7 +1680,8 @@ export default class Repository extends EventEmitter {
 	 * @abstract
 	 */
 	_doAdd(entity) { // standard function notation
-		throw new Error('_doAdd must be implemented by Repository subclass');
+		this.throwError('_doAdd must be implemented by Repository subclass');
+		return;
 	}
 
 	/**
@@ -1641,7 +1692,8 @@ export default class Repository extends EventEmitter {
 	 * @abstract
 	 */
 	_doBatchEdit(entities) { // standard function notation
-		throw new Error('_doBatchEdit must be implemented by Repository subclass');
+		this.throwError('_doBatchEdit must be implemented by Repository subclass');
+		return;
 	}
 
 	/**
@@ -1652,7 +1704,8 @@ export default class Repository extends EventEmitter {
 	 * @abstract
 	 */
 	_doEdit(entity) { // standard function notation
-		throw new Error('_doEdit must be implemented by Repository subclass');
+		this.throwError('_doEdit must be implemented by Repository subclass');
+		return;
 	}
 
 	/**
@@ -1663,7 +1716,8 @@ export default class Repository extends EventEmitter {
 	 * @abstract
 	 */
 	_doBatchDelete(entities) { // standard function notation
-		throw new Error('_doBatchDelete must be implemented by Repository subclass');
+		this.throwError('_doBatchDelete must be implemented by Repository subclass');
+		return;
 	}
 
 	/**
@@ -1674,7 +1728,8 @@ export default class Repository extends EventEmitter {
 	 * @abstract
 	 */
 	_doDelete(entity) { // standard function notation
-		throw new Error('_doDelete must be implemented by Repository subclass');
+		this.throwError('_doDelete must be implemented by Repository subclass');
+		return;
 	}
 
 	/**
@@ -1710,7 +1765,8 @@ export default class Repository extends EventEmitter {
 	 */
 	delete = async (entities) => {
 		if (this.isDestroyed) {
-			throw Error('this.delete is no longer valid. Repository has been destroyed.');
+			this.throwError('this.delete is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		if (!entities) {
 			return false;
@@ -1873,6 +1929,26 @@ export default class Repository extends EventEmitter {
 		_.merge(this, options);
 	}
 
+	/**
+	 * Set error handler for this repository
+	 * @param {function} handler - the error handler
+	 */
+	setErrorHandler = (handler) => {
+		this.errorHandler = handler;
+	}
+
+
+	/**
+	 * Either generates an exception, or handles it with the repository's errorHandler
+	 * @param {string|object|bool} error - the error message
+	 */
+	throwError(obj) {
+		if (this.errorHandler) {
+			this.errorHandler(obj);
+		} else {
+			throw Error(obj);
+		}
+	}
 
 	/**
 	 * Destroy this object.
@@ -1904,7 +1980,8 @@ export default class Repository extends EventEmitter {
 	 */
 	getClassName = () => {
 		if (this.isDestroyed) {
-			throw Error('this.getClassName is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getClassName is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		return this.__proto__.constructor.className;
 	}
@@ -1919,7 +1996,8 @@ export default class Repository extends EventEmitter {
 	 */
 	getType = () => {
 		if (this.isDestroyed) {
-			throw Error('this.getClassName is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getClassName is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		return this.__proto__.constructor.type;
 	}
@@ -1930,7 +2008,8 @@ export default class Repository extends EventEmitter {
 
 	toString = () => {
 		if (this.isDestroyed) {
-			throw Error('this.toString is no longer valid. Repository has been destroyed.');
+			this.throwError('this.toString is no longer valid. Repository has been destroyed.');
+			return;
 		}
 		return this.getClassName() + 'Repository {' + this.name + '} - ' + this.id;
 	}
