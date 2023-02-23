@@ -358,6 +358,22 @@ describe('OneHatData', function() {
 		})();
 	});
 
+	it('setIsOnline', function() {
+		(async function() {
+			await beforeEach();
+
+			const oneHatData = this.oneHatData;
+
+			oneHatData.setIsOnline(true);
+			expect(oneHatData.isOnline).to.be.true;
+
+			oneHatData.setIsOnline(false);
+			expect(oneHatData.isOnline).to.be.false;
+
+			afterEach();
+		})();
+	});
+
 	it('isEntity', async function() {
 		(async function() {
 			await beforeEach();

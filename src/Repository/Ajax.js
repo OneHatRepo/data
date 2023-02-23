@@ -93,6 +93,13 @@ class AjaxRepository extends Repository {
 			 * @member {object} _baseParams - Params that will be applied to every request
 			 */
 			_baseParams: {},
+
+			/**
+			 * @member {boolean} isOnline - Whether the remote storage medium is available.
+			 * This must be managed by outside software, calling setIsOnline at appropriate times.
+			 * @private
+			 */
+			isOnline: true,
 			
 		};
 		_.merge(this, defaults, config);
@@ -800,6 +807,11 @@ class AjaxRepository extends Repository {
 			return;
 		}
 
+		if (!this.isOnline) {
+			this.throwError('Offline');
+			return;
+		}
+
 		const options = {
 				url,
 				method,
@@ -882,6 +894,10 @@ class AjaxRepository extends Repository {
 								this.emit('changeData', this.entities);
 							}
 						}));
+	}
+
+	setIsOnline = (isOnline) => {
+		this.isOnline = !!isOnline; // force convert type to boolean
 	}
 
 }

@@ -99,6 +99,11 @@ class OneBuildRepository extends AjaxRepository {
 			return;
 		}
 
+		if (!this.isOnline) {
+			this.throwError('Offline');
+			return;
+		}
+
 		const options = {
 				url,
 				method,
@@ -242,6 +247,12 @@ class OneBuildRepository extends AjaxRepository {
 	 * @return {Promise}
 	 */
 	reorder = (dragRecord, dropRecord, dropPosition) => {
+
+		if (!this.isOnline) {
+			this.throwError('Offline');
+			return;
+		}
+		
 		const data = {
 			url: 'reorder',
 			data: qs.stringify({
@@ -284,6 +295,11 @@ class OneBuildRepository extends AjaxRepository {
 	 */
 	login = (creds) => {
 
+		if (!this.isOnline) {
+			this.throwError('Offline');
+			return;
+		}
+
 		const data = {
 			url: 'apiLogin',
 			data: qs.stringify(creds),
@@ -317,9 +333,16 @@ class OneBuildRepository extends AjaxRepository {
 	 * @return {Promise}
 	 */
 	logout = () => {
+
+		if (!this.isOnline) {
+			this.throwError('Offline');
+			return;
+		}
+
 		if (this.debugMode) {
 			console.log('logout');
 		}
+
 		return this.axios({
 				url: 'Users/apiLogout',
 				method: 'POST',
@@ -341,6 +364,12 @@ class OneBuildRepository extends AjaxRepository {
 	}
 
 	forgotPassword = (email = null, username = null) => {
+
+		if (!this.isOnline) {
+			this.throwError('Offline');
+			return;
+		}
+
 		const data = {
 			url: 'forgotPassword',
 			data: qs.stringify({

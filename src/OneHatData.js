@@ -67,6 +67,14 @@ export class OneHatData extends EventEmitter {
 		 */
 		this.isDestroyed = false;
 
+		/**
+		 * @member {boolean} isOnline - Whether the remote Internet connection is active.
+		 * This must be managed by outside software, calling setIsOnline at appropriate times.
+		 * @private
+		 */
+		this.isOnline = true;
+
+
 		this.registerEvents([
 			'createRepository',
 			'deleteRepository',
@@ -603,6 +611,18 @@ export class OneHatData extends EventEmitter {
 			throw new Error('this.hasRepositoryWithId is no longer valid. OneHatData has been destroyed.');
 		}
 		return this.repositories && this.repositories.hasOwnProperty(id);
+	}
+
+	/**
+	 * Sets isOnline for all remote repositories.
+	 * Remote repositories won't submit queries if !isOnline
+	 */
+	setIsOnline = (isOnline) => {
+		this.isOnline = !!isOnline;
+		const remoteRepositories = oneHatData.getRepositoriesBy((repository) => !!repository.setIsOnline);
+		_.each(remoteRepositories, (repository) => {
+			repository.setIsOnline(isOnline);
+		});
 	}
 
 

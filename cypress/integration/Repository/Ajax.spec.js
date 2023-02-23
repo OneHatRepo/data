@@ -112,7 +112,7 @@ describe('OneBuildRepository', function() {
 			expect(_.size(this.repository.entities)).to.be.eq(1);
 		});
 
-		it.only('sortInMemory', function() {
+		it('sortInMemory', function() {
 
 			const repository = this.repository;
 
@@ -137,6 +137,17 @@ describe('OneBuildRepository', function() {
 			expect(entities[2].key).to.be.eq(1);
 			expect(entities[3].key).to.be.eq(4);
 			expect(entities[4].key).to.be.eq(5);
+		});
+
+		it('setIsOnline', function() {
+
+			const repository = this.repository;
+
+			repository.setIsOnline(true);
+			expect(repository.isOnline).to.be.true;
+
+			repository.setIsOnline(false);
+			expect(repository.isOnline).to.be.false;
 		});
 		
 	});
