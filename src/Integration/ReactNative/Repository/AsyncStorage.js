@@ -61,7 +61,7 @@ class AsyncStorageRepository extends OfflineRepository {
 			if (this.debugMode) {
 				console.log(this.name, 'AsyncStorage.multiGet', keys);
 			}
-
+			
 			const results = await AsyncStorage.multiGet(this._namespace(keys));
 
 			if (this.debugMode) {
@@ -71,7 +71,8 @@ class AsyncStorageRepository extends OfflineRepository {
 			const values = [];
 			if (!_.isNil(results)) {
 				const chunks = _.chunk(results, 400); // create chunks of 400, which we'll iterate through, so we don't get "Excessive number of pending callbacks" error
-				let i, n, thisChunk, promises, promise, parsed;
+				let i, n, thisChunk, promise, parsed,
+					promises = [];
 				for (i = 0; i < chunks.length; i++) { // iterate the chunks
 					thisChunk = chunks[i];
 					for (n = 0; n < thisChunk.length; n++) { // iterate the storage items
@@ -95,7 +96,9 @@ class AsyncStorageRepository extends OfflineRepository {
 						}
 					}
 
-					await Promise.all(promises);
+					if (promises.length) {
+						await Promise.all(promises);
+					}
 				}
 			}
 
@@ -204,7 +207,7 @@ class AsyncStorageRepository extends OfflineRepository {
 	}
 
 	clearAll = async () => {
-		await this.load([]);
+		return await this.load([]);
 	}
 
 	getAllKeys = async () => {
