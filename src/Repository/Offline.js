@@ -16,7 +16,14 @@ class OfflineRepository extends MemoryRepository {
 
 	constructor(config = {}) {
 		super(...arguments);
-		_.merge(this, config);
+		
+		const defaults = {
+
+			isAutoLoad: true,
+			isAutoSave: true,
+
+		};
+		_.merge(this, defaults, config);
 
 		this._index = null;
 	}

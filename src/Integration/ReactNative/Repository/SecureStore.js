@@ -3,7 +3,7 @@
  * and is subject to the terms and conditions defined in
  * file 'LICENSE.txt', which is part of this source code package.
  */
-import OfflineRepository from '@onehat/data/src/Repository/Offline.js';
+import OfflineRepository from '../../../Repository/Offline.js';
 import * as SecureStore from 'expo-secure-store'; // see: https://docs.expo.io/versions/latest/sdk/securestore/
 import _ from 'lodash';
 

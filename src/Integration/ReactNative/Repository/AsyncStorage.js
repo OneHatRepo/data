@@ -5,7 +5,7 @@
  */
 /** @module Repository */
 
-import OfflineRepository from '@onehat/data/src/Repository/Offline.js';
+import OfflineRepository from '../../../Repository/Offline.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import _ from 'lodash';
 
