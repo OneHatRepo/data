@@ -322,7 +322,7 @@ class OneBuildRepository extends AjaxRepository {
 				const response = result.data;
 				if (!response.success) {
 					this.throwError(response.data); // TODO: Fix back-end, so OneBuild submits the error message on response.message, not response.data
-					return;
+					return false;
 				}
 
 				const userData = response.data;
