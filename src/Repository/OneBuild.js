@@ -134,7 +134,9 @@ class OneBuildRepository extends AjaxRepository {
 							return false;
 						}
 						// END MOD
-						this.emit('connectionError', error);
+						
+						this.throwError(error);
+						return;
 					});
 	}
 

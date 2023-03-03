@@ -132,7 +132,6 @@ class AjaxRepository extends Repository {
 
 		this.registerEvents([
 			'beforeLoad',
-			'connectionError',
 		]);
 
 		// Respond to Repository events
@@ -836,7 +835,8 @@ class AjaxRepository extends Repository {
 							console.log(url + ' error', error);
 							console.log('response:', error.response);
 						}
-						this.emit('connectionError', error);
+						this.throwError(error);
+						return;
 					});
 	}
 
