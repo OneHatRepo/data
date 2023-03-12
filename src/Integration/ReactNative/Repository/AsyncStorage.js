@@ -207,7 +207,8 @@ class AsyncStorageRepository extends OfflineRepository {
 	}
 
 	clearAll = async () => {
-		return await this.load([]);
+		await this.load([]);
+		await this.clearLastSync();
 	}
 
 	getAllKeys = async () => {

@@ -407,6 +407,15 @@ class OfflineRepository extends MemoryRepository {
 		await this._storageSetValue(LAST_SYNC, date);
 	}
 
+
+	/**
+	 * Clears the date when this Repository was last synced with remote.
+	 * Used when this is the "local" side of a LocalFromRemoteRepository
+	 */
+	clearLastSync = async () => {
+		await this._storageDeleteValue(LAST_SYNC);
+	}
+
 };
 
 OfflineRepository.className = 'Offline';
