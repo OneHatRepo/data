@@ -256,7 +256,7 @@ class OneBuildRepository extends AjaxRepository {
 		}
 		
 		const data = {
-			url: 'reorder',
+			url: this.name + '/reorder',
 			data: qs.stringify({
 				ids: dragRecord.id,
 				dropPosition,
