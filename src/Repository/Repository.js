@@ -87,6 +87,17 @@ export default class Repository extends EventEmitter {
 			isRemoteSort: false,
 
 			/**
+			 * @member {boolean} isRemotePhantomMode - Whether this Repository uses the "alternate" CRUD mode.
+			 * In this CRUD mode, records are *immediately* saved to server when added to Repository,
+			 * but still marked as "phantom" until the their first "edit" operation takes place.
+			 * 
+			 * This mode overrides repository.isAutoSave, entity.isPersisted, && entity.isDelayedSave.
+			 * 
+			 * @readonly
+			 */
+			isRemotePhantomMode: false,
+
+			/**
 			 * @member {boolean} isPaginated - Whether this Repository is paginated
 			 */
 			isPaginated: false,
@@ -297,7 +308,7 @@ export default class Repository extends EventEmitter {
 		const methodDefinitions = this.schema.repository.methods || this.originalConfig.methods; // The latter is mainly for lfr repositories
 		if (!_.isEmpty(methodDefinitions)) {
 			_.each(methodDefinitions, (method, name) => {
-				this[name] = method; // NOTE: Methods must be defined in schema as "function() {}", not as "() => {}" so "this" will be assigned correctly
+				this[name] = method; // NOTE: Methods must be defined in schema as "function() {}", not as "() => {}" so scope of "this" will be correct
 			});
 		}
 	}
@@ -983,13 +994,13 @@ export default class Repository extends EventEmitter {
 		this.entities.push(entity);
 
 		// Create id if needed
-		if (entity.isPhantom) { // i.e. idProperty has no value
+		if (!this.isRemotePhantomMode && entity.isPhantom) {
 			entity.createTempId();
 		}
 
 		this.emit('add', entity);
 
-		if (this.isAutoSave && !entity.isPersisted && !entity.isDelayedSave) {
+		if (this.isRemotePhantomMode || (this.isAutoSave && !entity.isPersisted && !entity.isDelayedSave)) {
 			await this.save(entity);
 		}
 
@@ -998,14 +1009,20 @@ export default class Repository extends EventEmitter {
 
 	/**
 	 * Creates a new static Entity that does NOT persist in storage medium.
+	 * Used when we want to work with an entity, but don't want that entity to appear in a repository.
 	 * @param {object} data - Either raw data object or Entity. If raw data, keys are Property names, Values are Property values.
 	 * @param {boolean} isPersisted - Whether the new entity should be marked as already being persisted in storage medium.
 	 * @param {boolean} originalIsMapped - Has data already been mapped according to schema?
+	 * @param {boolean} isDelayedSave - Should the repository skip autosave when immediately adding the record?
 	 * @return {object} entity - new Entity object
 	 */
 	createStandaloneEntity = async (data, isPersisted = false, originalIsMapped = false, isDelayedSave = false) => {
 		if (this.isDestroyed) {
 			this.throwError('this.createStandaloneEntity is no longer valid. Repository has been destroyed.');
+			return;
+		}
+		if (this.isRemotePhantomMode) {
+			this.throwError('This repository uses isRemotePhantomMode, and therefore cannot create standalone entities.');
 			return;
 		}
 		
@@ -1029,6 +1046,7 @@ export default class Repository extends EventEmitter {
 	 * Convenience function to create multiple new Entities in storage medium.
 	 * @param {array} data - Array of data objects or Entities. 
 	 * @param {boolean} isPersisted - Whether the new entities should be marked as already being persisted in storage medium.
+	 * @param {boolean} originalIsMapped - Has data already been mapped according to schema?
 	 * @return {array} entities - new Entity objects
 	 */
 	addMultiple = async (allData, isPersisted = false, originalIsMapped = false) => {
@@ -1052,11 +1070,13 @@ export default class Repository extends EventEmitter {
 	 * @param {object} rawData - Raw data object. Keys are Property names, Values are Property values.
 	 * @param {boolean} repository - Optional repository to connect the entity to.
 	 * @param {boolean} isPersisted - Whether the new entity should be marked as already being persisted in storage medium.
+	 * @param {boolean} originalIsMapped - Has data already been mapped according to schema?
+	 * @param {boolean} isDelayedSave - Should the repository skip autosave when immediately adding the record?
 	 * @return {object} entity - new Entity object
 	 * @private
 	 */
 	static _createEntity = (schema, rawData, repository = null, isPersisted = false, originalIsMapped = false, isDelayedSave = false) => {
-		const entity = new Entity(schema, rawData, repository, originalIsMapped, isDelayedSave);
+		const entity = new Entity(schema, rawData, repository, originalIsMapped, isDelayedSave, this.isRemotePhantomMode);
 		entity.initialize();
 		entity.isPersisted = isPersisted;
 		return entity;

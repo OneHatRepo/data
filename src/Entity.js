@@ -32,9 +32,10 @@ class Entity extends EventEmitter {
 	 * @param {Schema} schema - Schema object
 	 * @param {object} rawData - Raw data object. Keys are Property names, Values are Property values.
 	 * @param {Repository} repository
-	 * @param {boolean} - Has rawData already been mapped according to schema?
+	 * @param {boolean} originalIsMapped - Has data already been mapped according to schema?
+	 * @param {boolean} isDelayedSave - Should the repository skip autosave when immediately adding the record?
 	 */
-	constructor(schema, rawData = {}, repository = null, originalIsMapped = false, isDelayedSave = false) {
+	constructor(schema, rawData = {}, repository = null, originalIsMapped = false, isDelayedSave = false, isRemotePhantomMode = false) {
 		super(...arguments);
 
 		if (!schema) {
@@ -133,10 +134,25 @@ class Entity extends EventEmitter {
 		this.isDestroyed = false;
 
 		/**
-		 * @member {boolean} isFrozen - Prevent the entity from being saved, so an editor can change it before it gets saved to remote storage.
+		 * @member {boolean} isFrozen - Prevent the entity from being autoSaved on add, so an editor can change it before it gets saved to remote storage.
 		 * @public
 		 */
 		this.isDelayedSave = isDelayedSave;
+
+		/**
+		 * @member {boolean} isRemotePhantomMode - Whether this Entity uses the "alternate" CRUD mode, with tempIds from server (see OneBuild repository)
+		 * On a Repository, this mode overrides repository.isAutoSave, entity.isPersisted, && entity.isDelayedSave.
+		 * On an Entity, this mode affects the isPhantom getter.
+		 * @readonly
+		 */
+		this.isRemotePhantomMode = isRemotePhantomMode;
+
+		/**
+		 * @member {boolean} isRemotePhantom - Whether this entity is actually phantom on server; used only when this.isRemotePhantomMode.
+		 * If this.isRemotePhantomMode, isRemotePhantom defaults to true for all new Entities.
+		 * @public
+		 */
+		this.isRemotePhantom = this.isRemotePhantomMode;
 
 		/**
 		 * @member {boolean} lastModified - Last time this entity was modified
@@ -945,9 +961,15 @@ class Entity extends EventEmitter {
 		if (this.isDestroyed) {
 			throw Error('this.isPhantom is no longer valid. Entity has been destroyed.');
 		}
-		const idProperty = this.getIdProperty(),
-			id = idProperty.getSubmitValue();
 
+		if (this.isRemotePhantomMode) {
+			return this.isRemotePhantom;
+		}
+		
+		const
+			idProperty = this.getIdProperty(),
+			id = idProperty.getSubmitValue();
+		
 		// No ID
 		if (_.isNil(id)) {
 			return true;
