@@ -988,7 +988,7 @@ export default class Repository extends EventEmitter {
 		let entity = data;
 		if (!(data instanceof Entity)) {
 			// Create the new entity
-			entity = Repository._createEntity(this.schema, data, this, isPersisted, originalIsMapped, isDelayedSave);
+			entity = Repository._createEntity(this.schema, data, this, isPersisted, originalIsMapped, isDelayedSave, this.isRemotePhantomMode);
 		}
 		this._relayEntityEvents(entity);
 		this.entities.push(entity);
@@ -1026,7 +1026,7 @@ export default class Repository extends EventEmitter {
 			return;
 		}
 		
-		const entity = Repository._createEntity(this.schema, data, this, isPersisted, originalIsMapped, isDelayedSave);
+		const entity = Repository._createEntity(this.schema, data, this, isPersisted, originalIsMapped, isDelayedSave, this.isRemotePhantomMode);
 
 		if (entity.isPhantom) {
 			entity.createTempId();
@@ -1075,8 +1075,8 @@ export default class Repository extends EventEmitter {
 	 * @return {object} entity - new Entity object
 	 * @private
 	 */
-	static _createEntity = (schema, rawData, repository = null, isPersisted = false, originalIsMapped = false, isDelayedSave = false) => {
-		const entity = new Entity(schema, rawData, repository, originalIsMapped, isDelayedSave, this.isRemotePhantomMode);
+	static _createEntity = (schema, rawData, repository = null, isPersisted = false, originalIsMapped = false, isDelayedSave = false, isRemotePhantomMode = false) => {
+		const entity = new Entity(schema, rawData, repository, originalIsMapped, isDelayedSave, isRemotePhantomMode);
 		entity.initialize();
 		entity.isPersisted = isPersisted;
 		return entity;
