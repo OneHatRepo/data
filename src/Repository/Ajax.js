@@ -223,7 +223,7 @@ class AjaxRepository extends Repository {
 			const first = matches[1],
 				second = matches[2];
 			if (paramsToChange && !paramsToChange.hasOwnProperty(first)) {
-				paramsToChange[first] = [];
+				paramsToChange[first] = {};
 			}
 			if (_.isNil(value) && paramsToChange[first] && paramsToChange[first].hasOwnProperty(second)) {
 				delete paramsToChange[first][second];
