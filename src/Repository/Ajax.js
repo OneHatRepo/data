@@ -306,7 +306,7 @@ class AjaxRepository extends Repository {
 		if (clearBase) {
 			this._baseParams = {};
 		}
-		if (reload && this.isLoaded) {
+		if (reload && this.isLoaded && !this.eventsPaused) {
 			return this.reload();
 		}
 	}
@@ -321,7 +321,7 @@ class AjaxRepository extends Repository {
 		this.setBaseParam(this.paramSort, sorter.name);
 		this.setBaseParam(this.paramDirection, sorter.direction);
 		
-		if (this.isLoaded) {
+		if (this.isLoaded && !this.eventsPaused) {
 			return this.reload();
 		}
 	}
@@ -335,7 +335,7 @@ class AjaxRepository extends Repository {
 			this.setParam(name, value);
 		});
 
-		if (this.isLoaded) {
+		if (this.isLoaded && !this.eventsPaused) {
 			return this.reload();
 		}
 	}
@@ -348,7 +348,7 @@ class AjaxRepository extends Repository {
 		this.setBaseParam(this.paramPageNum, this.page);
 		this.setBaseParam(this.paramPageSize, this.pageSize);
 
-		if (this.isLoaded) {
+		if (this.isLoaded && !this.eventsPaused) {
 			return this.reload();
 		}
 	}
@@ -927,10 +927,12 @@ class AjaxRepository extends Repository {
 							this.emit('save', batchOperationResults);
 
 							// Do we need to reload?
-							if (this._operations.add || this._operations.delete) {
-								this.reload();
-							} else {
-								this.emit('changeData', this.entities);
+							if (!this.eventsPaused) {
+								if (this._operations.add || this._operations.delete) {
+									this.reload();
+								} else {
+									this.emit('changeData', this.entities);
+								}
 							}
 						}));
 	}

@@ -171,7 +171,7 @@ class OneBuildRepository extends AjaxRepository {
 			}
 		});
 
-		if (this.isLoaded && this.isAutoLoad) {
+		if (this.isLoaded && this.isAutoLoad && !this.eventsPaused) {
 			return this.reload();
 		}
 	}
@@ -191,12 +191,14 @@ class OneBuildRepository extends AjaxRepository {
 			this.setBaseParam('order', sorterStrings.join(','));
 		}
 		
-		if (this.isLoaded && this.isAutoLoad) {
-			return this.reload().then(() => {
+		if (!this.eventsPaused) {
+			if (this.isLoaded && this.isAutoLoad) {
+				return this.reload().then(() => {
+					this.emit('changeSorters');
+				});
+			} else {
 				this.emit('changeSorters');
-			});
-		} else {
-			this.emit('changeSorters');
+			}
 		}
 	}
 
