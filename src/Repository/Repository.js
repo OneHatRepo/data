@@ -1286,7 +1286,7 @@ export default class Repository extends EventEmitter {
 		if (!entities) {
 			entities = this.entities;
 		}
-		return _.filter(this.entities, entity => entity.isPhantom);
+		return _.filter(this.entities, entity => entity.isPhantom && !entity.isSaving);
 	}
 
 	/**
@@ -1296,13 +1296,13 @@ export default class Repository extends EventEmitter {
 	 */
 	getNonPersisted = (entities = null) => {
 		if (this.isDestroyed) {
-			this.throwError('this.getDirty is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getNonPersisted is no longer valid. Repository has been destroyed.');
 			return;
 		}
 		if (!entities) {
 			entities = this.entities;
 		}
-		return _.filter(this.entities, entity => !entity.isPersisted);
+		return _.filter(this.entities, entity => !entity.isPersisted && !entity.isSaving);
 	}
 
 	/**
@@ -1355,7 +1355,7 @@ export default class Repository extends EventEmitter {
 		if (!entities) {
 			entities = this.entities;
 		}
-		return _.filter(entities, entity => entity.isDirty);
+		return _.filter(entities, entity => entity.isDirty && !entity.isSaving);
 	}
 
 	/**
@@ -1387,7 +1387,7 @@ export default class Repository extends EventEmitter {
 		if (!entities) {
 			entities = this.entities;
 		}
-		return _.filter(entities, entity => entity.isStaged);
+		return _.filter(entities, entity => entity.isStaged && !entity.isSaving);
 	}
 
 	/**

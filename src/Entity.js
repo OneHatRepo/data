@@ -105,7 +105,7 @@ class Entity extends EventEmitter {
 
 		/**
 		 * @member {boolean} isPersisted - Whether this object has been persisted in a storage medium
-		 * @private
+		 * @public
 		 */
 		this.isPersisted = false;
 		
@@ -117,15 +117,21 @@ class Entity extends EventEmitter {
 
 		/**
 		 * @member {boolean} isDeleted - Whether this object has been marked for deletion
-		 * @private
+		 * @public
 		 */
 		this.isDeleted = false;
 
 		/**
 		 * @member {boolean} isStaged - Whether this object has been marked for saving
-		 * @private
+		 * @public
 		 */
 		this.isStaged = false;
+
+		/**
+		 * @member {boolean} isSaving - Whether this object is in the process of saving
+		 * @public
+		 */
+		this.isSaving = false;
 
 		/**
 		 * @member {boolean} isDestroyed - Whether this object has been destroyed
@@ -143,6 +149,7 @@ class Entity extends EventEmitter {
 		 * @member {boolean} isRemotePhantomMode - Whether this Entity uses the "alternate" CRUD mode, with tempIds from server (see OneBuild repository)
 		 * On a Repository, this mode overrides repository.isAutoSave, entity.isPersisted, && entity.isDelayedSave.
 		 * On an Entity, this mode affects the isPhantom getter.
+		 * @public
 		 * @readonly
 		 */
 		this.isRemotePhantomMode = isRemotePhantomMode;
@@ -1293,7 +1300,7 @@ class Entity extends EventEmitter {
 	}
 
 	/**
-	 * Marks an entity as having been saved to storage medium.
+	 * Marks an entity for deletion.
 	 * @param {boolean} bool - How it should be marked. Defaults to true.
 	 */
 	markDeleted = (bool = true) => {

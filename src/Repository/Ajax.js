@@ -532,6 +532,7 @@ class AjaxRepository extends Repository {
 		}
 
 		this._operations.add = true;
+		entity.isSaving = true;
 
 		const
 			method = this.methods.add,
@@ -553,6 +554,8 @@ class AjaxRepository extends Repository {
 							total,
 							message
 						} = this._processServerResponse(result);
+
+						entity.isSaving = false;
 
 						if (!success) {
 							this.throwError(message);
@@ -590,6 +593,7 @@ class AjaxRepository extends Repository {
 					if (entity.isRemotePhantomMode) {
 						values.isRemotePhantom = true;
 					}
+					entity.isSaving = true;
 					return values;
 				}),
 			};
@@ -605,6 +609,10 @@ class AjaxRepository extends Repository {
 							total,
 							message
 						} = this._processServerResponse(result);
+
+						_.each(entities, (entity) => {
+							entity.isSaving = false;
+						});
 
 						if (!success) {
 							this.throwError(message);
@@ -634,6 +642,7 @@ class AjaxRepository extends Repository {
 		}
 
 		this._operations.edit = true;
+		entity.isSaving = true;
 
 		const
 			method = this.methods.edit,
@@ -655,6 +664,8 @@ class AjaxRepository extends Repository {
 							total,
 							message
 						} = this._processServerResponse(result);
+
+						entity.isSaving = false;
 
 						if (!success) {
 							this.throwError(message);
@@ -692,6 +703,7 @@ class AjaxRepository extends Repository {
 					if (entity.isRemotePhantomMode) {
 						values.isRemotePhantom = false;
 					}
+					entity.isSaving = true;
 					return values;
 				}),
 			};
@@ -707,6 +719,10 @@ class AjaxRepository extends Repository {
 							total,
 							message
 						} = this._processServerResponse(result);
+
+						_.each(entities, (entity) => {
+							entity.isSaving = false;
+						});
 
 						if (!success) {
 							this.throwError(message);
@@ -736,6 +752,7 @@ class AjaxRepository extends Repository {
 		}
 
 		this._operations.delete = true;
+		entity.isSaving = true;
 
 		const
 			method = this.methods.delete,
@@ -753,6 +770,8 @@ class AjaxRepository extends Repository {
 							total,
 							message
 						} = this._processServerResponse(result);
+
+						entity.isSaving = false;
 						
 						if (!success) {
 							this.throwError(message);
@@ -784,7 +803,10 @@ class AjaxRepository extends Repository {
 		const
 			method = this.methods.delete,
 			url = this.api.batchDelete,
-			ids = _.map(entities, entity => entity.id),
+			ids = _.map(entities, (entity) => {
+				entity.isSaving = true;
+				return entity.id;
+			}),
 			data = { ids, };
 
 		return this._send(method, url, data)
@@ -799,6 +821,10 @@ class AjaxRepository extends Repository {
 							message
 						} = this._processServerResponse(result);
 						
+						_.each(entities, (entity) => {
+							entity.isSaving = false;
+						});
+
 						if (!success) {
 							this.throwError(message);
 							return;
