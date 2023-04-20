@@ -991,7 +991,7 @@ export default class Repository extends EventEmitter {
 			entity = Repository._createEntity(this.schema, data, this, isPersisted, originalIsMapped, isDelayedSave, this.isRemotePhantomMode);
 		}
 		this._relayEntityEvents(entity);
-		this.entities.push(entity);
+		this.entities.unshift(entity);
 
 		// Create id if needed
 		if (!this.isRemotePhantomMode && entity.isPhantom) {
