@@ -780,7 +780,7 @@ class AjaxRepository extends Repository {
 
 						// Delete it from this.entities
 						const id = entity.id;
-						this.entities = _.omitBy(this.entities, (entity) => entity.id === id);
+						this.entities = _.filter(this.entities, (entity) => entity.id === id);
 						entity.destroy();
 					});
 	}
