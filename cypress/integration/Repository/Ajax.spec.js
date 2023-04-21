@@ -38,6 +38,15 @@ describe('OneBuildRepository', function() {
 			expect(r._params.test).to.be.eq(1);
 		});
 
+		it('hasParam', function() {
+			const r = this.repository;
+			r.setParam('test', 1);
+
+			const result = r.hasParam('test');
+
+			expect(result).to.be.true;
+		});
+
 		it('setParams', function() {
 			const r = this.repository;
 			r.setParams({
@@ -54,6 +63,15 @@ describe('OneBuildRepository', function() {
 			r.setBaseParam('test', 1);
 
 			expect(r._baseParams.test).to.be.eq(1);
+		});
+
+		it('hasBaseParam', function() {
+			const r = this.repository;
+			r.setBaseParam('test', 1);
+
+			const result = r.hasBaseParam('test');
+
+			expect(result).to.be.true;
 		});
 
 		it('setBaseParams', function() {

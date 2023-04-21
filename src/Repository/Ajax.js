@@ -278,6 +278,22 @@ class AjaxRepository extends Repository {
 	}
 
 	/**
+	 * Determines if base query param exists
+	 * @param {string} name - Param name
+	 */
+	hasBaseParam = (name) => {
+		return this._baseParams.hasOwnProperty(name);
+	}
+
+	/**
+	 * Determines if query param exists
+	 * @param {string} name - Param name
+	 */
+	hasParam = (name) => {
+		return this._params.hasOwnProperty(name);
+	}
+
+	/**
 	 * Sets base query param
 	 * @param {string} name - Param name to set.
 	 * @param {any} value - Param value to set.
