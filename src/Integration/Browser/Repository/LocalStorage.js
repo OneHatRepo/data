@@ -1,6 +1,6 @@
 /** @module Repository */
 
-import OfflineRepository from './Offline';
+import OfflineRepository from '@onehat/data/src/Repository/Offline.js';
 import store from 'store2'; // see: https://github.com/nbubna/store#readme
 import _ from 'lodash';
 
@@ -25,26 +25,73 @@ class LocalStorageRepository extends OfflineRepository {
 	}
 
 	_storageGetValue = (name) => {
-		const result = this._store(name);
-		let value;
 		try {
-			value = JSON.parse(result);
-		} catch (e) {
-			// Invalid JSON, just return raw result
-			value = result;
+			
+			if (this.debugMode) {
+				console.log(this.name, 'LocalStorage.get', name);
+			}
+
+			const result = this._store(name);
+			
+			if (this.debugMode) {
+				console.log(this.name, 'LocalStorage.get results', name, result);
+			}
+
+			let value = null;
+			if (!_.isNil(result)) {
+				try {
+					value = JSON.parse(result);
+				} catch (e) {
+					// Invalid JSON, just return raw result
+					value = result;
+				}
+			}
+			return value;
+		} catch (error) {
+			if (this.debugMode) {
+				const msg = error && error.message;
+				debugger;
+			}
 		}
-		return value;
 	}
 
 	_storageSetValue = (name, value) => {
-		if (!_.isString(value)) {
-			value = JSON.stringify(value);
+		try {
+			if (this.debugMode) {
+				console.log(this.name, 'LocalStorage.set', name, value);
+			}
+			if (!_.isString(value)) {
+				value = JSON.stringify(value);
+			}
+
+			return this._store(name, value);
+
+		} catch (error) {
+			if (this.debugMode) {
+				const msg = error && error.message;
+				debugger;
+			}
 		}
-		return this._store(name, value);
 	}
 
 	_storageDeleteValue = (name) => {
-		return this._store.remove(name);
+		try {
+			if (_.isNil(name) || (_.isString(name) && name === '')) {
+				return;
+			}
+
+			if (this.debugMode) {
+				console.log(this.name, 'LocalStorage.delete', name);
+			}
+
+			return this._store.remove(name);
+
+		} catch (error) {
+			if (this.debugMode) {
+				const msg = error && error.message;
+				debugger;
+			}
+		}
 	}
 
 	_clearAll = () => {

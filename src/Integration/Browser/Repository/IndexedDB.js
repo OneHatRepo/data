@@ -1,6 +1,6 @@
 /** @module Repository */
 
-import OfflineRepository from './Offline';
+import OfflineRepository from '@onehat/data/src/Repository/Offline.js';
 import IDBStorage from 'idbstorage';
 import _ from 'lodash';
 

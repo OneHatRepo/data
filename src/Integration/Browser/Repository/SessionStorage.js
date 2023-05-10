@@ -1,6 +1,6 @@
 /** @module Repository */
 
-import OfflineRepository from './Offline';
+import OfflineRepository from '@onehat/data/src/Repository/Offline.js';
 import store from 'store2'; // see: https://github.com/nbubna/store#readme
 import _ from 'lodash';
 
