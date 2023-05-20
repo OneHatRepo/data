@@ -1,7 +1,7 @@
 /** @module Repository */
 
 import Repository from './Repository.js';
-import Entity from '../Entity.js';
+import Entity from '../Entity/Entity.js';
 import _ from 'lodash';
 
 /**

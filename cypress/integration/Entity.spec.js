@@ -1,6 +1,6 @@
 import Joi from 'Joi';
 import * as yup from 'yup';
-import Entity from '../../src/Entity.js';
+import Entity from '../../src/Entity/Entity.js';
 import Schema from '../../src/Schema/index.js';
 import PropertyTypes from '../../src/Property/index.js';
 

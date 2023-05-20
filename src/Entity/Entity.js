@@ -1,7 +1,7 @@
 /** @module Entity */
 
 import EventEmitter from '@onehat/events';
-import PropertyTypes from './Property/index.js';
+import PropertyTypes from '../Property/index.js';
 import moment from 'moment';
 import _ from 'lodash';
 
@@ -102,6 +102,11 @@ class Entity extends EventEmitter {
 		 * @public
 		 */
 		this.properties = [];
+
+		/**
+		 * @member {boolean} isTreeNode - Whether this Entity is a TreeNode
+		 */
+		this.isTreeNode = false;
 
 		/**
 		 * @member {boolean} isPersisted - Whether this object has been persisted in a storage medium
@@ -217,7 +222,7 @@ class Entity extends EventEmitter {
 		return this._proxy; // Return the Proxy, not 'this'
 	}
 
-	initialize = () => {
+	initialize() {
 		this.properties = this._createProperties();
 		this._createMethods();
 		this._createStatics();
@@ -311,7 +316,8 @@ class Entity extends EventEmitter {
 				definition = _.clone(definition); // Clone it so you don't alter original in schema
 				definition.mapping = definition.name;
 			}
-			const Property = PropertyTypes[type],
+			const
+				Property = PropertyTypes[type],
 				property = new Property(definition, this._proxy);
 			property.on('change', this._onPropertyChange);
 			
@@ -748,7 +754,8 @@ class Entity extends EventEmitter {
 			obj[property.name] = property.rawValue;
 			return obj;
 		}
-		const mapStack = property.mapping.split('.'),
+		const
+			mapStack = property.mapping.split('.'),
 			rawValue = property.getRawValue();
 
 		// Build up the hierarchy
@@ -806,7 +813,8 @@ class Entity extends EventEmitter {
 	 * @return {array|boolean} diff - Array of property names that have changed, or false
 	 */
 	getChanged = () => {
-		const original = this._originalDataParsed,
+		const
+			original = this._originalDataParsed,
 			current = this.getParsedRawValues(),
 			diff = Object.keys(original).reduce((result, key) => { // from https://stackoverflow.com/a/40610459/9163076
 				if (current && !current.hasOwnProperty(key)) {
@@ -826,7 +834,8 @@ class Entity extends EventEmitter {
 	 * @return {object} changedPropertyValues - Object representing each changed field and both its original and current value
 	 */
 	getChangedValues = () => {
-		const original = this._originalDataParsed,
+		const
+			original = this._originalDataParsed,
 			current = this.getRawValues(),
 			names = this.getChanged();
 		const changedPropertyValues = {};
@@ -870,9 +879,7 @@ class Entity extends EventEmitter {
 		if (this.isDestroyed) {
 			throw Error('this.getIdProperty is no longer valid. Entity has been destroyed.');
 		}
-		const schema = this.getSchema(),
-			model = schema.model,
-			idProperty = model && model.idProperty ? model.idProperty : null;
+		const idProperty = this.getSchema().model?.idProperty || null;
 		if (!idProperty) {
 			throw new Error('No idProperty found for ' + schema.name);
 		}
@@ -926,7 +933,8 @@ class Entity extends EventEmitter {
 		if (this.isDestroyed) {
 			throw Error('this.getDisplayProperty is no longer valid. Entity has been destroyed.');
 		}
-		const schema = this.getSchema(),
+		const
+			schema = this.getSchema(),
 			model = schema.model,
 			displayProperty = model && model.displayProperty ? model.displayProperty : null;
 		if (!displayProperty) {

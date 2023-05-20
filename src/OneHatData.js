@@ -2,7 +2,7 @@
 
 import EventEmitter from '@onehat/events';
 import CoreRepositoryTypes from './Repository/index.js';
-import Entity from './Entity.js';
+import Entity from './Entity/Entity.js';
 import {
 	MODE_LOCAL_MIRROR,
 	MODE_COMMAND_QUEUE,

@@ -1,7 +1,7 @@
 /** @module Repository */
 
 import EventEmitter from '@onehat/events';
-import Entity from '../Entity.js'
+import Entity from '../Entity/Entity.js'
 import PropertyTypes from '../Property/index.js';
 import {
 	v4 as uuid,

@@ -1,5 +1,5 @@
 import PropertyTypes from '../../../src/Property/index.js';
-import Entity from '../../../src/Entity.js';
+import Entity from '../../../src/Entity/Entity.js';
 import Schema from '../../../src/Schema/index.js';
 
 describe('Property', function() {
