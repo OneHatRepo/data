@@ -69,6 +69,12 @@ export default class Repository extends EventEmitter {
 			isLocal: false,
 
 			/**
+			 * @member {boolean} isTree - Whether this Repository contains TreeNodes
+			 * @readonly
+			 */
+			isTree: false,
+
+			/**
 			 * @member {boolean} isRemote - Whether this Repository saves its data to remote permanent storage
 			 * @readonly
 			 */

@@ -38,17 +38,12 @@ class TreeNode extends Entity {
 		/**
 		 * @member {array} children - Contains any children of this TreeNode
 		 */
-		this.children = [];
+		this.children = this._originalData.children && !_.isEmpty(this._originalData.children) ? this._originalData.children : [];
 		
 		/**
 		 * @member {boolean} isChildrenLoaded - Whether child TreeNodes have loaded for this TreeNode
 		 */
-		this.isChildrenLoaded = false;
-
-
-		// UI State
-		this.isVisible = false;
-		this.isExpanded = false;
+		this.isChildrenLoaded = this._originalData.isChildrenLoaded || false;
 	}
 
 	/**
@@ -152,15 +147,19 @@ class TreeNode extends Entity {
 		return this.children;
 	}
 
-	//////////////
-	loadChidren = async () => {
+	loadChildren = async () => {
 		if (this.isDestroyed) {
-			throw Error('this.loadChidren is no longer valid. TreeNode has been destroyed.');
+			throw Error('this.loadChildren is no longer valid. TreeNode has been destroyed.');
 		}
-		this.children = await this.repository.loadChildTreeNodes(this); // populates the children with a reference to this in child.parent
-		this.isChildrenLoaded = true;
+		if (this.repository.loadChildren) {
+			this.children = await this.repository.loadChildren(this); // populates the children with a reference to this in child.parent
+			this.isChildrenLoaded = true;
+		}
 	}
-	//////////////
+
+	reloadChildren = () => { // alias
+		return this.loadChildren();
+	}
 
 	getPrevousSibling = async () => {
 		if (this.isDestroyed) {
