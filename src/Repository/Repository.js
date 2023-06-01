@@ -69,12 +69,6 @@ export default class Repository extends EventEmitter {
 			isLocal: false,
 
 			/**
-			 * @member {boolean} isTree - Whether this Repository contains TreeNodes
-			 * @readonly
-			 */
-			isTree: false,
-
-			/**
 			 * @member {boolean} isRemote - Whether this Repository saves its data to remote permanent storage
 			 * @readonly
 			 */
@@ -114,7 +108,7 @@ export default class Repository extends EventEmitter {
 			 */
 			pageSize: 10,
 
-			sorters: (schema && schema.model && schema.model.sorters) ? schema.model.sorters : [],
+			sorters: schema.model.sorters || [],
 
 			/**
 			 * @member {string} batchOrder - Comma-separated ordering of add, edit, and delete batch operations
@@ -195,22 +189,28 @@ export default class Repository extends EventEmitter {
 		this.total = 0;
 
 		/**
-		 * @member {Boolean} isFiltered - State: whether or not any filters are currently applied to entities
+		 * @member {boolean} isFiltered - State: whether or not any filters are currently applied to entities
 		 */
 		this.isFiltered = false;
 		
 		/**
-		 * @member {Boolean} isInitialized - State: whether or not this repository has been completely initialized
+		 * @member {boolean} isInitialized - State: whether or not this repository has been completely initialized
 		 */
 		this.isInitialized = false;
 
 		/**
-		 * @member {Boolean} isLoaded - State: whether or not entities have been loaded at least once
+		 * @member {boolean} isTree - Whether this Repository contains TreeNodes
+		 * @readonly
+		 */
+		this.isTree = schema.model.isTree || false;
+
+		/**
+		 * @member {boolean} isLoaded - State: whether or not entities have been loaded at least once
 		 */
 		this.isLoaded = false;
 
 		/**
-		 * @member {Boolean} isLoading - State: whether or not entities are currently being loaded
+		 * @member {boolean} isLoading - State: whether or not entities are currently being loaded
 		 */
 		this.isLoading = false;
 
@@ -220,12 +220,12 @@ export default class Repository extends EventEmitter {
 		this.lastLoaded = null;
 
 		/**
-		 * @member {Boolean} isSaving - State: whether or not entities are currently being saved
+		 * @member {boolean} isSaving - State: whether or not entities are currently being saved
 		 */
 		this.isSaving = false;
 
 		/**
-		 * @member {Boolean} isSorted - State: whether or not any sorting is currently applied to entities
+		 * @member {boolean} isSorted - State: whether or not any sorting is currently applied to entities
 		 */
 		this.isSorted = false;
 
@@ -418,7 +418,7 @@ export default class Repository extends EventEmitter {
 	// /____/\____/_/   \__/
 
 	/**
-	 * @member {Boolean} hasSorters - Whether or not any sorters are applied
+	 * @member {boolean} hasSorters - Whether or not any sorters are applied
 	 */
 	get hasSorters() {
 		if (this.isDestroyed) {
@@ -507,22 +507,20 @@ export default class Repository extends EventEmitter {
 			return;
 		}
 		let sorters = [];
-		if (this.schema?.model) {
-			if (_.size(this.schema.model.sorters) > 0) {
-				sorters = this.schema.model.sorters
-			} else if (!_.isNil(this.schema.model.sortProperty)) {
-				sorters = [{
-					name: this.schema.model.sortProperty,
-					direction: 'ASC',
-					fn: 'default',
-				}];
-			} else if (!_.isNil(this.schema.model.displayProperty)) {
-				sorters = [{
-					name: this.schema.model.displayProperty,
-					direction: 'ASC',
-					fn: 'default',
-				}];
-			}
+		if (_.size(this.schema.model.sorters) > 0) {
+			sorters = this.schema.model.sorters
+		} else if (!_.isNil(this.schema.model.sortProperty)) {
+			sorters = [{
+				name: this.schema.model.sortProperty,
+				direction: 'ASC',
+				fn: 'default',
+			}];
+		} else if (!_.isNil(this.schema.model.displayProperty)) {
+			sorters = [{
+				name: this.schema.model.displayProperty,
+				direction: 'ASC',
+				fn: 'default',
+			}];
 		}
 		return sorters;
 	}
@@ -582,7 +580,7 @@ export default class Repository extends EventEmitter {
 	// /_/   /_/_/\__/\___/_/
 
 	/**
-	 * @member {Boolean} hasFilters - Whether or not any filters are applied
+	 * @member {boolean} hasFilters - Whether or not any filters are applied
 	 */
 	get hasFilters() {
 		if (this.isDestroyed) {
@@ -1465,10 +1463,10 @@ export default class Repository extends EventEmitter {
 		}
 
 		const schema = this.getSchema();
-		if (!schema.model.associations.hasOne.includes(repositoryName) &&
-			!schema.model.associations.hasMany.includes(repositoryName) &&
-			!schema.model.associations.belongsTo.includes(repositoryName) &&
-			!schema.model.associations.belongsToMany.includes(repositoryName)
+		if (!schema.model.associations?.hasOne.includes(repositoryName) &&
+			!schema.model.associations?.hasMany.includes(repositoryName) &&
+			!schema.model.associations?.belongsTo.includes(repositoryName) &&
+			!schema.model.associations?.belongsToMany.includes(repositoryName)
 			) {
 			this.throwError(repositoryName + ' is not associated with this schema');
 			return;
@@ -1935,6 +1933,80 @@ export default class Repository extends EventEmitter {
 	undeleteDeleted = async () => {
 		await this.undelete(this.getDeleted());
 	}
+
+
+	//   ______
+	//  /_  __/_______  ___  _____
+	//   / / / ___/ _ \/ _ \/ ___/
+	//  / / / /  /  __/  __(__  )
+	// /_/ /_/   \___/\___/____/
+	
+
+	/**
+	 * Gets the root node of this tree.
+	 * @return {Entity[]} Entities that passed through filter
+	 */
+	getRootNode = async () => {
+		this.ensureTree();
+		if (this.isDestroyed) {
+			this.throwError('this.setRootNode is no longer valid. Repository has been destroyed.');
+			return;
+		}
+
+		// TODO: get root node here
+
+
+
+
+	}
+
+	/**
+	 * Sets the root node of this tree.
+	 * @return {Entity[]} Entities that passed through filter
+	 */
+	setRootNode = () => {
+		this.ensureTree();
+		if (this.isDestroyed) {
+			this.throwError('this.setRootNode is no longer valid. Repository has been destroyed.');
+			return;
+		}
+
+		// TODO: set root node here
+
+
+
+
+	}
+
+	/**
+	 * Sets the root node of this tree.
+	 * @return {Entity[]} Entities that passed through filter
+	 */
+	loadChildren = async () => {
+		this.ensureTree();
+		if (this.isDestroyed) {
+			this.throwError('this.setRootNode is no longer valid. Repository has been destroyed.');
+			return;
+		}
+
+		// TODO: load children here
+
+
+
+		
+	}
+
+	/**
+	 * Helper to make sure this Repository is a tree
+	 * @private
+	 */
+	ensureTree = async () => {
+		if (!this.isTree) {
+			this.throwError('This Repository is not a tree!');
+		}
+	}
+
+
 
 
 

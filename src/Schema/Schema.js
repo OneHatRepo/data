@@ -65,6 +65,39 @@ export default class Schema extends EventEmitter {
 				sortProperty: null,
 
 				/**
+				 * @member {string} parentIdProperty - name of parent_id Property (e.g. 'categories__parent_id' for Adjacency Lists, and parent_id for Closure Tables)
+				 * For trees only
+				 */
+				parentIdProperty: null,
+
+				/**
+				 * @member {string} depthIdProperty - name of depth Property (e.g. 'categories__depth' for Adjacency Lists, and depth for Closure Tables)
+				 * For trees only
+				 */
+				depthProperty: null,
+
+				/**
+				 * @member {string} hasChildrenProperty - name of hasChildren Property (e.g. 'categories__has_children' for Adjacency Lists, and has_children for Closure Tables)
+				 * For trees only
+				 */
+				hasChildrenProperty: null,
+
+				/**
+				 * @member {boolean} isTree - Whether this model has hierarchical tree data
+				 */
+				isTree: false,
+
+				/**
+				 * @member {boolean} isAdjacencyList - Whether this tree is an Adjacency List
+				 */
+				isAdjacencyList: false,
+
+				/**
+				 * @member {boolean} isClosureTable - Whether this tree is a Closure Table
+				 */
+				isClosureTable: false,
+
+				/**
 				 * @member {array} properties - Array of Property definition objects
 				 */
 				properties: [],
