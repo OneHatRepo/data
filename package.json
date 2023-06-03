@@ -1,11 +1,12 @@
 {
 	"name": "@onehat/data",
-	"version": "1.17.1",
+	"version": "1.17.2",
 	"description": "JS data modeling package with adapters for many storage mediums.",
 	"main": "src/index.js",
 	"type": "module",
 	"scripts": {
 		"test": "npx cypress open",
+		"test2": "DEBUG=cypress:* npx cypress open",
 		"docs": "jsdoc -c ./jsdoc.json -t ./node_modules/ink-docstrap/template -R README.md"
 	},
 	"repository": {
@@ -35,7 +36,7 @@
 	},
 	"homepage": "https://github.com/OneHatRepo/data#readme",
 	"dependencies": {
-		"@onehat/events": "^1.6.5",
+		"@onehat/events": "^1.6.6",
 		"accounting-js": "^1.1.1",
 		"axios": "^1.4.0",
 		"chrono-node": "^2.6.3",
@@ -53,7 +54,7 @@
 	"devDependencies": {
 		"@babel/core": "^7.22.1",
 		"@babel/node": "^7.22.1",
-		"@babel/plugin-proposal-class-properties": "^7.18.6",
+		"@babel/plugin-transform-class-properties": "^7.22.3",
 		"@babel/plugin-transform-runtime": "^7.19.6",
 		"@babel/preset-env": "^7.22.4",
 		"@babel/register": "^7.21.0",
