@@ -384,7 +384,7 @@ class Entity extends EventEmitter {
 	 * Assumes (and sets) isTempId === false.
 	 * @param {array} originalData - Raw data to load into entity.
 	 */
-	loadOriginalData = (originalData) => {
+	loadOriginalData = (originalData, assembleTreeNodes = true) => {
 		if (this.isDestroyed) {
 			throw Error('this.loadOriginalData is no longer valid. Entity has been destroyed.');
 		}
@@ -392,6 +392,10 @@ class Entity extends EventEmitter {
 		this._originalData = originalData || {};
 		this.reset();
 		this.getIdProperty().isTempId = false;
+
+		if (this.isTree && this.repository && assembleTreeNodes) {
+			this.repository.assembleTreeNodes(); // rebuilds them all
+		}
 	}
 
 	/**
@@ -1613,6 +1617,10 @@ class Entity extends EventEmitter {
 		return this.parent;
 	}
 
+	/**
+	 * Getter of child TreeNodes for this TreeNode.
+	 * @return {array} children - The children
+	 */
 	getChildren = async () => {
 		this.ensureTree();
 		if (this.isDestroyed) {
@@ -1625,22 +1633,33 @@ class Entity extends EventEmitter {
 		return this.children;
 	}
 
-	loadChildren = async () => {
+	/**
+	 * Loads the children of this TreeNode from repository.
+	 */
+	loadChildren = async (depth) => {
 		this.ensureTree();
 		if (this.isDestroyed) {
 			throw Error('this.loadChildren is no longer valid. TreeNode has been destroyed.');
 		}
-
-		if (this.repository.loadChildren) {
-			this.children = await this.repository.loadChildren(this); // populates the children with a reference to this in child.parent
-			this.isChildrenLoaded = true;
+		if (!this.repository?.loadChildren) {
+			throw Error('repository.loadChildren is not defined.');	
 		}
+
+		this.children = await this.repository.loadChildren(this, depth); // populates the children with a reference to this in child.parent
+		this.isChildrenLoaded = true;
 	}
 
+	/**
+	 * Alias for loadChildren
+	 */
 	reloadChildren = () => { // alias
 		return this.loadChildren();
 	}
 
+	/**
+	 * Gets the previous sibling of this TreeNode from repository.
+	 * @return {TreeNode} sibling
+	 */
 	getPrevousSibling = async () => {
 		this.ensureTree();
 		if (this.isDestroyed) {
@@ -1660,6 +1679,10 @@ class Entity extends EventEmitter {
 		return previous;
 	}
 
+	/**
+	 * Gets the next sibling of this TreeNode from repository.
+	 * @return {TreeNode} sibling
+	 */
 	getNextSibling = async () => {
 		this.ensureTree();
 		if (this.isDestroyed) {
@@ -1683,6 +1706,10 @@ class Entity extends EventEmitter {
 		return next;
 	}
 
+	/**
+	 * Gets the child of this TreeNode at index ix from repository.
+	 * @return {TreeNode} child
+	 */
 	getChildAt = (ix) => {
 		this.ensureTree();
 		if (this.isDestroyed) {
@@ -1692,6 +1719,10 @@ class Entity extends EventEmitter {
 		return this.children[ix];
 	}
 
+	/**
+	 * Gets the first child of this TreeNode from repository.
+	 * @return {TreeNode} child
+	 */
 	getFirstChild = () => {
 		this.ensureTree();
 		if (this.isDestroyed) {
@@ -1701,6 +1732,10 @@ class Entity extends EventEmitter {
 		return this.children[0];
 	}
 
+	/**
+	 * Gets the last child of this TreeNode from repository.
+	 * @return {TreeNode} child
+	 */
 	getLastChild = () => {
 		this.ensureTree();
 		if (this.isDestroyed) {

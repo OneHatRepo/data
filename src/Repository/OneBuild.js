@@ -404,6 +404,86 @@ class OneBuildRepository extends AjaxRepository {
 			});
 	}
 
+
+	//   ______
+	//  /_  __/_______  ___  _____
+	//   / / / ___/ _ \/ _ \/ ___/
+	//  / / / /  /  __/  __(__  )
+	// /_/ /_/   \___/\___/____/
+
+	/**
+	 * Gets the root nodes of this tree.
+	 */
+	getRootNodes = async (getChildren = false, depth) => {
+		this.ensureTree();
+		if (this.isDestroyed) {
+			this.throwError('this.setRootNode is no longer valid. Repository has been destroyed.');
+			return;
+		}
+
+		// Clear all entities, if any exist
+		_.each(this.entities, (entity) => {
+			entity.destroy();
+		});
+		this.entities = [];
+		
+		// TODO: Load root nodes (and possibly their children)
+
+
+	}
+
+	/**
+	 * Loads the children of the supplied treeNode
+	 */
+	loadChildren = async (treeNode, depth = 1) => {
+		this.ensureTree();
+		if (this.isDestroyed) {
+			this.throwError('this.setRootNode is no longer valid. Repository has been destroyed.');
+			return;
+		}
+
+
+		// If children already exist, remove them from the repository
+		// This way, we can reload just a portion of the tree
+		if (!_.isEmpty(treeNode.children)) {
+			const children = treeNode.children;
+			treeNode.children = [];
+
+			_.each(children, (child) => {
+				this.removeNode(child);
+			});
+		}
+
+
+		// TODO: load children here
+
+
+		
+	}
+
+	/**
+	 * Alias for loadChildren
+	 */
+	reloadChildren = (treeNode, depth) => {
+		return this.loadChildren(treeNode, depth);
+	}
+
+	/**
+	 * Moves the supplied treeNode to a new position on the tree
+	 */
+	moveTreeNode = async (treeNode, newParentId) => {
+		this.ensureTree();
+		if (this.isDestroyed) {
+			this.throwError('this.moveTreeNode is no longer valid. Repository has been destroyed.');
+			return;
+		}
+
+		// TODO: move node here
+
+
+		
+	}
+
 }
 
 

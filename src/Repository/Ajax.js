@@ -430,6 +430,10 @@ class AjaxRepository extends Repository {
 							this._relayEntityEvents(entity);
 							return entity;
 						});
+
+						if (this.isTree) {
+							this.assembleTreeNodes();
+						}
 				
 						// Set the total records that pass filter
 						this.total = total;
@@ -492,7 +496,7 @@ class AjaxRepository extends Repository {
 						}
 
 						const updatedData = root[0];
-						entity.loadOriginalData(updatedData, true);
+						entity.loadOriginalData(updatedData);
 						entity.emit('reload', entity);
 						
 						this.markLoaded();
@@ -638,11 +642,14 @@ class AjaxRepository extends Repository {
 						// Reload each entity with new data
 						// TODO: Check this
 						_.each(entities, (entity, ix) => {
-							entity.loadOriginalData(root[ix]);
+							entity.loadOriginalData(root[ix], false); // false to not assembleTreeNodes
 							if (entity.isRemotePhantomMode) {
 								entity.isRemotePhantom = true;
 							}
 						});
+						if (this.isTree) {
+							this.assembleTreeNodes();
+						}
 					});
 	}
 
@@ -748,11 +755,14 @@ class AjaxRepository extends Repository {
 						// Reload each entity with new data
 						// TODO: Check this
 						_.each(entities, (entity, ix) => {
-							entity.loadOriginalData(root[ix]);
+							entity.loadOriginalData(root[ix], false); // false to not assembleTreeNodes
 							if (entity.isRemotePhantomMode && entity.isRemotePhantom) {
 								entity.isRemotePhantom = false;
 							}
 						});
+						if (this.isTree) {
+							this.assembleTreeNodes();
+						}
 					});
 	}
 

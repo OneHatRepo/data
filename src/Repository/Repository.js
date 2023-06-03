@@ -1825,7 +1825,7 @@ export default class Repository extends EventEmitter {
 	 * Mainly used for phantom Entities
 	 * Helper for delete()
 	 */
-	removeEntity(entity) { // standard function notation so it can be called by child class
+	removeEntity(entity) { // standard function notation so it can be called by child class via super.removeEntity
 		this.entities = _.filter(this.entities, e => e !== entity);
 		entity.destroy();
 	}
@@ -1943,57 +1943,67 @@ export default class Repository extends EventEmitter {
 	
 
 	/**
-	 * Gets the root node of this tree.
-	 * @return {Entity[]} Entities that passed through filter
+	 * Gets the root TreeNodes
 	 */
-	getRootNode = async () => {
+	getRootNodes = () => {
 		this.ensureTree();
 		if (this.isDestroyed) {
-			this.throwError('this.setRootNode is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getRootNodes is no longer valid. Repository has been destroyed.');
 			return;
 		}
 
-		// TODO: get root node here
-
-
-
-
+		// Look through all entities and pull out the root nodes.
+		// Subclasses of Repository will override this method to get root nodes from server
+		const entities = _.filter(this.getEntities(), (entity) => {
+			return entity.isRoot;
+		})
+		return entities;
 	}
 
 	/**
-	 * Sets the root node of this tree.
-	 * @return {Entity[]} Entities that passed through filter
+	 * Populates the TreeNodes with .parent and .children references
 	 */
-	setRootNode = () => {
+	assembleTreeNodes = () => {
 		this.ensureTree();
 		if (this.isDestroyed) {
-			this.throwError('this.setRootNode is no longer valid. Repository has been destroyed.');
+			this.throwError('this.assembleTreeNodes is no longer valid. Repository has been destroyed.');
 			return;
 		}
 
-		// TODO: set root node here
+		const treeNodes = this.getEntities();
 
+		// Reset all parent/child relationships
+		_.each(treeNodes, (treeNode) => {
+			treeNode.parent = null;
+			treeNode.children = [];
+		});
 
-
-
+		// Rebuild all parent/child relationships
+		_.each(treeNodes, (treeNode) => {
+			const parent = this.getById(treeNode.parentId);
+			if (parent) {
+				treeNode.parent = parent;
+				parent.children.push(treeNode);
+			}
+		});
 	}
 
 	/**
-	 * Sets the root node of this tree.
-	 * @return {Entity[]} Entities that passed through filter
+	 * Removes the treeNode and all of its children from repository
+	 * without deleting anything on the server
 	 */
-	loadChildren = async () => {
-		this.ensureTree();
-		if (this.isDestroyed) {
-			this.throwError('this.setRootNode is no longer valid. Repository has been destroyed.');
-			return;
+	removeTreeNode = (treeNode) => {
+		if (!_.isEmpty(treeNode.children)) {
+			const children = treeNode.children;
+			treeNode.parent = null;
+			treeNode.children = [];
+
+			_.each(children, (child) => {
+				this.removeTreeNode(child);
+			});
 		}
 
-		// TODO: load children here
-
-
-
-		
+		this.removeEntity(treeNode);
 	}
 
 	/**
