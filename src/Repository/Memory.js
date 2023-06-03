@@ -511,13 +511,9 @@ class MemoryRepository extends Repository {
 
 		super.removeEntity(entity);
 
-		if (this.hasSorters) {
-			this._applySorters();
-		}
-		if (this.hasFilters) {
-			this._applyFilters();
-		}
 		delete this._keyedEntities[id];
+
+		this._recalculate();
 	}
 
 

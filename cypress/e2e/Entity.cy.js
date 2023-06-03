@@ -900,7 +900,7 @@ describe('Entity', function() {
 		});
 	});
 
-	describe.only('tree', function() {
+	describe('tree', function() {
 
 		// Needed for all tree tests...
 		const

@@ -155,7 +155,7 @@ describe('Config options', function() {
 
 	});
 
-	it.only('Replace this.method with config.method', function() {
+	it('Replace this.method with config.method', function() {
 		
 		class Base {
 			constructor(config = {}) {

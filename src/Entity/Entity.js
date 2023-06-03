@@ -35,7 +35,7 @@ class Entity extends EventEmitter {
 	 * @param {boolean} originalIsMapped - Has data already been mapped according to schema?
 	 * @param {boolean} isDelayedSave - Should the repository skip autosave when immediately adding the record?
 	 */
-	constructor(schema, rawData = {}, repository = null, originalIsMapped = false, isDelayedSave = false, isRemotePhantomMode = false, isRoot = false) {
+	constructor(schema, rawData = {}, repository = null, originalIsMapped = false, isDelayedSave = false, isRemotePhantomMode = false) {
 		super(...arguments);
 
 		if (!schema) {
@@ -117,12 +117,6 @@ class Entity extends EventEmitter {
 		if (this.isTree && !schema.model.hasChildrenProperty) {
 			throw new Error('hasChildrenProperty cannot be empty for a TreeNode');
 		}
-
-		/**
-		 * @member {boolean} isRoot - Whether this TreeNode is the root TreeNode
-		 * For trees only
-		 */
-		this.isRoot = false;
 
 		/**
 		 * @member {TreeNode} parent - The parent TreeNode for this TreeNode
@@ -1517,13 +1511,24 @@ class Entity extends EventEmitter {
 
 	/**
 	 * Getter of hasParent
-	 * Returns true if this is not a root node
+	 * Returns true if this node has a parentId
 	 * @return {boolean} hasParent
 	 */
 	get hasParent() {
 		this.ensureTree();
 
-		return !this.isRoot;
+		return !!this.parentId;
+	}
+
+	/**
+	 * Getter of isRoot
+	 * Returns true if this node has no parent
+	 * @return {boolean} hasParent
+	 */
+	get isRoot() {
+		this.ensureTree();
+
+		return !this.hasParent;
 	}
 
 	/**
@@ -1626,11 +1631,24 @@ class Entity extends EventEmitter {
 		if (this.isDestroyed) {
 			throw Error('this.getChildren is no longer valid. TreeNode has been destroyed.');
 		}
-
 		if (!this.isChildrenLoaded) {
 			await this.loadChildren();
 		}
 		return this.children;
+	}
+
+	/**
+	 * Whether the supplied TreeNode is a child of this TreeNode.
+	 * @return {boolean} hasThisChild
+	 */
+	hasThisChild = async (treeNode) => {
+		this.ensureTree();
+		if (this.isDestroyed) {
+			throw Error('this.hasThisChild is no longer valid. TreeNode has been destroyed.');
+		}
+
+		const children = await this.getChildren();
+		return  _.includes(children, treeNode);
 	}
 
 	/**
@@ -1669,9 +1687,9 @@ class Entity extends EventEmitter {
 		const 
 			parent = this.getParent(),
 			siblings = await parent.getChildren();
-		let previous;
+		let previous = null;
 		_.each(siblings, (treeNode) => {
-			if (treeNode === this) {
+			if (treeNode.id === this.id) {
 				return false;
 			}
 			previous = treeNode;
@@ -1699,7 +1717,7 @@ class Entity extends EventEmitter {
 				next = treeNode;
 				return false;
 			}
-			if (treeNode === this) {
+			if (treeNode.id === this.id) {
 				returnNext = true;
 			}
 		})
@@ -1716,6 +1734,9 @@ class Entity extends EventEmitter {
 			throw Error('this.getChildAt is no longer valid. TreeNode has been destroyed.');
 		}
 
+		if (!this.children[ix]) {
+			return null;
+		}
 		return this.children[ix];
 	}
 
@@ -1729,6 +1750,9 @@ class Entity extends EventEmitter {
 			throw Error('this.getFirstChild is no longer valid. TreeNode has been destroyed.');
 		}
 
+		if (!this.children[0]) {
+			return null;
+		}
 		return this.children[0];
 	}
 
@@ -1742,7 +1766,11 @@ class Entity extends EventEmitter {
 			throw Error('this.getLastChild is no longer valid. TreeNode has been destroyed.');
 		}
 
-		return this.children.slice(-1)[0]
+		const child = this.children.slice(-1)[0];
+		if (!child) {
+			return null;
+		}
+		return child;
 	}
 
 	/**

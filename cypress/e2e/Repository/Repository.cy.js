@@ -1068,7 +1068,7 @@ describe('Repository Base', function() {
 		});
 	});
 
-	describe.only('tree', function() {
+	describe('tree', function() {
 
 		// Needed for all tree tests...
 		const
@@ -1083,11 +1083,11 @@ describe('Repository Base', function() {
 					isTree: true,
 					isClosureTable: true,
 					properties: [
-						{ name: 'id', type: 'int' },
-						{ name: 'display' },
-						{ name: 'parent_id', type: 'int' },
-						{ name: 'depth', type: 'int' },
-						{ name: 'hasChildren', type: 'bool' },
+						{ name: 'id', type: 'int', },
+						{ name: 'display', },
+						{ name: 'parent_id', type: 'int', },
+						{ name: 'depth', type: 'int', },
+						{ name: 'hasChildren', type: 'bool', },
 					],
 				},
 				repository: 'memory',
@@ -1100,6 +1100,7 @@ describe('Repository Base', function() {
 					parent_id: null,
 					depth: 0,
 					hasChildren: true,
+					isChildrenLoaded: true,
 				},
 				{
 					id: 2,
@@ -1107,20 +1108,21 @@ describe('Repository Base', function() {
 					parent_id: 1,
 					depth: 1,
 					hasChildren: true,
+					isChildrenLoaded: true,
 				},
 				{
 					id: 3,
 					display: 'Child 2',
 					parent_id: 1,
 					depth: 1,
-					hasChildren: false,
+					isChildrenLoaded: true,
 				},
 				{
 					id: 4,
-					display: 'Grandchild 1',
+					display: 'Grandchild',
 					parent_id: 2,
 					depth: 2,
-					hasChildren: false,
+					isChildrenLoaded: true,
 				},
 			],
 			creatRepository = async () => {
@@ -1132,20 +1134,154 @@ describe('Repository Base', function() {
 					isPaginated: true,
 					data,
 				});
-				repository.initialize();
+				await repository.initialize();
 				return repository;
 			},
 			destoryRepository = (repository) => {
 				repository.destroy();
 			};
 
-		it('Tree test', function() {
+		it('TreeNode (Entity) tests', function() {
+			(async () => {
+				const repository = await creatRepository();
+				repository.assembleTreeNodes();
+
+				const
+					id1 = repository.getById(1),
+					id2 = repository.getById(2),
+					id3 = repository.getById(3),
+					id4 = repository.getById(4);
+
+				// hasChildren
+				expect(id2.hasChildren).to.be.true;
+				expect(id4.hasChildren).to.be.false;
+
+				// getParent
+				expect(id2.getParent()).to.be.eq(id1);
+				expect(id1.getParent()).to.be.null;
+
+				// getChildren
+				let children = await id2.getChildren();
+				expect(children).to.be.eql([id4]);
+				
+				children = await id3.getChildren();
+				expect(children).to.be.empty;
+				
+				// hasThisChild
+				let hasThisChild = await id2.hasThisChild(id3);
+				expect(hasThisChild).to.be.false;
+				
+				hasThisChild = await id2.hasThisChild(id4);
+				expect(hasThisChild).to.be.true;
+
+				// loadChildren (& reloadChildren)
+				// this needs to be on OneBuild spec
+
+				// getPrevousSibling
+				let sibling = await id2.getPrevousSibling();
+				expect(sibling).to.be.null;
+
+				sibling = await id3.getPrevousSibling();
+				expect(sibling).to.be.eq(id2);
+
+				sibling = await id3.getNextSibling();
+				expect(sibling).to.be.null;
+
+				sibling = await id2.getNextSibling();
+				expect(sibling).to.be.eq(id3);
+
+				// getChildAt
+				let child = await id1.getChildAt(0);
+				expect(child).to.be.eq(id2);
+				
+				child = await id1.getChildAt(1);
+				expect(child).to.be.eq(id3);
+				
+				child = await id1.getChildAt(2);
+				expect(child).to.be.null;
+				
+				// getFirstChild
+				child = await id1.getFirstChild();
+				expect(child).to.be.eq(id2);
+
+				child = await id4.getFirstChild();
+				expect(child).to.be.null;
+				
+				// getLastChild
+				child = await id1.getLastChild();
+				expect(child).to.be.eq(id3);
+
+				child = await id4.getLastChild();
+				expect(child).to.be.null;
+				
+				destoryRepository(repository);
+			})();
+		});
+
+		it('getRootNodes', function() {
+			(async () => {
+				const repository = await creatRepository();
+				repository.assembleTreeNodes();
+
+				const
+					id1 = repository.getById(1);
+
+				const rootNodes = repository.getRootNodes();
+				expect(rootNodes).to.be.eql([id1]);
+				
+				destoryRepository(repository);
+			})();
+		});
+
+		it('assembleTreeNodes', function() {
 			(async () => {
 				const repository = await creatRepository();
 
+				const
+					id1 = repository.getById(1),
+					id2 = repository.getById(2),
+					id3 = repository.getById(3),
+					id4 = repository.getById(4);
 
+				// Verify no children or parents
+				expect(id2.parent).to.be.null;
+				expect(id2.children).to.be.empty;
 
-				debugger;
+				repository.assembleTreeNodes();
+
+				// Now check that they are populated
+				expect(id2.parent).to.be.eq(id1);
+				expect(id2.children).to.be.eql([id4]);
+
+				// Re-assemble them
+				repository.assembleTreeNodes();
+
+				// check them again
+				expect(id2.parent).to.be.eq(id1);
+				expect(id2.children).to.be.eql([id4]);
+				
+				destoryRepository(repository);
+			})();
+		});
+
+		it('removeTreeNode', function() {
+			(async () => {
+				const repository = await creatRepository();
+				repository.assembleTreeNodes();
+
+				const
+					id1 = repository.getById(1),
+					id2 = repository.getById(2),
+					id3 = repository.getById(3),
+					id4 = repository.getById(4);
+
+				const before = repository.getEntities();
+				expect(before.length).to.be.eq(4);
+
+				repository.removeTreeNode(id2);
+
+				const after = repository.getEntities();
+				expect(after.length).to.be.eq(2);
 				
 				destoryRepository(repository);
 			})();
