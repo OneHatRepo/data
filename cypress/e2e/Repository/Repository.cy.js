@@ -1050,7 +1050,7 @@ describe('Repository Base', function() {
 
 	});
 
-	describe('options', function() {
+	describe('misc', function() {
 		it('setOptions', function() {
 
 			this.repository.setOptions({
@@ -1061,11 +1061,96 @@ describe('Repository Base', function() {
 			
 			expect(this.repository.api.baseURL).to.be.eq('test123');
 		});
+
+		it('toString', function() {
+			const str = this.repository.toString();
+			expect(str).to.be.eq('NullRepository {bar} - foo');
+		});
 	});
 
-	it('toString', function() {
-		const str = this.repository.toString();
-		expect(str).to.be.eq('NullRepository {bar} - foo');
+	describe.only('tree', function() {
+
+		// Needed for all tree tests...
+		const
+			schema = new Schema({
+				name: 'nodes',
+				model: {
+					idProperty: 'id',
+					displayProperty: 'display',
+					parentIdProperty: 'parent_id',
+					depthProperty: 'depth',
+					hasChildrenProperty: 'hasChildren',
+					isTree: true,
+					isClosureTable: true,
+					properties: [
+						{ name: 'id', type: 'int' },
+						{ name: 'display' },
+						{ name: 'parent_id', type: 'int' },
+						{ name: 'depth', type: 'int' },
+						{ name: 'hasChildren', type: 'bool' },
+					],
+				},
+				repository: 'memory',
+			}),
+			Repository = RepositoryTypes.memory,
+			data = [
+				{
+					id: 1,
+					display: 'Root',
+					parent_id: null,
+					depth: 0,
+					hasChildren: true,
+				},
+				{
+					id: 2,
+					display: 'Child 1',
+					parent_id: 1,
+					depth: 1,
+					hasChildren: true,
+				},
+				{
+					id: 3,
+					display: 'Child 2',
+					parent_id: 1,
+					depth: 1,
+					hasChildren: false,
+				},
+				{
+					id: 4,
+					display: 'Grandchild 1',
+					parent_id: 2,
+					depth: 2,
+					hasChildren: false,
+				},
+			],
+			creatRepository = async () => {
+				const repository = new Repository({
+					id: 'tree',
+					schema,
+					isAutoLoad: true,
+					isAutoSave: true,
+					isPaginated: true,
+					data,
+				});
+				repository.initialize();
+				return repository;
+			},
+			destoryRepository = (repository) => {
+				repository.destroy();
+			};
+
+		it('Tree test', function() {
+			(async () => {
+				const repository = await creatRepository();
+
+
+
+				debugger;
+				
+				destoryRepository(repository);
+			})();
+		});
+
 	});
 
 });

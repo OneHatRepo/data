@@ -995,7 +995,7 @@ export default class Repository extends EventEmitter {
 			entity = Repository._createEntity(this.schema, data, this, isPersisted, originalIsMapped, isDelayedSave, this.isRemotePhantomMode);
 		}
 		this._relayEntityEvents(entity);
-		this.entities.unshift(entity);
+		this.entities.unshift(entity); // Add to *beginning* of entities array, so the phantom record will appear at the beginning of the current page
 
 		// Create id if needed
 		if (!this.isRemotePhantomMode && entity.isPhantom) {
@@ -1056,11 +1056,13 @@ export default class Repository extends EventEmitter {
 	addMultiple = async (allData, isPersisted = false, originalIsMapped = false) => {
 
 		let entities = [],
-			i;
+			i,
+			data,
+			entity;
 
 		for (i = 0; i < allData.length; i++) {
-			const data = allData[i],
-				entity = await this.add(data, isPersisted, originalIsMapped);
+			data = allData[i];
+			entity = await this.add(data, isPersisted, originalIsMapped);
 			entities.push(entity);
 		};
 		
@@ -2013,7 +2015,9 @@ export default class Repository extends EventEmitter {
 	ensureTree = async () => {
 		if (!this.isTree) {
 			this.throwError('This Repository is not a tree!');
+			return false;
 		}
+		return true;
 	}
 
 

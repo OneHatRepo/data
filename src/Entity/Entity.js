@@ -1504,7 +1504,7 @@ class Entity extends EventEmitter {
 			throw Error('this.getParentId is no longer valid. TreeNode has been destroyed.');
 		}
 		
-		return this.geParentIdProperty().getSubmitValue();
+		return this.getParentIdProperty().getSubmitValue();
 	}
 
 	/**
@@ -1751,8 +1751,10 @@ class Entity extends EventEmitter {
 	 */
 	ensureTree = async () => {
 		if (!this.isTree) {
-			this.throwError('This Repository is not a tree!');
+			this.throwError('This Entity is not a tree!');
+			return false;
 		}
+		return true;
 	}
 
 

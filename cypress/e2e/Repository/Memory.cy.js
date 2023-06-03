@@ -281,7 +281,7 @@ describe('MemoryRepository', function() {
 			expect(_.size(this.repository.getRawValues())).to.be.eq(5);
 			expect(_.size(this.repository.getOriginalData())).to.be.eq(5);
 			expect(_.size(this.repository.getParsedValues())).to.be.eq(5);
-			expect(this.repository.getByIx(2).value).to.be.eq('five');
+			expect(this.repository.getByIx(4).value).to.be.eq('five');
 			expect(_.size(this.repository.getNonPersisted())).to.be.eq(0);
 			expect(_.size(this.repository.getPhantom())).to.be.eq(0);
 			expect(_.size(this.repository.getDirty())).to.be.eq(0);

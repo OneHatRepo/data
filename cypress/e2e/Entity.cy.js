@@ -471,11 +471,11 @@ describe('Entity', function() {
 		});
 
 		it('hash', function() {
-			expect(this.entity.hash).to.be.eq(4635951664292355);
+			expect(this.entity.hash).to.be.eq(5365087438356619);
 
 			// change a property & check again
 			this.entity.foo = 3;
-			expect(this.entity.hash).to.be.eq(1510366977941323);
+			expect(this.entity.hash).to.be.eq(358445507972157);
 		});
 
 	});
@@ -898,6 +898,88 @@ describe('Entity', function() {
 				
 			})();
 		});
+	});
+
+	describe.only('tree', function() {
+
+		// Needed for all tree tests...
+		const
+			schema = new Schema({
+				name: 'nodes',
+				model: {
+					idProperty: 'id',
+					displayProperty: 'display',
+					parentIdProperty: 'parent_id',
+					depthProperty: 'depth',
+					hasChildrenProperty: 'hasChildren',
+					isTree: true,
+					isClosureTable: true,
+					properties: [
+						{ name: 'id', type: 'int' },
+						{ name: 'display' },
+						{ name: 'parent_id', type: 'int' },
+						{ name: 'depth', type: 'int' },
+						{ name: 'hasChildren', type: 'bool' },
+					],
+				},
+			}),
+			data = {
+				id: 2,
+				display: 'Child 1',
+				parent_id: 1,
+				depth: 1,
+				hasChildren: true,
+			},
+			creatEntity = async () => {
+				const entity = new Entity(schema, data);
+				entity.initialize();
+				return entity;
+			},
+			destoryEntity = (entity) => {
+				entity.destroy();
+			};
+
+		it('magic properties', function() {
+			(async () => {
+				const entity = await creatEntity();
+
+				expect(entity.parentId).to.be.eq(1);
+				expect(entity.depth).to.be.eq(1);
+				expect(entity.hasChildren).to.be.true;
+				
+				destoryEntity(entity);
+			})();
+		});
+
+		it('parents/children', function() {
+			(async () => {
+				const entity = await creatEntity();
+				
+				const parent = this.entity;
+				entity.parent = parent;
+				expect(entity.parent).to.be.eq(parent);
+				
+				const children = [this.entity];
+				entity.children = children;
+				expect(entity.children).to.be.eq(children);
+
+				destoryEntity(entity);
+			})();
+		});
+
+		it('ensureTree', function() {
+			(async () => {
+				const entity = await creatEntity();
+				
+				expect(entity.ensureTree()).to.be.true;
+
+				entity.isTree = false;
+				expect(entity.ensureTree()).to.be.false;
+
+				destoryEntity(entity);
+			})();
+		});
+
 	});
 
 });

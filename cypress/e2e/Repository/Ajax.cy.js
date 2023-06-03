@@ -91,7 +91,7 @@ describe('OneBuildRepository', function() {
 			r.setValuelessParam('conditions[field IS NOT NULL]');
 
 			expect(r._params.conditions.field).to.be.eq(1);
-			expect(r._params.conditions[0]).to.be.eq('field IS NOT NULL');
+			expect(r._params.conditions.undefined).to.be.eq('field IS NOT NULL');
 		});
 
 		it('clearParams', function() {

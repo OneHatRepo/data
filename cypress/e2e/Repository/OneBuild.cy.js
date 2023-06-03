@@ -66,12 +66,21 @@ describe('OneBuildRepository', function() {
 	it('401', function() {
 		cy.wrap((async () => {
 
-			let loggedOut = false;
+			let loggedOut = false,
+				isError = false;
 			this.oneHatData.on('logout', function() { // NOTE: We are listening to the global oneHatData object, not just the individual repository
 				loggedOut = true;
 			});
-			await this.repository.load();
-			expect(loggedOut).to.be.true;
+			try {
+				await this.repository.load();
+			} catch(e) {
+				isError = true;
+			}
+			if (!isError) {
+				expect(loggedOut).to.be.true;
+			} else {
+				throw Error('404 error! Maybe set baseUrl?')
+			}
 
 		})());
 	});
