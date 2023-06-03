@@ -1,4 +1,5 @@
-const webpack = require('@cypress/webpack-preprocessor'),
+const
+	webpackPreprocessor = require('@cypress/webpack-preprocessor'),
 	webpackOptions = {
 		mode: 'development',
 		devtool: 'cheap-module-source-map', // See https://survivejs.com/webpack/building/source-maps/
@@ -24,9 +25,9 @@ const webpack = require('@cypress/webpack-preprocessor'),
 		}
 	};
 
-module.exports = (on, config) => {
-	on('file:preprocessor', webpack({
+module.exports = (on) => {
+	on('file:preprocessor', webpackPreprocessor({
 		webpackOptions,
-		watchOptions: {}, 
+		watchOptions: {},
 	}));
-};
+}

@@ -5,7 +5,7 @@
 	"main": "src/index.js",
 	"type": "module",
 	"scripts": {
-		"test": "npx cypress open --config-file ../cypress.json",
+		"test": "npx cypress open",
 		"docs": "jsdoc -c ./jsdoc.json -t ./node_modules/ink-docstrap/template -R README.md"
 	},
 	"repository": {
@@ -37,35 +37,34 @@
 	"dependencies": {
 		"@onehat/events": "^1.6.5",
 		"accounting-js": "^1.1.1",
-		"axios": "^1.2.1",
-		"chrono-node": "^2.4.2",
-		"fast-xml-parser": "^4.0.12",
+		"axios": "^1.4.0",
+		"chrono-node": "^2.6.3",
+		"fast-xml-parser": "^4.2.2",
 		"he": "^1.2.0",
-		"js-base64": "^3.7.3",
+		"js-base64": "^3.7.5",
 		"lodash": "^4.17.21",
 		"moment": "^2.29.4",
 		"natsort": "^2.0.3",
 		"numeral": "^2.0.6",
-		"qs": "^6.11.0",
+		"qs": "^6.11.2",
 		"relative-time-parser": "^1.0.15",
 		"uuid": "^9.0.0"
 	},
 	"devDependencies": {
-		"@babel/core": "^7.20.5",
-		"@babel/node": "^7.20.5",
+		"@babel/core": "^7.22.1",
+		"@babel/node": "^7.22.1",
 		"@babel/plugin-proposal-class-properties": "^7.18.6",
 		"@babel/plugin-transform-runtime": "^7.19.6",
-		"@babel/preset-env": "^7.20.2",
-		"@babel/register": "^7.18.9",
-		"@babel/runtime": "^7.20.6",
-		"@cypress/webpack-preprocessor": "^5.16.0",
-		"babel-loader": "^8.0.2",
-		"cypress": "5.2.0",
+		"@babel/preset-env": "^7.22.4",
+		"@babel/register": "^7.21.0",
+		"@babel/runtime": "^7.22.3",
+		"@cypress/webpack-preprocessor": "^5.17.1",
+		"babel-loader": "^9.1.2",
+		"cypress": "12.13.0",
 		"ink-docstrap": "^1.3.2",
-		"jsdoc": "^4.0.0",
-		"webpack": "^5.76.0",
-		"joi": "^17.7.0",
-		"yup": "^0.32.11"
-
+		"joi": "^17.9.2",
+		"jsdoc": "^4.0.2",
+		"webpack": "^5.85.0",
+		"yup": "^1.2.0"
 	}
 }

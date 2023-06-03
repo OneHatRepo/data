@@ -1,5 +1,7 @@
 # Cypress
 cypress.env.json
+cypress/disabled
+cypress/e2e/examples
 
 ### Files and Directories ###
 .user.ini
