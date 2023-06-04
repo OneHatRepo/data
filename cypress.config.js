@@ -1,6 +1,5 @@
 import { defineConfig } from "cypress";
 import webpackPreprocessor from "@cypress/webpack-preprocessor";
-import Webpack from "webpack";
 
 export default defineConfig({
 	e2e: {
