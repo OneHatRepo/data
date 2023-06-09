@@ -459,8 +459,9 @@ class OneBuildRepository extends AjaxRepository {
 					return;
 				}
 
-				// Reload the repository, so updated sort_order values can be retrieved
-				this.reload();
+				// TODO: Load up the repository with these root nodes
+
+
 
 			});
 	}
