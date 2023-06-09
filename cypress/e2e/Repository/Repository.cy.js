@@ -1214,6 +1214,10 @@ describe('Repository Base', function() {
 				child = await id4.getLastChild();
 				expect(child).to.be.null;
 				
+				// getPath
+				const path = id4.getPath();
+				expect(path).to.be.eq('1/2/4');
+				
 				destoryRepository(repository);
 			})();
 		});

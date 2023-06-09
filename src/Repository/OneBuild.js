@@ -414,10 +414,14 @@ class OneBuildRepository extends AjaxRepository {
 	/**
 	 * Gets the root nodes of this tree.
 	 */
-	getRootNodes = async (getChildren = false, depth) => {
+	getRootNodes = async (getChildren = false, depth, getChildParams) => {
 		this.ensureTree();
 		if (this.isDestroyed) {
 			this.throwError('this.setRootNode is no longer valid. Repository has been destroyed.');
+			return;
+		}
+		if (!this.isOnline) {
+			this.throwError('Offline');
 			return;
 		}
 
@@ -427,11 +431,82 @@ class OneBuildRepository extends AjaxRepository {
 		});
 		this.entities = [];
 		
-		// TODO: Load root nodes (and possibly their children)
+		
+		const data = {
+			url: this.name + '/getRootNodes',
+			data: qs.stringify({
+				getChildren,
+				depth,
+				conditions: getChildParams ? getChildParams() : null 
+			}),
+			method: 'POST',
+			baseURL: this.api.baseURL,
+		};
 
+		if (this.debugMode) {
+			console.log('getRootNodes', data);
+		}
 
+		return this.axios(data)
+			.then((result) => {
+				if (this.debugMode) {
+					console.log('getRootNodes response', result);
+				}
+
+				const response = result.data;
+				if (!response.success) {
+					this.throwError(response.data);
+					return;
+				}
+
+				// Reload the repository, so updated sort_order values can be retrieved
+				this.reload();
+
+			});
 	}
 
+	/**
+	 * Searches all nodes for the supplied text.
+	 */
+	searchTree = async (q) => {
+		this.ensureTree();
+		if (this.isDestroyed) {
+			this.throwError('this.searchTree is no longer valid. Repository has been destroyed.');
+			return;
+		}
+		if (!this.isOnline) {
+			this.throwError('Offline');
+			return;
+		}
+		
+		const data = {
+			url: this.name + '/searchTree',
+			data: qs.stringify({
+				q,
+			}),
+			method: 'POST',
+			baseURL: this.api.baseURL,
+		};
+
+		if (this.debugMode) {
+			console.log('searchTree', data);
+		}
+
+		return this.axios(data)
+			.then((result) => {
+				if (this.debugMode) {
+					console.log('searchTree response', result);
+				}
+
+				const response = result.data;
+				if (!response.success) {
+					this.throwError(response.data);
+					return;
+				}
+
+				return response.data;
+			});
+	}
 	/**
 	 * Loads the children of the supplied treeNode
 	 */

@@ -1774,6 +1774,29 @@ class Entity extends EventEmitter {
 	}
 
 	/**
+	 * Gets the path to this node.
+	 * @return {string} path
+	 */
+	getPath = () => {
+		this.ensureTree();
+		if (this.isDestroyed) {
+			throw Error('this.getPath is no longer valid. TreeNode has been destroyed.');
+		}
+
+		const parentIds = [];
+		let parent = this;
+		while(parent.hasParent) { // stops at root
+			parentIds.push(parent.id);
+			parent = parent.parent;
+		}
+		if (parent.id !== this.id) {
+			parentIds.push(parent.id); // add root id
+		}
+
+		return parentIds.reverse().join('/');
+	}
+
+	/**
 	 * Helper to make sure this Repository is a tree
 	 * @private
 	 */
