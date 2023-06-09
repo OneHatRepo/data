@@ -468,6 +468,7 @@ class OneBuildRepository extends AjaxRepository {
 
 	/**
 	 * Searches all nodes for the supplied text.
+	 * This basically takes the search query and returns whatever the server sends
 	 */
 	searchTree = async (q) => {
 		this.ensureTree();
