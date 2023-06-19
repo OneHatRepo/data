@@ -559,10 +559,6 @@ class AjaxRepository extends Repository {
 			url = this.api.add,
 			data = entity.getSubmitValues();
 
-		if (entity.isRemotePhantomMode) {
-			data.isRemotePhantom = true;
-		}
-
 		return this._send(method, url, data)
 					.then(result => {
 						if (this.debugMode) {
@@ -610,9 +606,6 @@ class AjaxRepository extends Repository {
 			data = {
 				entities: _.map(entities, entity => {
 					const values = entity.submitValues;
-					if (entity.isRemotePhantomMode) {
-						values.isRemotePhantom = true;
-					}
 					entity.isSaving = true;
 					return values;
 				}),
@@ -672,10 +665,6 @@ class AjaxRepository extends Repository {
 			url = this.api.edit,
 			data = entity.getSubmitValues();
 
-		if (entity.isRemotePhantomMode) {
-			data.isRemotePhantom = false;
-		}
-
 		return this._send(method, url, data)
 					.then(result => {
 						if (this.debugMode) {
@@ -723,9 +712,6 @@ class AjaxRepository extends Repository {
 			data = {
 				entities: _.map(entities, entity => {
 					const values = entity.submitValues;
-					if (entity.isRemotePhantomMode) {
-						values.isRemotePhantom = false;
-					}
 					entity.isSaving = true;
 					return values;
 				}),
