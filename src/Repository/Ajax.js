@@ -124,6 +124,7 @@ class AjaxRepository extends Repository {
 			add: false,
 			edit: false,
 			delete: false,
+			deletePhantom: false,
 		};
 
 	}
@@ -537,6 +538,7 @@ class AjaxRepository extends Repository {
 			add: false,
 			edit: false,
 			delete: false,
+			deletePhantom: false,
 		};
 	}
 
@@ -763,7 +765,11 @@ class AjaxRepository extends Repository {
 			return;
 		}
 
-		this._operations.delete = true;
+		if (entity.isRemotePhantomMode && entity.isPhantom) {
+			this._operations.deletePhantom = true;
+		} else {
+			this._operations.delete = true;
+		}
 		entity.isSaving = true;
 
 		const
@@ -810,7 +816,7 @@ class AjaxRepository extends Repository {
 			return;
 		}
 
-		this._operations.delete = true;
+		this._operations.delete = true; // NOTE: We don't use batchDelete for remotePhantom records
 
 		const
 			method = this.methods.delete,
@@ -966,7 +972,7 @@ class AjaxRepository extends Repository {
 
 							// Do we need to reload?
 							if (!this.eventsPaused) {
-								if (this._operations.add && this.isRemotePhantomMode) {
+								if (this.isRemotePhantomMode && (this._operations.add || this._operations.deletePhantom)) {
 									// Do nothing, as we don't want to immediately reload on add for a remote phantom mode record. It won't appear, and it will cause all kinds of trouble!
 								} else if (this._operations.add || this._operations.delete) {
 									this.reload();

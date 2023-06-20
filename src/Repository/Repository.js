@@ -1796,7 +1796,7 @@ export default class Repository extends EventEmitter {
 			if (!entity) {
 				return;
 			}
-			if (entity.isPhantom) {
+			if (entity.isPhantom && !entity.isRemotePhantomMode) {
 				// Just auto-remove it. Don't bother saving to storage medium.
 				this.removeEntity(entity);
 			} else {
