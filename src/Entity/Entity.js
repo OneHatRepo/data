@@ -32,10 +32,9 @@ class Entity extends EventEmitter {
 	 * @param {Schema} schema - Schema object
 	 * @param {object} rawData - Raw data object. Keys are Property names, Values are Property values.
 	 * @param {Repository} repository
-	 * @param {boolean} originalIsMapped - Has data already been mapped according to schema?
 	 * @param {boolean} isDelayedSave - Should the repository skip autosave when immediately adding the record?
 	 */
-	constructor(schema, rawData = {}, repository = null, originalIsMapped = false, isDelayedSave = false, isRemotePhantomMode = false) {
+	constructor(schema, rawData = {}, repository = null, isDelayedSave = false, isRemotePhantomMode = false) {
 		super(...arguments);
 
 		if (!schema) {
@@ -89,12 +88,14 @@ class Entity extends EventEmitter {
 		 * @private
 		 */
 		this._originalDataParsed = null;
-
+		
 		/**
 		 * @member {boolean} originalIsMapped - Has the original data already been mapped according to schema?
+		 * The attribute is no longer used. this._originalData should always be UNmapped.
 		 * @private
+		 * @deprecated
 		 */
-		this.originalIsMapped = originalIsMapped;
+		// this.originalIsMapped = originalIsMapped;
 
 		/**
 		 * @member {Object} properties - Object of all Properties, keyed by id (for quick access)
@@ -339,11 +340,6 @@ class Entity extends EventEmitter {
 				throw new Error('PropertyType ' + type + ' does not exist.');
 			}
 
-			if (this.originalIsMapped) {
-				// Data has already been mapped according to schema, so alter definition
-				definition = _.clone(definition); // Clone it so you don't alter original in schema
-				definition.mapping = definition.name;
-			}
 			const
 				Property = PropertyTypes[type],
 				property = new Property(definition, this._proxy);
@@ -383,6 +379,7 @@ class Entity extends EventEmitter {
 			throw Error('this.loadOriginalData is no longer valid. Entity has been destroyed.');
 		}
 		this.isPersisted = true;
+
 		this._originalData = originalData || {};
 		this.reset();
 		this.getIdProperty().isTempId = false;
@@ -1215,9 +1212,16 @@ class Entity extends EventEmitter {
 			throw Error('this.setRawValues is no longer valid. Entity has been destroyed.');
 		}
 
-		const [dependentProperties, nonDependentProperties] = _.partition(this.properties, (property) => {
-			return property.hasDepends;
-		});
+		return this.setValues(this.getMappedData(rawData));
+	}
+
+	/**
+	 * Maps the data, according to schema
+	 * @param {object} rawData - Raw data object, prior to mapping, 
+	 * @returns {object} mappedData
+	 */
+	getMappedData = (rawData) => {
+
 		const mappedData = {};
 		function setMappedValue(property) {
 			let rawValue;
@@ -1232,10 +1236,14 @@ class Entity extends EventEmitter {
 			mappedData[property.name] = rawValue;
 		}
 		
+		const [dependentProperties, nonDependentProperties] = _.partition(this.properties, (property) => {
+			return property.hasDepends;
+		});
+
 		_.each(nonDependentProperties, setMappedValue);
 		_.each(dependentProperties, setMappedValue);
 
-		return this.setValues(mappedData);
+		return mappedData;
 	}
 
 	/**

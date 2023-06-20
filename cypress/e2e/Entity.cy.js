@@ -542,6 +542,23 @@ describe('Entity', function() {
 			expect(this.entity.isDirty).to.be.true;
 		});
 
+		it('getMappedData', function() {
+
+			const mapped = this.entity.getMappedData({
+				foo: 2,
+				bar: 'two',
+				baz: {
+					test: {
+						val: false,
+					},
+				},
+			});
+			
+			expect(mapped.foo).to.be.eq(2);
+			expect(mapped.bar).to.be.eq('two');
+			expect(mapped.baz).to.be.eq(false);
+		});
+
 		it('setId', function() {
 			expect(this.entity.foo).to.be.eq(1);
 			expect(this.entity.isTempId).to.be.false;
@@ -640,11 +657,17 @@ describe('Entity', function() {
 				lateLastModified;
 
 			earlyLastModified = this.entity.lastModified;
+			cy.wait(100);
+
 			this.entity.setValue('foo', '125');
 			lateLastModified = this.entity.lastModified;
 			expect(earlyLastModified < lateLastModified).to.be.true;
 
+			cy.wait(100);
+
 			earlyLastModified = this.entity.lastModified;
+			
+			cy.wait(100);
 			this.entity.foo = '126';
 			lateLastModified = this.entity.lastModified;
 			expect(earlyLastModified < lateLastModified).to.be.true;

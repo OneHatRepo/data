@@ -965,12 +965,11 @@ export default class Repository extends EventEmitter {
 	 * Creates a single new Entity in storage medium.
 	 * @param {object} data - Either raw data object or Entity. If raw data, keys are Property names, Values are Property values.
 	 * @param {boolean} isPersisted - Whether the new entity should be marked as already being persisted in storage medium.
-	 * @param {boolean} originalIsMapped - Has data already been mapped according to schema?
 	 * @param {boolean} isDelayedSave - Should the repository skip autosave when immediately adding the record?
 	 * @return {object} entity - new Entity object
 	 * @fires add
 	 */
-	add = async (data, isPersisted = false, originalIsMapped = false, isDelayedSave = false) => {
+	add = async (data, isPersisted = false, isDelayedSave = false) => {
 		if (this.isDestroyed) {
 			this.throwError('this.add is no longer valid. Repository has been destroyed.');
 			return;
@@ -992,7 +991,7 @@ export default class Repository extends EventEmitter {
 		let entity = data;
 		if (!(data instanceof Entity)) {
 			// Create the new entity
-			entity = Repository._createEntity(this.schema, data, this, isPersisted, originalIsMapped, isDelayedSave, this.isRemotePhantomMode);
+			entity = Repository._createEntity(this.schema, data, this, isPersisted, isDelayedSave, this.isRemotePhantomMode);
 		}
 		this._relayEntityEvents(entity);
 		this.entities.unshift(entity); // Add to *beginning* of entities array, so the phantom record will appear at the beginning of the current page
@@ -1016,11 +1015,10 @@ export default class Repository extends EventEmitter {
 	 * Used when we want to work with an entity, but don't want that entity to appear in a repository.
 	 * @param {object} data - Either raw data object or Entity. If raw data, keys are Property names, Values are Property values.
 	 * @param {boolean} isPersisted - Whether the new entity should be marked as already being persisted in storage medium.
-	 * @param {boolean} originalIsMapped - Has data already been mapped according to schema?
 	 * @param {boolean} isDelayedSave - Should the repository skip autosave when immediately adding the record?
 	 * @return {object} entity - new Entity object
 	 */
-	createStandaloneEntity = async (data, isPersisted = false, originalIsMapped = false, isDelayedSave = false) => {
+	createStandaloneEntity = async (data, isPersisted = false, isDelayedSave = false) => {
 		if (this.isDestroyed) {
 			this.throwError('this.createStandaloneEntity is no longer valid. Repository has been destroyed.');
 			return;
@@ -1030,7 +1028,7 @@ export default class Repository extends EventEmitter {
 			return;
 		}
 		
-		const entity = Repository._createEntity(this.schema, data, this, isPersisted, originalIsMapped, isDelayedSave, this.isRemotePhantomMode);
+		const entity = Repository._createEntity(this.schema, data, this, isPersisted, isDelayedSave, this.isRemotePhantomMode);
 
 		if (entity.isPhantom) {
 			entity.createTempId();
@@ -1050,10 +1048,9 @@ export default class Repository extends EventEmitter {
 	 * Convenience function to create multiple new Entities in storage medium.
 	 * @param {array} data - Array of data objects or Entities. 
 	 * @param {boolean} isPersisted - Whether the new entities should be marked as already being persisted in storage medium.
-	 * @param {boolean} originalIsMapped - Has data already been mapped according to schema?
 	 * @return {array} entities - new Entity objects
 	 */
-	addMultiple = async (allData, isPersisted = false, originalIsMapped = false) => {
+	addMultiple = async (allData, isPersisted = false) => {
 
 		let entities = [],
 			i,
@@ -1062,7 +1059,7 @@ export default class Repository extends EventEmitter {
 
 		for (i = 0; i < allData.length; i++) {
 			data = allData[i];
-			entity = await this.add(data, isPersisted, originalIsMapped);
+			entity = await this.add(data, isPersisted);
 			entities.push(entity);
 		};
 		
@@ -1076,13 +1073,12 @@ export default class Repository extends EventEmitter {
 	 * @param {object} rawData - Raw data object. Keys are Property names, Values are Property values.
 	 * @param {boolean} repository - Optional repository to connect the entity to.
 	 * @param {boolean} isPersisted - Whether the new entity should be marked as already being persisted in storage medium.
-	 * @param {boolean} originalIsMapped - Has data already been mapped according to schema?
 	 * @param {boolean} isDelayedSave - Should the repository skip autosave when immediately adding the record?
 	 * @return {object} entity - new Entity object
 	 * @private
 	 */
-	static _createEntity = (schema, rawData, repository = null, isPersisted = false, originalIsMapped = false, isDelayedSave = false, isRemotePhantomMode = false) => {
-		const entity = new Entity(schema, rawData, repository, originalIsMapped, isDelayedSave, isRemotePhantomMode);
+	static _createEntity = (schema, rawData, repository = null, isPersisted = false, isDelayedSave = false, isRemotePhantomMode = false) => {
+		const entity = new Entity(schema, rawData, repository, isDelayedSave, isRemotePhantomMode);
 		entity.initialize();
 		entity.isPersisted = isPersisted;
 		return entity;
