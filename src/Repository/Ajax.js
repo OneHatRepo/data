@@ -957,7 +957,7 @@ class AjaxRepository extends Repository {
 		if (!promises.length) {
 			return;
 		}
-		return this.axios.all(promises)
+		return Promise.all(promises)
 						.then(this.axios.spread((...batchOperationResults) => {
 							// All requests are now complete
 
