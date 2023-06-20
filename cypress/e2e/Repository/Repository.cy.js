@@ -1050,7 +1050,7 @@ describe('Repository Base', function() {
 
 	});
 
-	describe('misc', function() {
+	describe('utilities', function() {
 		it('setOptions', function() {
 
 			this.repository.setOptions({
@@ -1060,6 +1060,45 @@ describe('Repository Base', function() {
 			});
 			
 			expect(this.repository.api.baseURL).to.be.eq('test123');
+		});
+
+		it('unmapData', function() {
+
+			// Setup
+			const
+				schema = new Schema({
+					name: 'baz',
+					model: {
+						idProperty: 'foo',
+						displayProperty: 'bar',
+						properties: [
+							{ name: 'foo', type: 'int' },
+							{ name: 'bar' },
+							{ name: 'baz', mapping: 'baz.test.val', type: 'bool', defaultValue: null, },
+							{ name: 'boo', mapping: 'baz.test.boo', type: 'bool', defaultValue: null, },
+						],
+					},
+				}),
+				data = {
+					foo: 1,
+					bar: 'one',
+					baz: {
+						test: {
+							val: true,
+							boo: false,
+						},
+					},
+				};
+			this.repository.schema = schema;
+
+			// Now do the test
+			const unmapped = this.repository.unmapData({
+				foo: 1,
+				bar: 'one',
+				baz: true,
+				boo: false,
+			});
+			expect(unmapped).to.be.eql(data);
 		});
 
 		it('toString', function() {

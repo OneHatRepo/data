@@ -1038,13 +1038,6 @@ export default class Repository extends EventEmitter {
 	}
 
 	/**
-	 * Convenience function to add entity with mapped data.
-	 */
-	addMapped = (data, isPersisted = false) => {
-		return this.add(data, isPersisted, true);
-	}
-
-	/**
 	 * Convenience function to create multiple new Entities in storage medium.
 	 * @param {array} data - Array of data objects or Entities. 
 	 * @param {boolean} isPersisted - Whether the new entities should be marked as already being persisted in storage medium.
@@ -2020,13 +2013,11 @@ export default class Repository extends EventEmitter {
 
 
 
-
-	//    ____        __  _
-	//   / __ \____  / /_(_)___  ____  _____
-	//  / / / / __ \/ __/ / __ \/ __ \/ ___/
-	// / /_/ / /_/ / /_/ / /_/ / / / (__  )
-	// \____/ .___/\__/_/\____/_/ /_/____/
-	//     /_/
+	//    __  ____  _ ___ __  _          
+	//   / / / / /_(_) (_) /_(_)__  _____
+	//  / / / / __/ / / / __/ / _ \/ ___/
+	// / /_/ / /_/ / / / /_/ /  __(__  ) 
+	// \____/\__/_/_/_/\__/_/\___/____/  
 
 	/**
 	 * Set config options after Repository has already been initialized
@@ -2035,6 +2026,60 @@ export default class Repository extends EventEmitter {
 	 */
 	setOptions = (options) => {
 		_.merge(this, options);
+	}
+
+	unmapData = (mappedData) => {
+		const propertiesDef = this.schema?.model?.properties;
+		if (!propertiesDef) {
+			throw Error('No properties defined!');
+		}
+
+		// Simply the definitions
+		const
+			UNMAPPED = 'UNMAPPED',
+			properties = {};
+		_.each(propertiesDef, (def) => {
+			properties[def.name] = def.mapping || UNMAPPED;
+		});
+
+		// Build the unmapped data
+		const unmappedData = {};
+		_.forOwn(mappedData, (value, field) => {
+			const mapping = properties[field];
+			if (mapping === UNMAPPED) {
+				// Simple, just add the value
+				unmappedData[field] = value;
+			} else {
+				// This is the more complicated one. Need to build up the hierarchy of unmapped data
+
+				const
+					mapStack = mapping.split('.'),
+					rawValue = value;
+		
+				// Build up the hierarchy
+				let thisValue = {},
+					current = thisValue,
+					i,
+					total = mapStack.length;
+				for (i = 0; i < total; i++) {
+					let path = mapStack[i];
+					if (current && !current.hasOwnProperty(path)) {
+						current[path] = {}; // walk the path
+					}
+					if (i < total -1) {
+						current = current[path];
+					} else {
+						current[path] = rawValue; // Last one, so set the thisValue
+					}
+				}
+				_.merge(unmappedData, thisValue);
+
+			}
+		});
+
+
+
+		return unmappedData;
 	}
 
 	/**
