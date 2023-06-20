@@ -966,7 +966,9 @@ class AjaxRepository extends Repository {
 
 							// Do we need to reload?
 							if (!this.eventsPaused) {
-								if (this._operations.add || this._operations.delete) {
+								if (this._operations.add && this.isRemotePhantomMode) {
+									// Do nothing, as we don't want to immediately reload on add for a remote phantom mode record. It won't appear, and it will cause all kinds of trouble!
+								} else if (this._operations.add || this._operations.delete) {
 									this.reload();
 								} else {
 									this.emit('changeData', this.entities);
