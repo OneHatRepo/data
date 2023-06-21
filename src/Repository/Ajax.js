@@ -798,7 +798,7 @@ class AjaxRepository extends Repository {
 
 						// Delete it from this.entities
 						const id = entity.id;
-						this.entities = _.filter(this.entities, (entity) => entity.id === id);
+						this.entities = _.filter(this.entities, (entity) => entity.id !== id);
 						entity.destroy();
 					});
 	}
@@ -974,6 +974,14 @@ class AjaxRepository extends Repository {
 							if (!this.eventsPaused) {
 								if (this.isRemotePhantomMode && (this._operations.add || this._operations.deletePhantom)) {
 									// Do nothing, as we don't want to immediately reload on add for a remote phantom mode record. It won't appear, and it will cause all kinds of trouble!
+									if (this._operations.deletePhantom) {
+										// sweep existing deleted records and remove them
+										_.each(this.entities, (entity) => {
+											if (entity.isDeleted && entity.isDestroyed) {
+												this.removeEntity(entity);
+											}
+										})
+									}
 								} else if (this._operations.add || this._operations.delete) {
 									this.reload();
 								} else {

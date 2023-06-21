@@ -1818,7 +1818,9 @@ export default class Repository extends EventEmitter {
 	 */
 	removeEntity(entity) { // standard function notation so it can be called by child class via super.removeEntity
 		this.entities = _.filter(this.entities, e => e !== entity);
-		entity.destroy();
+		if (!entity.isDestroyed) {
+			entity.destroy();
+		}
 	}
 
 	/**
