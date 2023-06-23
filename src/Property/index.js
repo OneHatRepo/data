@@ -8,7 +8,7 @@ import DateTimeProperty from './DateTime.js';
 import FileProperty from './File.js';
 import FloatProperty from './Float.js';
 import IntegerProperty from './Integer.js';
-import JsonProperty from './Json.js';
+import JsonProperty, { TagProperty } from './Json.js';
 import PercentProperty from './Percent.js';
 import PercentIntProperty from './PercentInt.js';
 import StringProperty from './String.js';
@@ -28,6 +28,7 @@ const PropertyTypes = {
 	[PercentProperty.type]: PercentProperty,
 	[PercentIntProperty.type]: PercentIntProperty,
 	[StringProperty.type]: StringProperty,
+	[TagProperty.type]: TagProperty,
 	[TimeProperty.type]: TimeProperty,
 	[UuidProperty.type]: UuidProperty,
 };
