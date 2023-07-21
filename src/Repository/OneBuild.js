@@ -489,6 +489,8 @@ class OneBuildRepository extends AjaxRepository {
 				this.total = total;
 				this._setPaginationVars();
 
+				this.isRootNodesLoaded = true;
+
 				this.markLoaded();
 
 				this.emit('changeData', this.entities);
