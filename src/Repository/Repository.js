@@ -355,15 +355,15 @@ export default class Repository extends EventEmitter {
 	/**
 	 * Marks this repository as loading
 	 */
-	markLoading = () => {
-		this.isLoading = true;
+	markLoading = (bool = true) => {
+		this.isLoading = bool;
 	}
 
 	/**
 	 * Marks this repository as loaded
 	 */
 	markLoaded = () => {
-		this.isLoading = false;
+		this.markLoading(false);
 		this.isLoaded = true;
 		this.lastLoaded = moment(new Date()).format('YYYY-MM-DD HH:mm:ss.SSSS');
 	}

@@ -1,5 +1,6 @@
 /** @module Repository */
 
+import Repository from './Repository.js';
 import AjaxRepository from './Ajax.js';
 import qs from 'qs';
 import _ from 'lodash';
@@ -45,7 +46,7 @@ class OneBuildRepository extends AjaxRepository {
 			},
 
 			methods: {
-				get: 'POST',
+				// get: 'POST',
 			},
 			
 			rootProperty: 'data',
@@ -104,12 +105,17 @@ class OneBuildRepository extends AjaxRepository {
 			return;
 		}
 
+		const headers = _.merge({
+							'Content-Type': 'application/json',
+							Accept: 'application/json',
+						}, this.headers);
+
 		const options = {
 				url,
 				method,
 				baseURL: this.api.baseURL,
 				transformResponse: null,
-				headers: this.headers,
+				headers,
 				params: method === 'GET' ? data : null,
 				data: method !== 'GET' ? qs.stringify(data) : null,
 				timeout: this.timeout,
@@ -220,7 +226,8 @@ class OneBuildRepository extends AjaxRepository {
 			};
 		}
 
-		const response = this.reader.read(result.data),
+		const
+			response = _.isPlainObject(result.data) ? result.data : this.reader.read(result.data),
 			root = response[this.rootProperty],
 			success = response[this.successProperty],
 			total = response[this.totalProperty],
@@ -347,11 +354,16 @@ class OneBuildRepository extends AjaxRepository {
 			console.log('logout');
 		}
 
+		const headers = _.merge({
+							'Content-Type': 'application/json',
+							Accept: 'application/json',
+						}, this.headers);
+
 		return this.axios({
 				url: 'Users/apiLogout',
 				method: 'POST',
 				baseURL: this.api.baseURL,
-				headers: this.headers,
+				headers,
 				timeout: this.timeout,
 			})
 			.then((result) => {
@@ -424,13 +436,9 @@ class OneBuildRepository extends AjaxRepository {
 			this.throwError('Offline');
 			return;
 		}
+		this.emit('beforeLoad'); // TODO: canceling beforeLoad will cancel the load operation
+		this.markLoading();
 
-		// Clear all entities, if any exist
-		_.each(this.entities, (entity) => {
-			entity.destroy();
-		});
-		this.entities = [];
-		
 		
 		const data = {
 			url: this.name + '/getRootNodes',
@@ -450,19 +458,44 @@ class OneBuildRepository extends AjaxRepository {
 		return this.axios(data)
 			.then((result) => {
 				if (this.debugMode) {
-					console.log('getRootNodes response', result);
+					console.log('Response for getRootNodes', result);
 				}
 
-				const response = result.data;
-				if (!response.success) {
-					this.throwError(response.data);
+				if (this.isDestroyed) {
+					// If this repository gets destroyed before it has a chance
+					// to process the Ajax request, just ignore the response.
 					return;
 				}
 
-				// TODO: Load up the repository with these root nodes
+				const {
+					root,
+					success,
+					total,
+					message
+				} = this._processServerResponse(result);
 
+				this._destroyEntities();
 
+				// Set the current entities
+				this.entities = _.map(root, (data) => {
+					const entity = Repository._createEntity(this.schema, data, this, true);
+					this._relayEntityEvents(entity);
+					return entity;
+				});
 
+				this.assembleTreeNodes();
+				
+				// Set the total records that pass filter
+				this.total = total;
+				this._setPaginationVars();
+
+				this.markLoaded();
+
+				this.emit('changeData', this.entities);
+				this.emit('load', this);
+			})
+			.finally(() => {
+				this.markLoading(false);
 			});
 	}
 

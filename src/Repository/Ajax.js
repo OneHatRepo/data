@@ -450,7 +450,7 @@ class AjaxRepository extends Repository {
 						}
 					})
 					.finally(() => {
-						this.isLoading = false;
+						this.markLoading(false);
 					});
 	}
 
@@ -511,7 +511,7 @@ class AjaxRepository extends Repository {
 						}
 					})
 					.finally(() => {
-						this.isLoading = false;
+						this.markLoading(false);
 					});
 		
 	}
@@ -894,12 +894,17 @@ class AjaxRepository extends Repository {
 			return;
 		}
 
+		const headers = _.merge({
+							'Content-Type': 'application/json',
+							'Accept': 'application/json',
+						}, this.headers);
+
 		const options = {
 				url,
 				method,
 				baseURL: this.api.baseURL,
 				transformResponse: null,
-				headers: this.headers,
+				headers,
 				params: method === 'GET' ? data : null,
 				data: method !== 'GET' ? qs.stringify(data) : null,
 				timeout: this.timeout,
