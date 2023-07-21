@@ -495,6 +495,10 @@ class OneBuildRepository extends AjaxRepository {
 
 				this.emit('changeData', this.entities);
 				this.emit('load', this);
+
+				return this.getBy((entity) => {
+					return entity.isRoot;
+				});
 			})
 			.finally(() => {
 				this.markLoading(false);
