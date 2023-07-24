@@ -1139,7 +1139,7 @@ describe('Repository Base', function() {
 					parent_id: null,
 					depth: 0,
 					hasChildren: true,
-					isChildrenLoaded: true,
+					areChildrenLoaded: true,
 				},
 				{
 					id: 2,
@@ -1147,21 +1147,21 @@ describe('Repository Base', function() {
 					parent_id: 1,
 					depth: 1,
 					hasChildren: true,
-					isChildrenLoaded: true,
+					areChildrenLoaded: true,
 				},
 				{
 					id: 3,
 					display: 'Child 2',
 					parent_id: 1,
 					depth: 1,
-					isChildrenLoaded: true,
+					areChildrenLoaded: true,
 				},
 				{
 					id: 4,
 					display: 'Grandchild',
 					parent_id: 2,
 					depth: 2,
-					isChildrenLoaded: true,
+					areChildrenLoaded: true,
 				},
 			],
 			creatRepository = async () => {

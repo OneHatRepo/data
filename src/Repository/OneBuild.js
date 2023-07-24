@@ -436,8 +436,8 @@ class OneBuildRepository extends AjaxRepository {
 			this.throwError('Offline');
 			return;
 		}
-		this.emit('beforeLoad'); // TODO: canceling beforeLoad will cancel the load operation
-		this.markLoading();
+		// this.emit('beforeLoad'); // TODO: canceling beforeLoad will cancel the load operation
+		// this.markLoading();
 
 		
 		const
@@ -493,10 +493,11 @@ class OneBuildRepository extends AjaxRepository {
 
 				this.areRootNodesLoaded = true;
 
-				this.markLoaded();
-
-				this.emit('changeData', this.entities);
-				this.emit('load', this);
+				
+				// Don't emit events for root nodes...
+				// this.markLoaded();
+				// this.emit('changeData', this.entities);
+				// this.emit('load', this);
 
 				return this.getBy((entity) => {
 					return entity.isRoot;

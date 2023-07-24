@@ -121,21 +121,24 @@ class Entity extends EventEmitter {
 
 		/**
 		 * @member {TreeNode} parent - The parent TreeNode for this TreeNode
+		 * @public
 		 * For trees only
 		 */
 		this.parent = null;
 
 		/**
 		 * @member {array} children - Contains any children of this TreeNode
+		 * @public
 		 * For trees only
 		 */
 		this.children = this._originalData.children && !_.isEmpty(this._originalData.children) ? this._originalData.children : [];
 
 		/**
-		 * @member {boolean} isChildrenLoaded - Whether child TreeNodes have loaded for this TreeNode
+		 * @member {boolean} areChildrenLoaded - Whether child TreeNodes have loaded for this TreeNode
+		 * @public
 		 * For trees only
 		 */
-		this.isChildrenLoaded = this._originalData.isChildrenLoaded || false;
+		this.areChildrenLoaded = this._originalData.areChildrenLoaded || false;
 
 		/**
 		 * @member {boolean} isPersisted - Whether this object has been persisted in a storage medium
@@ -1639,7 +1642,7 @@ class Entity extends EventEmitter {
 		if (this.isDestroyed) {
 			throw Error('this.getChildren is no longer valid. TreeNode has been destroyed.');
 		}
-		if (!this.isChildrenLoaded) {
+		if (!this.areChildrenLoaded) {
 			await this.loadChildren();
 		}
 		return this.children;
@@ -1672,7 +1675,7 @@ class Entity extends EventEmitter {
 		}
 
 		this.children = await this.repository.loadChildren(this, depth); // populates the children with a reference to this in child.parent
-		this.isChildrenLoaded = true;
+		this.areChildrenLoaded = true;
 	}
 
 	/**
