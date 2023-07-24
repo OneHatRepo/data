@@ -118,6 +118,6 @@ JsonProperty.type = 'json';
 
 
 // For the sake of OneBuild, create an alias of Json, that's Tag
-class TagProperty extends JsonProperty {}
+export class TagProperty extends JsonProperty {}
 TagProperty.className = 'Tag';
 TagProperty.type = 'tag';
