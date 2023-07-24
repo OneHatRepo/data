@@ -426,7 +426,7 @@ class OneBuildRepository extends AjaxRepository {
 	/**
 	 * Gets the root nodes of this tree.
 	 */
-	getRootNodes = async (getChildren = false, depth, getChildParams) => {
+	getRootNodes = async (getChildren = false, depth, conditions = {}, additionalParams = {}) => {
 		this.ensureTree();
 		if (this.isDestroyed) {
 			this.throwError('this.setRootNode is no longer valid. Repository has been destroyed.');
@@ -440,16 +440,18 @@ class OneBuildRepository extends AjaxRepository {
 		this.markLoading();
 
 		
-		const data = {
-			url: this.name + '/getRootNodes',
-			data: qs.stringify({
-				getChildren,
-				depth,
-				conditions: getChildParams ? getChildParams() : null 
-			}),
-			method: 'POST',
-			baseURL: this.api.baseURL,
-		};
+		const
+			data = {
+				url: this.name + '/getRootNodes',
+				data: qs.stringify({
+					getChildren,
+					depth,
+					conditions,
+					...additionalParams,
+				}),
+				method: 'POST',
+				baseURL: this.api.baseURL,
+			};
 
 		if (this.debugMode) {
 			console.log('getRootNodes', data);
