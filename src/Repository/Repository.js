@@ -288,10 +288,10 @@ export default class Repository extends EventEmitter {
 		});
 
 		// Auto load & sort
-		if (this.isAutoLoad) {
+		if (this.isAutoLoad && !this.isTree) {
 			await this.load();
 		}
-		if (!this.isSorted && this.isAutoSort && !this.isRemoteSort) { // load may have sorted, in which case this will be skipped.
+		if (!this.isSorted && this.isAutoSort && !this.isRemoteSort && !this.isTree) { // load may have sorted, in which case this will be skipped.
 			await this.sort();
 		}
 
