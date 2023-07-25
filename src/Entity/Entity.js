@@ -1665,7 +1665,7 @@ class Entity extends EventEmitter {
 	/**
 	 * Loads the children of this TreeNode from repository.
 	 */
-	loadChildren = async (depth, conditions, additionalParams) => {
+	loadChildren = async (depth) => {
 		this.ensureTree();
 		if (this.isDestroyed) {
 			throw Error('this.loadChildren is no longer valid. TreeNode has been destroyed.');
@@ -1674,7 +1674,7 @@ class Entity extends EventEmitter {
 			throw Error('repository.getChildNodes is not defined.');	
 		}
 
-		const children = await this.repository.getChildNodes(this, depth, conditions, additionalParams); // populates the children with a reference to this in child.parent
+		const children = await this.repository.getChildNodes(this, depth);
 		this.areChildrenLoaded = true;
 		return children;
 	}

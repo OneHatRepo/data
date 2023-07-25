@@ -177,8 +177,12 @@ class OneBuildRepository extends AjaxRepository {
 			}
 		});
 
-		if (this.isLoaded && this.isAutoLoad && !this.eventsPaused && !this.isTree) {
-			return this.reload();
+		if (this.isLoaded && this.isAutoLoad && !this.eventsPaused) {
+			if (this.isTree) {
+				return this.getRootNodes(1);
+			} else {
+				return this.reload();
+			}
 		}
 	}
 
@@ -198,10 +202,16 @@ class OneBuildRepository extends AjaxRepository {
 		}
 		
 		if (!this.eventsPaused) {
-			if (this.isLoaded && this.isAutoLoad && !this.isTree) {
-				return this.reload().then(() => {
-					this.emit('changeSorters');
-				});
+			if (this.isLoaded && this.isAutoLoad) {
+				if (this.isTree) {
+					return this.getRootNodes(1).then(() => {
+						this.emit('changeSorters');
+					});
+				} else {
+					return this.reload().then(() => {
+						this.emit('changeSorters');
+					});
+				}
 			} else {
 				this.emit('changeSorters');
 			}
@@ -426,7 +436,7 @@ class OneBuildRepository extends AjaxRepository {
 	/**
 	 * Gets the root nodes of this tree.
 	 */
-	getRootNodes = async (depth, conditions = {}, additionalParams = {}) => {
+	getRootNodes = (depth) => {
 		this.ensureTree();
 		if (this.isDestroyed) {
 			this.throwError('this.setRootNode is no longer valid. Repository has been destroyed.');
@@ -439,24 +449,9 @@ class OneBuildRepository extends AjaxRepository {
 
 		this.emit('beforeLoad'); // TODO: canceling beforeLoad will cancel the load operation
 		this.markLoading();
-		
-		const
-			data = {
-				url: this.name + '/getNodes',
-				data: qs.stringify({
-					depth,
-					conditions,
-					...additionalParams,
-				}),
-				method: 'POST',
-				baseURL: this.api.baseURL,
-			};
 
-		if (this.debugMode) {
-			console.log('getRootNodes', data);
-		}
-
-		return this.axios(data)
+		const data = _.merge({ depth }, this._baseParams, this._params);
+		return this._send('POST', this.name + '/getNodes', data)
 			.then((result) => {
 				if (this.debugMode) {
 					console.log('Response for getRootNodes', result);
@@ -474,6 +469,11 @@ class OneBuildRepository extends AjaxRepository {
 					total,
 					message
 				} = this._processServerResponse(result);
+
+				if (!success) {
+					this.throwError(message);
+					return;
+				}
 
 				this._destroyEntities();
 
@@ -509,10 +509,10 @@ class OneBuildRepository extends AjaxRepository {
 	/**
 	 * Loads the children of the supplied treeNode
 	 */
-	getChildNodes = async (treeNode, depth = 1, conditions = {}, additionalParams = {}) => {
+	getChildNodes = (treeNode, depth = 1) => {
 		this.ensureTree();
 		if (this.isDestroyed) {
-			this.throwError('this.setRootNode is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getChildNodes is no longer valid. Repository has been destroyed.');
 			return;
 		}
 		if (!this.isOnline) {
@@ -534,27 +534,11 @@ class OneBuildRepository extends AjaxRepository {
 		
 		this.markLoading();
 
-		const
-			data = {
-				url: this.name + '/getNodes',
-				data: qs.stringify({
-					parentId: treeNode.id,
-					depth,
-					conditions,
-					...additionalParams,
-				}),
-				method: 'POST',
-				baseURL: this.api.baseURL,
-			};
-
-		if (this.debugMode) {
-			console.log('loadChildren', data);
-		}
-
-		return this.axios(data)
+		const data = _.merge({ depth, parentId: treeNode.id, }, this._baseParams, this._params);
+		return this._send('POST', this.name + '/getNodes', data)
 			.then((result) => {
 				if (this.debugMode) {
-					console.log('Response for loadChildren', result);
+					console.log('Response for getChildNodes', result);
 				}
 
 				if (this.isDestroyed) {
@@ -570,6 +554,11 @@ class OneBuildRepository extends AjaxRepository {
 					message
 				} = this._processServerResponse(result);
 
+				if (!success) {
+					this.throwError(message);
+					return;
+				}
+				
 				// Set the current entities
 				const children = _.map(root, (data) => {
 					const entity = Repository._createEntity(this.schema, data, this, true);
