@@ -1670,12 +1670,13 @@ class Entity extends EventEmitter {
 		if (this.isDestroyed) {
 			throw Error('this.loadChildren is no longer valid. TreeNode has been destroyed.');
 		}
-		if (!this.repository?.loadChildren) {
-			throw Error('repository.loadChildren is not defined.');	
+		if (!this.repository?.getChildNodes) {
+			throw Error('repository.getChildNodes is not defined.');	
 		}
 
-		this.children = await this.repository.loadChildren(this, depth); // populates the children with a reference to this in child.parent
+		const children = await this.repository.getChildNodes(this, depth); // populates the children with a reference to this in child.parent
 		this.areChildrenLoaded = true;
+		return children;
 	}
 
 	/**

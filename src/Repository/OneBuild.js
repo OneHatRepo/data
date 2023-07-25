@@ -426,7 +426,7 @@ class OneBuildRepository extends AjaxRepository {
 	/**
 	 * Gets the root nodes of this tree.
 	 */
-	getRootNodes = async (getChildren = false, depth, conditions = {}, additionalParams = {}) => {
+	getRootNodes = async (depth, conditions = {}, additionalParams = {}) => {
 		this.ensureTree();
 		if (this.isDestroyed) {
 			this.throwError('this.setRootNode is no longer valid. Repository has been destroyed.');
@@ -436,15 +436,14 @@ class OneBuildRepository extends AjaxRepository {
 			this.throwError('Offline');
 			return;
 		}
-		// this.emit('beforeLoad'); // TODO: canceling beforeLoad will cancel the load operation
-		// this.markLoading();
 
+		this.emit('beforeLoad'); // TODO: canceling beforeLoad will cancel the load operation
+		this.markLoading();
 		
 		const
 			data = {
-				url: this.name + '/getRootNodes',
+				url: this.name + '/getNodes',
 				data: qs.stringify({
-					getChildren,
 					depth,
 					conditions,
 					...additionalParams,
@@ -495,13 +494,99 @@ class OneBuildRepository extends AjaxRepository {
 
 				
 				// Don't emit events for root nodes...
-				// this.markLoaded();
+				this.emit('load', this);
 				// this.emit('changeData', this.entities);
-				// this.emit('load', this);
 
 				return this.getBy((entity) => {
 					return entity.isRoot;
 				});
+			})
+			.finally(() => {
+				this.markLoading(false);
+			});
+	}
+
+	/**
+	 * Loads the children of the supplied treeNode
+	 */
+	getChildNodes = async (treeNode, depth = 1, conditions = {}, additionalParams = {}) => {
+		this.ensureTree();
+		if (this.isDestroyed) {
+			this.throwError('this.setRootNode is no longer valid. Repository has been destroyed.');
+			return;
+		}
+		if (!this.isOnline) {
+			this.throwError('Offline');
+			return;
+		}
+
+
+		// If children already exist, remove them from the repository
+		// This way, we can reload just a portion of the tree
+		if (!_.isEmpty(treeNode.children)) {
+			const children = treeNode.children;
+			treeNode.children = [];
+
+			_.each(children, (child) => {
+				this.removeNode(child);
+			});
+		}
+		
+		this.markLoading();
+
+		const
+			data = {
+				url: this.name + '/getNodes',
+				data: qs.stringify({
+					parentId: treeNode.id,
+					depth,
+					conditions,
+					...additionalParams,
+				}),
+				method: 'POST',
+				baseURL: this.api.baseURL,
+			};
+
+		if (this.debugMode) {
+			console.log('loadChildren', data);
+		}
+
+		return this.axios(data)
+			.then((result) => {
+				if (this.debugMode) {
+					console.log('Response for loadChildren', result);
+				}
+
+				if (this.isDestroyed) {
+					// If this repository gets destroyed before it has a chance
+					// to process the Ajax request, just ignore the response.
+					return;
+				}
+
+				const {
+					root,
+					success,
+					total,
+					message
+				} = this._processServerResponse(result);
+
+				// Set the current entities
+				const children = _.map(root, (data) => {
+					const entity = Repository._createEntity(this.schema, data, this, true);
+					this._relayEntityEvents(entity);
+					return entity;
+				});
+
+				this.entities = this.entities.concat(children);
+
+				this.assembleTreeNodes();
+				
+				this._setPaginationVars();
+
+				// this.emit('changeData', this.entities);
+				this.emit('load', this);
+
+				return children;
 			})
 			.finally(() => {
 				this.markLoading(false);
@@ -550,34 +635,6 @@ class OneBuildRepository extends AjaxRepository {
 
 				return response.data;
 			});
-	}
-	/**
-	 * Loads the children of the supplied treeNode
-	 */
-	loadChildren = async (treeNode, depth = 1) => {
-		this.ensureTree();
-		if (this.isDestroyed) {
-			this.throwError('this.setRootNode is no longer valid. Repository has been destroyed.');
-			return;
-		}
-
-
-		// If children already exist, remove them from the repository
-		// This way, we can reload just a portion of the tree
-		if (!_.isEmpty(treeNode.children)) {
-			const children = treeNode.children;
-			treeNode.children = [];
-
-			_.each(children, (child) => {
-				this.removeNode(child);
-			});
-		}
-
-
-		// TODO: load children here
-
-
-		
 	}
 
 	/**
