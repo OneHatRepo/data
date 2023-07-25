@@ -106,7 +106,7 @@ class OneBuildRepository extends AjaxRepository {
 		}
 
 		const headers = _.merge({
-							'Content-Type': 'application/json',
+							// 'Content-Type': 'application/json', // Stops axios from using 'application/x-www-form-urlencoded'
 							Accept: 'application/json',
 						}, this.headers);
 
