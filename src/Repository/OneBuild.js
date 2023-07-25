@@ -520,7 +520,6 @@ class OneBuildRepository extends AjaxRepository {
 			return;
 		}
 
-
 		// If children already exist, remove them from the repository
 		// This way, we can reload just a portion of the tree
 		if (!_.isEmpty(treeNode.children)) {
@@ -586,43 +585,46 @@ class OneBuildRepository extends AjaxRepository {
 	 * Searches all nodes for the supplied text.
 	 * This basically takes the search query and returns whatever the server sends
 	 */
-	searchTree = async (q) => {
+	searchNodes = (q) => {
 		this.ensureTree();
 		if (this.isDestroyed) {
-			this.throwError('this.searchTree is no longer valid. Repository has been destroyed.');
+			this.throwError('this.searchNodes is no longer valid. Repository has been destroyed.');
 			return;
 		}
 		if (!this.isOnline) {
 			this.throwError('Offline');
 			return;
 		}
-		
-		const data = {
-			url: this.name + '/searchTree',
-			data: qs.stringify({
-				q,
-			}),
-			method: 'POST',
-			baseURL: this.api.baseURL,
-		};
 
-		if (this.debugMode) {
-			console.log('searchTree', data);
-		}
-
-		return this.axios(data)
+		const data = _.merge({ q, }, this._baseParams, this._params);
+		return this._send('POST', this.name + '/searchNodes', data)
 			.then((result) => {
 				if (this.debugMode) {
-					console.log('searchTree response', result);
+					console.log('Response for searchNodes', result);
 				}
 
-				const response = result.data;
-				if (!response.success) {
-					this.throwError(response.data);
+				if (this.isDestroyed) {
+					// If this repository gets destroyed before it has a chance
+					// to process the Ajax request, just ignore the response.
 					return;
 				}
 
-				return response.data;
+				const {
+					root,
+					success,
+					total,
+					message
+				} = this._processServerResponse(result);
+
+				if (!success) {
+					this.throwError(message);
+					return;
+				}
+
+				return root;
+			})
+			.finally(() => {
+				this.markLoading(false);
 			});
 	}
 
