@@ -385,6 +385,9 @@ class AjaxRepository extends Repository {
 	 * @fires beforeLoad,changeData,load,error
 	 */
 	load = async (params, callback = null) => {
+		if (this.isTree && this.getRootNodes) {
+			return this.getRootNodes();
+		}
 		if (this.isDestroyed) {
 			this.throwError('this.load is no longer valid. Repository has been destroyed.');
 			return;
@@ -584,6 +587,10 @@ class AjaxRepository extends Repository {
 						if (entity.isRemotePhantomMode) {
 							entity.isRemotePhantom = true;
 						}
+
+						if (this.isTree) {
+							this.assembleTreeNodes();
+						}
 					});
 	}
 	
@@ -642,6 +649,7 @@ class AjaxRepository extends Repository {
 								entity.isRemotePhantom = true;
 							}
 						});
+
 						if (this.isTree) {
 							this.assembleTreeNodes();
 						}
