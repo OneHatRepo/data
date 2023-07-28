@@ -282,7 +282,7 @@ export default class Repository extends EventEmitter {
 		
 		// Assign event handlers
 		this.on('entity_change', async (entity) => { // Entity changed its value
-			if (this.isAutoSave) {
+			if (this.isAutoSave && !this.isRemotePhantomMode) {
 				return await this.save(entity);
 			}
 		});

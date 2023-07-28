@@ -445,6 +445,9 @@ class AjaxRepository extends Repository {
 
 						this.markLoaded();
 
+						if (this.isTree) {
+							this.assembleTreeNodes();
+						}
 						this.emit('changeData', this.entities);
 						this.emit('load', this);
 
@@ -505,6 +508,11 @@ class AjaxRepository extends Repository {
 						
 						this.markLoaded();
 
+						if (this.isTree) {
+							// LEFT OFF HERE
+							// When adding a node and making it real, the tree reloads incorrectly.
+							this.assembleTreeNodes();
+						}
 						this.emit('changeData', this.entities);
 						this.emit('load', this);
 						this.emit('reloadEntity', entity);
@@ -998,6 +1006,9 @@ class AjaxRepository extends Repository {
 								} else if (this._operations.add || this._operations.delete) {
 									this.reload();
 								} else {
+									if (this.isTree) {
+										this.assembleTreeNodes();
+									}
 									this.emit('changeData', this.entities);
 								}
 							}
