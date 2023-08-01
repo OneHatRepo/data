@@ -999,7 +999,17 @@ export default class Repository extends EventEmitter {
 			entity = Repository._createEntity(this.schema, data, this, isPersisted, isDelayedSave, this.isRemotePhantomMode);
 		}
 		this._relayEntityEvents(entity);
-		this.entities.unshift(entity); // Add to *beginning* of entities array, so the phantom record will appear at the beginning of the current page
+		if (this.isTree && data.parentId) {
+			// Trees need new node to be added as first child of parent
+			const ix = this.getIxById(data.parentId) +1;
+			this.entities = [
+				...this.entities.slice(0, ix),
+				entity,
+				...this.entities.slice(ix)
+			];
+		} else {
+			this.entities.unshift(entity); // Add to *beginning* of entities array, so the phantom record will appear at the beginning of the current page
+		}
 
 		// Create id if needed
 		if (!this.isRemotePhantomMode && entity.isPhantom) {
@@ -1957,6 +1967,7 @@ export default class Repository extends EventEmitter {
 		})
 		return entities;
 	}
+
 
 	/**
 	 * Populates the TreeNodes with .parent and .children references

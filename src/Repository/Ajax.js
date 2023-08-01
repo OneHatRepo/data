@@ -434,10 +434,6 @@ class AjaxRepository extends Repository {
 							this._relayEntityEvents(entity);
 							return entity;
 						});
-
-						if (this.isTree) {
-							this.assembleTreeNodes();
-						}
 				
 						// Set the total records that pass filter
 						this.total = total;
@@ -508,11 +504,6 @@ class AjaxRepository extends Repository {
 						
 						this.markLoaded();
 
-						if (this.isTree) {
-							// LEFT OFF HERE
-							// When adding a node and making it real, the tree reloads incorrectly.
-							this.assembleTreeNodes();
-						}
 						this.emit('changeData', this.entities);
 						this.emit('load', this);
 						this.emit('reloadEntity', entity);
@@ -652,7 +643,7 @@ class AjaxRepository extends Repository {
 						// Reload each entity with new data
 						// TODO: Check this
 						_.each(entities, (entity, ix) => {
-							entity.loadOriginalData(root[ix], false); // false to not assembleTreeNodes
+							entity.loadOriginalData(root[ix]);
 							if (entity.isRemotePhantomMode) {
 								entity.isRemotePhantom = true;
 							}
@@ -705,6 +696,10 @@ class AjaxRepository extends Repository {
 						entity.loadOriginalData(root[0]);
 						if (entity.isRemotePhantomMode && entity.isRemotePhantom) {
 							entity.isRemotePhantom = false;
+						}
+
+						if (this.isTree) {
+							this.assembleTreeNodes();
 						}
 					});
 	}
@@ -759,11 +754,12 @@ class AjaxRepository extends Repository {
 						// Reload each entity with new data
 						// TODO: Check this
 						_.each(entities, (entity, ix) => {
-							entity.loadOriginalData(root[ix], false); // false to not assembleTreeNodes
+							entity.loadOriginalData(root[ix]);
 							if (entity.isRemotePhantomMode && entity.isRemotePhantom) {
 								entity.isRemotePhantom = false;
 							}
 						});
+
 						if (this.isTree) {
 							this.assembleTreeNodes();
 						}
@@ -816,6 +812,10 @@ class AjaxRepository extends Repository {
 						const id = entity.id;
 						this.entities = _.filter(this.entities, (entity) => entity.id !== id);
 						entity.destroy();
+
+						if (this.isTree) {
+							this.assembleTreeNodes();
+						}
 					});
 	}
 
@@ -872,6 +872,10 @@ class AjaxRepository extends Repository {
 							}
 							return !deleteIt;
 						});
+
+						if (this.isTree) {
+							this.assembleTreeNodes();
+						}
 					});
 	}
 
@@ -889,6 +893,10 @@ class AjaxRepository extends Repository {
 			}
 			return !match;
 		});
+
+		if (this.isTree) {
+			this.assembleTreeNodes();
+		}
 
 		return true;
 	}

@@ -434,9 +434,9 @@ class OneBuildRepository extends AjaxRepository {
 	// /_/ /_/   \___/\___/____/
 
 	/**
-	 * Gets the root nodes of this tree.
+	 * Loads the root nodes of this tree.
 	 */
-	getRootNodes = (depth) => {
+	loadRootNodes = (depth) => {
 		this.ensureTree();
 		if (this.isDestroyed) {
 			this.throwError('this.setRootNode is no longer valid. Repository has been destroyed.');
@@ -507,12 +507,12 @@ class OneBuildRepository extends AjaxRepository {
 	}
 
 	/**
-	 * Loads the children of the supplied treeNode
+	 * Loads (or reloads) the children of the supplied treeNode
 	 */
-	getChildNodes = (treeNode, depth = 1) => {
+	loadChildNodes = (treeNode, depth = 1) => {
 		this.ensureTree();
 		if (this.isDestroyed) {
-			this.throwError('this.getChildNodes is no longer valid. Repository has been destroyed.');
+			this.throwError('this.loadChildNodes is no longer valid. Repository has been destroyed.');
 			return;
 		}
 		if (!this.isOnline) {
@@ -537,7 +537,7 @@ class OneBuildRepository extends AjaxRepository {
 		return this._send('POST', this.name + '/getNodes', data)
 			.then((result) => {
 				if (this.debugMode) {
-					console.log('Response for getChildNodes', result);
+					console.log('Response for loadChildNodes', result);
 				}
 
 				if (this.isDestroyed) {

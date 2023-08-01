@@ -377,7 +377,7 @@ class Entity extends EventEmitter {
 	 * Assumes (and sets) isTempId === false.
 	 * @param {array} originalData - Raw data to load into entity.
 	 */
-	loadOriginalData = (originalData, assembleTreeNodes = true) => {
+	loadOriginalData = (originalData) => {
 		if (this.isDestroyed) {
 			throw Error('this.loadOriginalData is no longer valid. Entity has been destroyed.');
 		}
@@ -386,10 +386,6 @@ class Entity extends EventEmitter {
 		this._originalData = originalData || {};
 		this.reset();
 		this.getIdProperty().isTempId = false;
-
-		if (this.isTree && this.repository && assembleTreeNodes) {
-			this.repository.assembleTreeNodes(); // rebuilds them all
-		}
 	}
 
 	/**
@@ -1670,11 +1666,11 @@ class Entity extends EventEmitter {
 		if (this.isDestroyed) {
 			throw Error('this.loadChildren is no longer valid. TreeNode has been destroyed.');
 		}
-		if (!this.repository?.getChildNodes) {
-			throw Error('repository.getChildNodes is not defined.');	
+		if (!this.repository?.loadChildNodes) {
+			throw Error('repository.loadChildNodes is not defined.');	
 		}
 
-		const children = await this.repository.getChildNodes(this, depth);
+		const children = await this.repository.loadChildNodes(this, depth);
 		this.areChildrenLoaded = true;
 		return children;
 	}
