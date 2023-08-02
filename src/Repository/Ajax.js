@@ -1001,7 +1001,10 @@ class AjaxRepository extends Repository {
 
 							// Do we need to reload?
 							if (!this.eventsPaused) {
-								if (this.isRemotePhantomMode && (this._operations.add || this._operations.deletePhantom)) {
+								if (this.isTree) {
+									this.assembleTreeNodes();
+									this.emit('changeData', this.entities);
+								} else if (this.isRemotePhantomMode && (this._operations.add || this._operations.deletePhantom)) {
 									// Do nothing, as we don't want to immediately reload on add for a remote phantom mode record. It won't appear, and it will cause all kinds of trouble!
 									if (this._operations.deletePhantom) {
 										// sweep existing deleted records and remove them
@@ -1014,9 +1017,6 @@ class AjaxRepository extends Repository {
 								} else if (this._operations.add || this._operations.delete) {
 									this.reload();
 								} else {
-									if (this.isTree) {
-										this.assembleTreeNodes();
-									}
 									this.emit('changeData', this.entities);
 								}
 							}

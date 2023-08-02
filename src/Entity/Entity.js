@@ -1602,6 +1602,10 @@ class Entity extends EventEmitter {
 			throw Error('this.getHasChildren is no longer valid. TreeNode has been destroyed.');
 		}
 
+		if (!_.isEmpty(this.children)) {
+			return true; // In case the hasChildrenProperty is stale. i.e. That property came from server, and we now have children here
+		}
+
 		return this.getHasChildrenProperty().getSubmitValue();
 	}
 
