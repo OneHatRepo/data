@@ -1,7 +1,7 @@
 import moment from 'moment';
 import momentAlt from 'relative-time-parser'; // Notice this version of moment is imported from 'relative-time-parser', and may be out of sync with our general 'moment' package
 import accounting from 'accounting-js';
-import * as chrono from 'chrono-node'; // Doesn't yet work in React Native ("SyntaxError: Invalid RegExp: Quantifier has nothing to repeat, js engine: hermes")  Github ticket: https://github.com/facebook/hermes/blob/main/doc/RegExp.md
+// import * as chrono from 'chrono-node'; // Doesn't yet work in React Native ("SyntaxError: Invalid RegExp: Quantifier has nothing to repeat, js engine: hermes")  Github ticket: https://github.com/facebook/hermes/blob/main/doc/RegExp.md
 import _ from 'lodash';
 
 class Parsers {
