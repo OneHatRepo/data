@@ -205,6 +205,11 @@ export default class Repository extends EventEmitter {
 		this.isTree = schema.model.isTree || false;
 
 		/**
+		 * @member {boolean} moveSubtreeUp - Whether to move the subtree up on the next delete operation (trees only)
+		 */
+		this.moveSubtreeUp = false;
+
+		/**
 		 * @member {boolean} isLoaded - State: whether or not entities have been loaded at least once
 		 */
 		this.isLoaded = false;
@@ -1791,9 +1796,10 @@ export default class Repository extends EventEmitter {
 	 * Marks entities for deletion from storage medium.
 	 * Actual deletion takes place in save(), unless isPhantom
 	 * @param {object|array} entities - one or more entities to delete
+	 * @param {bool} moveSubtreeUp - whether or not to move the subtree up (if this is a tree)
 	 * @fires delete
 	 */
-	delete = async (entities) => {
+	delete = async (entities, moveSubtreeUp = false) => {
 		if (this.isDestroyed) {
 			this.throwError('this.delete is no longer valid. Repository has been destroyed.');
 			return;
@@ -1818,6 +1824,10 @@ export default class Repository extends EventEmitter {
 				entity.markDeleted(); // Entity is still there, it's just marked for deletion
 			}
 		});
+
+		if (this.isTree) {
+			this.moveSubtreeUp = moveSubtreeUp;
+		}
 
 		this.emit('delete', entities);
 

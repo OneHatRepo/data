@@ -787,7 +787,13 @@ class AjaxRepository extends Repository {
 		const
 			method = this.methods.delete,
 			url = this.api.delete,
-			data = { id: entity.id, };
+			data = {
+				id: entity.id,
+			};
+
+		if (this.isTree && this.moveSubtreeUp) {
+			data.moveSubtreeUp = this.moveSubtreeUp;
+		}
 
 		return this._send(method, url, data)
 					.then(result => {
