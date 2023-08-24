@@ -1012,6 +1012,7 @@ export default class Repository extends EventEmitter {
 				entity,
 				...this.entities.slice(ix)
 			];
+			this.assembleTreeNodes();
 		} else {
 			this.entities.unshift(entity); // Add to *beginning* of entities array, so the phantom record will appear at the beginning of the current page
 		}

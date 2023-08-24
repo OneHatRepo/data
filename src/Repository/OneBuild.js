@@ -507,6 +507,81 @@ class OneBuildRepository extends AjaxRepository {
 	}
 
 	/**
+	 * Loads (or reloads) the supplied treeNode
+	 */
+	loadNode = (treeNode, depth = 1) => {
+		this.ensureTree();
+		if (this.isDestroyed) {
+			this.throwError('this.loadNode is no longer valid. Repository has been destroyed.');
+			return;
+		}
+		if (!this.isOnline) {
+			this.throwError('Offline');
+			return;
+		}
+
+		// If children already exist, remove them from the repository
+		// This way, we can reload just a portion of the tree
+		if (!_.isEmpty(treeNode.children)) {
+			const children = treeNode.children;
+			treeNode.children = [];
+
+			_.each(children, (child) => {
+				this.removeEntity(child);
+			});
+		}
+		
+		this.markLoading();
+
+		const data = _.merge({ depth, nodeId: treeNode.id, }, this._baseParams, this._params);
+		return this._send('POST', this.name + '/getNodes', data)
+			.then((result) => {
+				if (this.debugMode) {
+					console.log('Response for loadNode', result);
+				}
+
+				if (this.isDestroyed) {
+					// If this repository gets destroyed before it has a chance
+					// to process the Ajax request, just ignore the response.
+					return;
+				}
+
+				const {
+					root,
+					success,
+					total,
+					message
+				} = this._processServerResponse(result);
+
+				if (!success) {
+					this.throwError(message);
+					return;
+				}
+				
+				// Set the current entities
+				const children = _.map(root, (data) => {
+					const entity = Repository._createEntity(this.schema, data, this, true);
+					this._relayEntityEvents(entity);
+					return entity;
+				});
+
+				this.entities = this.entities.concat(children);
+
+				this.assembleTreeNodes();
+				
+				this._setPaginationVars();
+
+				// this.emit('changeData', this.entities);
+				this.emit('load', this);
+
+				return children;
+			})
+			.finally(() => {
+				this.markLoading(false);
+			});
+	}
+
+	/**
 	 * Loads (or reloads) the children of the supplied treeNode
 	 */
 	loadChildNodes = (treeNode, depth = 1) => {
@@ -527,7 +602,7 @@ class OneBuildRepository extends AjaxRepository {
 			treeNode.children = [];
 
 			_.each(children, (child) => {
-				this.removeNode(child);
+				this.removeEntity(child);
 			});
 		}
 		
@@ -579,6 +654,17 @@ class OneBuildRepository extends AjaxRepository {
 			.finally(() => {
 				this.markLoading(false);
 			});
+	}
+
+	/**
+	 * Override the AjaxRepository to we can reload a treeNode if needed
+	 */
+	reloadEntity = (entity, callback = null) => {
+		if (!entity.isTree) {
+			return super.reloadEntity(entity, callback);
+		}
+
+		return this.loadNode(entity, 1);
 	}
 
 	/**
