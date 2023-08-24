@@ -1809,6 +1809,21 @@ class Entity extends EventEmitter {
 	}
 
 	/**
+	 * Moves this TreeNode to another parentId.
+	 */
+	moveTreeNode = (newParentId) => {
+		this.ensureTree();
+		if (this.isDestroyed) {
+			throw Error('this.moveTreeNode is no longer valid. TreeNode has been destroyed.');
+		}
+		if (!this.repository?.moveTreeNode) {
+			throw Error('repository.moveTreeNode is not defined.');	
+		}
+
+		return this.repository.moveTreeNode(this, newParentId);
+	}
+
+	/**
 	 * Helper to make sure this Repository is a tree
 	 * @private
 	 */
