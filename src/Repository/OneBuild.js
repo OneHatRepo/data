@@ -723,18 +723,67 @@ class OneBuildRepository extends AjaxRepository {
 
 	/**
 	 * Moves the supplied treeNode to a new position on the tree
+	 * @returns id of common ancestor node 
 	 */
-	moveTreeNode = async (treeNode, newParentId) => {
+	moveTreeNode = (treeNode, newParentId) => {
 		this.ensureTree();
 		if (this.isDestroyed) {
 			this.throwError('this.moveTreeNode is no longer valid. Repository has been destroyed.');
 			return;
 		}
+		if (!this.isOnline) {
+			this.throwError('Offline');
+			return;
+		}
 
-		// TODO: move node here
+		const oldParentId = treeNode.parent?.id;
 
+		const data = _.merge({ nodeId: treeNode.id, parentId: newParentId, }, this._baseParams, this._params);
+		return this._send('POST', this.name + '/moveNode', data)
+			.then((result) => {
+				if (this.debugMode) {
+					console.log('Response for searchNodes', result);
+				}
 
-		
+				if (this.isDestroyed) {
+					// If this repository gets destroyed before it has a chance
+					// to process the Ajax request, just ignore the response.
+					return;
+				}
+
+				const {
+					root: {
+						commonAncestorId,
+						oldParent,
+						newParent,
+						node,
+					},
+					success,
+					total,
+					message
+				} = this._processServerResponse(result);
+
+				if (!success) {
+					this.throwError(message);
+					return;
+				}
+
+				// move it from oldParent.children to newParent.children
+				const
+					oldParentRecord = this.getById(oldParentId),
+					newParentRecord = this.getById(newParentId);
+
+				oldParentRecord?.loadOriginalData(oldParent);
+				newParentRecord.loadOriginalData(newParent);
+				treeNode.loadOriginalData(node);
+
+				this.assembleTreeNodes();
+
+				return commonAncestorId;
+			})
+			.finally(() => {
+				this.markLoading(false);
+			});
 	}
 
 }
