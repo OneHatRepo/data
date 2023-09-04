@@ -235,13 +235,9 @@ export default class Schema extends EventEmitter {
 		if (this.isDestroyed) {
 			throw Error('this.getPropertyDefinition is no longer valid. Schema has been destroyed.');
 		}
-		const propertyDefinition = _.find(this.model.properties, (propertyDefinition) => {
+		return _.find(this.model.properties, (propertyDefinition) => {
 			return propertyDefinition.name === propertyName;
 		});
-		if (!propertyDefinition) {
-			throw new Error('Property definition ' + propertyName + ' not found.');
-		}
-		return propertyDefinition;
 	}
 
 	/**
