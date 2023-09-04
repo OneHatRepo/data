@@ -127,6 +127,94 @@ describe('Property', function() {
 			expect(property.isTempId).to.be.true;
 		});
 
+		it('getModel', function() {
+
+			// fails when name is incorrect
+			let error = null;
+			try {
+				this.property.modelName;
+			} catch(err) {
+				error = err.message;
+			}
+			expect(error).to.eq('this.name is not in the correct format for modelName.');
+	
+			const
+				schema = new Schema({
+					name: 'foo',
+					model: {
+						idProperty: 'model__field',
+						displayProperty: 'model__field',
+						properties: [
+							{ name: 'model__field', },
+						],
+					},
+				}),
+				entity = new Entity(schema);
+				
+			entity.initialize();
+			const property = entity.getProperty('model__field');
+
+			expect(property.modelName).to.be.eq('model');
+		});
+	
+		it('OneBuild properties', function() {
+
+			expect(this.property.isVirtual).to.be.false;
+			expect(this.property.title).to.be.null;
+			expect(this.property.tooltip).to.be.null;
+			expect(this.property.fieldGroup).to.be.null;
+			expect(this.property.isForeignModel).to.be.false;
+			expect(this.property.filterType).to.be.null;
+			expect(this.property.isFilteringDisabled).to.be.false;
+			expect(this.property.editorType).to.be.null;
+			expect(this.property.isEditingDisabled).to.be.false;
+	
+			const
+				filterType = {
+					type: 'Combo',
+					loadAfterRender: false,
+				},
+				editorType = {
+					type: 'Input',
+				},
+				schema = new Schema({
+					name: 'foo',
+					model: {
+						idProperty: 'model__field',
+						displayProperty: 'model__field',
+						properties: [
+							{
+								name: 'model__field',
+								isVirtual: true,
+								title: 'title',
+								tooltip: 'tooltip',
+								fieldGroup: 'fieldGroup',
+								isForeignModel: true,
+								filterType,
+								isFilteringDisabled: true,
+								editorType,
+								isEditingDisabled: true,
+							},
+						],
+					},
+				}),
+				entity = new Entity(schema);
+				
+			entity.initialize();
+			const property = entity.getProperty('model__field');
+			
+			expect(property.isVirtual).to.be.true;
+			expect(property.title).to.be.eq('title');
+			expect(property.tooltip).to.be.eq('tooltip');
+			expect(property.fieldGroup).to.be.eq('fieldGroup');
+			expect(property.isForeignModel).to.be.true;
+			expect(property.filterType).to.be.eql(filterType);
+			expect(property.isFilteringDisabled).to.be.true;
+			expect(property.editorType).to.be.eql(editorType);
+			expect(property.isEditingDisabled).to.be.true;
+		});
+
+
 	});
 
 	describe('setters', function() {

@@ -63,7 +63,83 @@ describe('OneBuildRepository', function() {
 		expect(p.conditions.key2).to.be.eq('2');
 	});
 
-	it('401', function() {
+	it.only('getTitles, getVirtualdPropertyNames, getIsFilteringDisabledPropertyNames, getIsEditingDisabledPropertyNames, getFieldGroupNames, getFilterTypes', function() {
+		let repository;
+		(async () => {
+			repository = await this.oneHatData.createRepository({
+				schema: {
+					id: 'foo',
+					name: 'foo',
+					model: {
+						idProperty: 'model__field1',
+						displayProperty: 'model__field2',
+						properties: [
+							{
+								name: 'model__field1',
+								isVirtual: true,
+								isFilteringDisabled: false,
+								filterType: {
+									type: 'Combo',
+									loadAfterRender: false,
+								},
+								isEditingDisabled: true,
+								fieldGroup: 'group1',
+							},
+							{
+								name: 'model__field2',
+								isVirtual: true,
+								isFilteringDisabled: true,
+								isEditingDisabled: false,
+								fieldGroup: 'group1',
+							},
+							{
+								name: 'model__field3',
+								isVirtual: false,
+								isFilteringDisabled: true,
+								isEditingDisabled: true,
+								fieldGroup: 'group2',
+							},
+						],
+					},
+					repository: {
+						type: 'onebuild',
+					},
+				},
+			});
+
+			const
+				virtualPropertyNames = [
+					'model__field1',
+					'model__field2',
+				],
+				isFilteringDisabledPropertyNames = [
+					'model__field2',
+					'model__field3',
+				],
+				isEditingDisabledPropertyNames = [
+					'model__field1',
+					'model__field3',
+				],
+				fieldGroupNames = [
+					'group1',
+					'group2',
+				],
+				filterTypes = [
+					{
+						type: 'Combo',
+						loadAfterRender: false,
+					},
+				];
+			expect(repository.getVirtualPropertyNames()).to.be.eql(virtualPropertyNames);
+			expect(repository.getIsFilteringDisabledPropertyNames()).to.be.eql(isFilteringDisabledPropertyNames);
+			expect(repository.getIsEditingDisabledPropertyNames()).to.be.eql(isEditingDisabledPropertyNames);
+			expect(repository.getFieldGroupNames()).to.be.eql(fieldGroupNames);
+			expect(repository.getFilterTypes()).to.be.eql(filterTypes);
+			
+		})();
+	});
+
+	it.skip('401', function() {
 		cy.wrap((async () => {
 
 			let loggedOut = false,

@@ -89,45 +89,55 @@ export default class Property extends EventEmitter {
 			 */
 			isTempId: false,
 
+			// ##################################################################
+			// #### These next properties are only for OneBuild repositories ####
+			// ##################################################################
 
+			/**
+			 * @member {boolean} isVirtual - Whether this property represents a virtual field on server
+			 */
+			isVirtual: false,
+			
+			/**
+			 * @member {string} title - The human-readable title for this property
+			 */
+			title: null,
+			
+			/**
+			 * @member {string} tooltip - The human-readable tooltip for this property
+			 */
+			tooltip: null,
+			
+			/**
+			 * @member {string} fieldGroup - The field group for this property
+			 */
+			fieldGroup: null,
 
-			// OneBuild META attributes, just bring these over wholesale for now
-			// id: null,
-			// table_id: null,
-			// field_name: null,
-			// client_name: null,
-			// title: null,
-			// is_id_field: null,
-			// is_display_field: null,
-			// is_virtual: null,
-			// pk: null,
-			// fk: null,
-			// exclude: null,
-			// is_editable: null,
-			// date_format: null,
-			// field_group_id: null,
-			// field_type_id: null,
-			// field_data_type_id: null,
-			// sort_order: null,
-			// o_length: null,
-			// o_unsigned: null,
-			// allow_null: true,
-			// o_default: null,
-			// extra: null,
-			// o_zerofill: null,
-			// o_binary: null,
-			// o_encoding: null,
-			// o_collation: null,
-			// comment: null,
-			// xtype: null,
-			// options: null,
-			// tooltip: null,
-			// help_text: null,
+			/**
+			 * @member {boolean} isForeignModel - Whether this property belongs to a foreign model
+			 */
+			isForeignModel: false,
+			
+			/**
+			 * @member {object} filterType - The UI filter type of this property
+			 */
+			filterType: null,
 
+			/**
+			 * @member {boolean} isFilteringDisabled - Whether this property is disabled for UI filtering
+			 */
+			isFilteringDisabled: false,
+			
+			/**
+			 * @member {object} editorType - The UI editor type of this property
+			 */
+			editorType: null,
 
-			// TODO: Room for future development of Property
-			// unique: false, // Boolean
-			// validators: null, // Object[]
+			/**
+			 * @member {boolean} isEditingDisabled - Whether this property is disabled for UI editing
+			 */
+			isEditingDisabled: false,
+
 		};
 		
 		_.merge(this, defaults, config);
@@ -316,6 +326,25 @@ export default class Property extends EventEmitter {
 			return false;
 		}
 		return entity.getDisplayProperty() === this;
+	}
+
+	/**
+	 * Gets the model name from this property
+	 * NOTE: Only for OneBuild repositories!
+	 * @return {any} submitValue
+	 */
+	get modelName() {
+		if (this.isDestroyed) {
+			throw Error('this.modelName is no longer valid. Property has been destroyed.');
+		}
+		if (!this.name.match(/__/)) {
+			throw Error('this.name is not in the correct format for modelName.');
+		}
+
+		const
+			matches = this.name.match(/^([\w_]+)__/),
+			modelName = matches[1];
+		return modelName;
 	}
 
 
