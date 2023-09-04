@@ -93,7 +93,7 @@ class Parsers {
 			result = moment(value, format);
 		} catch(err) {}
 		
-		if ((!result || !result.isValid() && chrono)) {
+		if ((!result?.isValid() && typeof chrono !== "undefined")) {
 			// try using chrono
 			const parsed = chrono.parse(value);
 			if (parsed && parsed[0] && parsed[0].date) {
