@@ -239,6 +239,97 @@ export default class Schema extends EventEmitter {
 			return propertyDefinition.name === propertyName;
 		});
 	}
+	
+	getTitles = () => {
+		if (this.isDestroyed) {
+			this.throwError('this.getTitles is no longer valid. Schema has been destroyed.');
+			return;
+		}
+
+		const found = [];
+		_.each(this.model.properties, (property) => {
+			if (property.title) {
+				found.push(property.title);
+			}
+		});
+		return found;
+	}
+	
+	getVirtualPropertyNames = () => {
+		if (this.isDestroyed) {
+			this.throwError('this.getVirtualPropertyNames is no longer valid. Schema has been destroyed.');
+			return;
+		}
+
+		const found = [];
+		_.each(this.model.properties, (property) => {
+			if (property.isVirtual) {
+				found.push(property.name);
+			}
+		});
+		return found;
+	}
+	
+	getIsFilteringDisabledPropertyNames = () => {
+		if (this.isDestroyed) {
+			this.throwError('this.getIsFilteringDisabledPropertyNames is no longer valid. Schema has been destroyed.');
+			return;
+		}
+
+		const found = [];
+		_.each(this.model.properties, (property) => {
+			if (property.isFilteringDisabled) {
+				found.push(property.name);
+			}
+		});
+		return found;
+	}
+	
+	getIsEditingDisabledPropertyNames = () => {
+		if (this.isDestroyed) {
+			this.throwError('this.getIsEditingDisabledPropertyNames is no longer valid. Schema has been destroyed.');
+			return;
+		}
+
+		const found = [];
+		_.each(this.model.properties, (property) => {
+			if (property.isEditingDisabled) {
+				found.push(property.name);
+			}
+		});
+		return found;
+	}
+	
+	getFieldGroupNames = () => {
+		if (this.isDestroyed) {
+			this.throwError('this.getFieldGroupNames is no longer valid. Schema has been destroyed.');
+			return;
+		}
+
+		const found = [];
+		_.each(this.model.properties, (property) => {
+			if (!_.isNil(property.fieldGroup) && !found.includes(property.fieldGroup)) {
+				found.push(property.fieldGroup);
+			}
+		});
+		return found;
+	}
+	
+	getFilterTypes = () => {
+		if (this.isDestroyed) {
+			this.throwError('this.getFilterTypes is no longer valid. Schema has been destroyed.');
+			return;
+		}
+
+		const found = {};
+		_.each(this.model.properties, (property) => {
+			if (_.isNil(property.filterType) || property.isFilteringDisabled) { 
+				return;
+			}
+			found[property.name] = property.filterType;
+		});
+		return found;
+	}
 
 	/**
 	 * Clones this Schema.

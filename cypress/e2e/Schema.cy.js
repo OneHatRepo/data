@@ -30,4 +30,81 @@ describe('Schema', function() {
 		expect(_.isEqual(propertyDefinition.name, 'groups_users__id')).to.be.true;
 	});
 
+	it.only('getTitles, getVirtualdPropertyNames, getIsFilteringDisabledPropertyNames, getIsEditingDisabledPropertyNames, getFieldGroupNames, getFilterTypes', function() {
+		const
+			schema = new Schema({
+				id: 'foo',
+				name: 'foo',
+				model: {
+					idProperty: 'model__field1',
+					displayProperty: 'model__field2',
+					properties: [
+						{
+							name: 'model__field1',
+							title: 'title1',
+							isVirtual: true,
+							isFilteringDisabled: false,
+							filterType: {
+								type: 'Combo',
+								loadAfterRender: false,
+							},
+							isEditingDisabled: true,
+							fieldGroup: 'group1',
+						},
+						{
+							name: 'model__field2',
+							title: 'title2',
+							isVirtual: true,
+							isFilteringDisabled: true,
+							isEditingDisabled: false,
+							fieldGroup: 'group1',
+						},
+						{
+							name: 'model__field3',
+							title: 'title3',
+							isVirtual: false,
+							isFilteringDisabled: true,
+							isEditingDisabled: true,
+							fieldGroup: 'group2',
+						},
+					],
+				},
+			}),
+			titles = [
+				'title1',
+				'title2',
+				'title3',
+			],
+			virtualPropertyNames = [
+				'model__field1',
+				'model__field2',
+			],
+			isFilteringDisabledPropertyNames = [
+				'model__field2',
+				'model__field3',
+			],
+			isEditingDisabledPropertyNames = [
+				'model__field1',
+				'model__field3',
+			],
+			fieldGroupNames = [
+				'group1',
+				'group2',
+			],
+			filterTypes = {
+				model__field1: {
+					type: 'Combo',
+					loadAfterRender: false,
+				},
+			};
+
+		expect(schema.getTitles()).to.be.eql(titles);
+		expect(schema.getVirtualPropertyNames()).to.be.eql(virtualPropertyNames);
+		expect(schema.getIsFilteringDisabledPropertyNames()).to.be.eql(isFilteringDisabledPropertyNames);
+		expect(schema.getIsEditingDisabledPropertyNames()).to.be.eql(isEditingDisabledPropertyNames);
+		expect(schema.getFieldGroupNames()).to.be.eql(fieldGroupNames);
+		expect(schema.getFilterTypes()).to.be.eql(filterTypes);
+		
+	});
+
 });
