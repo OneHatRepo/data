@@ -328,6 +328,16 @@ export default class Schema extends EventEmitter {
 			}
 			found[property.name] = property.filterType;
 		});
+
+		if (!_.isNil(this.model.ancillaryFilters)) {
+			_.each(this.model.ancillaryFilters, (value, key) => {
+				found[key] = {
+					isAncillary: true,
+					title: value,
+				};
+			});
+		}
+
 		return found;
 	}
 
