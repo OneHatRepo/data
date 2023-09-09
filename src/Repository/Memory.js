@@ -459,7 +459,7 @@ class MemoryRepository extends Repository {
 
 	/**
 	 * Get a single Entity's index by its id.
-	 * Overrides Repository method, to limite results to only the current page.
+	 * Overrides Repository method, to limit results to only the current page.
 	 * @param {integer} id - id of record to retrieve
 	 * @return {integer} The numerical index, or undefined
 	 */
