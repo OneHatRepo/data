@@ -269,9 +269,14 @@ export default class Schema extends EventEmitter {
 				defaultValue = property.defaultValue;
 			} else {
 				// Look in the property types for a default value
-				const propertyType = PropertyTypes[property.type];
-				if (!_.isNil(propertyType.defaultValue)) {
+				let propertyType = PropertyTypes[property.type];
+				if (!_.isNil(propertyType)) {
 					defaultValue = propertyType.defaultValue;
+				} else {
+					propertyType = PropertyTypes['string'];
+					if (!_.isNil(propertyType.defaultValue)) {
+						defaultValue = propertyType.defaultValue;
+					}
 				}
 			}
 			found[property.name] = defaultValue;
