@@ -30,7 +30,35 @@ describe('Schema', function() {
 		expect(_.isEqual(propertyDefinition.name, 'groups_users__id')).to.be.true;
 	});
 
-	it.only('getTitles, getVirtualdPropertyNames, getIsFilteringDisabledPropertyNames, getIsEditingDisabledPropertyNames, getFieldGroupNames, getFilterTypes', function() {
+	it('getDefaultValues', function() {
+		const
+			defaultValues = this.schema.getDefaultValues(),
+			expectedDefaultValues = {
+				groups_users__id: null,
+				groups_users__group_id: null,
+				groups_users__user_id: null,
+				groups__id: null,
+				groups__name: 'default_group_name',
+				groups__description: null,
+				users__id: null,
+				users__username: 'default_username',
+				users__password: null,
+				users__full_name: null,
+				users__first_name: null,
+				users__last_name: null,
+				users__job_title: null,
+				users__email: null,
+				users__login_count: null,
+				users__last_login: null,
+			};
+
+		console.log('defaultValues', defaultValues);
+		console.log('expectedDefaultValues', expectedDefaultValues);
+
+		expect(defaultValues).to.be.eql(expectedDefaultValues);
+	});
+
+	it('getTitles, getVirtualdPropertyNames, getIsFilteringDisabledPropertyNames, getIsEditingDisabledPropertyNames, getFieldGroupNames, getFilterTypes', function() {
 		const
 			schema = new Schema({
 				id: 'foo',

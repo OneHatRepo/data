@@ -1,6 +1,7 @@
 /** @module Schema */
 
 import EventEmitter from '@onehat/events';
+import PropertyTypes from '../Property/index.js';
 import _ from 'lodash';
 
 /**
@@ -251,6 +252,29 @@ export default class Schema extends EventEmitter {
 			if (property.title) {
 				found.push(property.title);
 			}
+		});
+		return found;
+	}
+	
+	getDefaultValues = () => {
+		if (this.isDestroyed) {
+			this.throwError('this.getDefaultValues is no longer valid. Schema has been destroyed.');
+			return;
+		}
+
+		const found = {};
+		_.each(this.model.properties, (property) => {
+			let defaultValue = null;
+			if (!_.isNil(property.defaultValue)) {
+				defaultValue = property.defaultValue;
+			} else {
+				// Look in the property types for a default value
+				const propertyType = PropertyTypes[property.type];
+				if (!_.isNil(propertyType.defaultValue)) {
+					defaultValue = propertyType.defaultValue;
+				}
+			}
+			found[property.name] = defaultValue;
 		});
 		return found;
 	}
