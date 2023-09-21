@@ -129,6 +129,11 @@ export default class Property extends EventEmitter {
 			isFilteringDisabled: false,
 			
 			/**
+			 * @member {object} viewerType - The UI viewer type of this property
+			 */
+			viewerType: null,
+			
+			/**
 			 * @member {object} editorType - The UI editor type of this property
 			 */
 			editorType: null,
