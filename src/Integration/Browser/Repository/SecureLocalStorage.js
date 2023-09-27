@@ -30,7 +30,9 @@ class SecureLocalStorageRepository extends LocalStorageRepository {
 
 			// BEGIN MOD
 			let result = this._store(name);
-			result = AES.decrypt(result, this.passphrase);
+			if (!_.isEmpty(result)) {
+				result = AES.decrypt(result, this.passphrase);
+			}
 			// END MOD
 			
 			if (this.debugMode) {

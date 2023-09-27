@@ -25,7 +25,9 @@ class SecureSessionStorageRepository extends SessionStorageRepository {
 
 		// BEGIN MOD
 		let result = this._store.session(name);
-		result = AES.decrypt(result, this.passphrase);
+		if (!_.isEmpty(result)) {
+			result = AES.decrypt(result, this.passphrase);
+		}
 		// END MOD
 
 		let value;

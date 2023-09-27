@@ -84,10 +84,6 @@ class OfflineRepository extends MemoryRepository {
 		try {
 
 			this._index = await this._getIndex();
-			if (!this._index) {
-				await this._setIndex([]);
-				this._index = [];
-			}
 
 			const ids = this._index,
 				total = ids && ids.length ? ids.length : 0,
@@ -299,7 +295,13 @@ class OfflineRepository extends MemoryRepository {
 	 * @private
 	 */
 	_getIndex = async () => {
-		return await this._storageGetValue('index');
+		// return await this._storageGetValue('index');
+		let result = await this._storageGetValue('index');
+		if (!result) {
+			await this._setIndex([]);
+			result = [];
+		}
+		return result;
 	}
 
 	/**
