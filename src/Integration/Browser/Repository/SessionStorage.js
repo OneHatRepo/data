@@ -7,6 +7,8 @@ import _ from 'lodash';
 /**
  * Repository representing a browser's SessionStorage implementation
  * Uses store2 package
+ * Note: SessionStorage is only active for the current browser session.
+ * It does not persist across sessions. For that, use LocalStorage.
  * @extends OfflineRepository
  */
 class SessionStorageRepository extends OfflineRepository {

@@ -22,16 +22,18 @@ class SecureSessionStorageRepository extends SessionStorageRepository {
 	}
 
 	_storageGetValue = (name) => {
-		const
-			result = this._store.session(name),
-			decrypted = AES.decrypt(result, this.passphrase); // MOD
+
+		// BEGIN MOD
+		let result = this._store.session(name);
+		result = AES.decrypt(result, this.passphrase);
+		// END MOD
 
 		let value;
 		try {
-			value = JSON.parse(decrypted);
+			value = JSON.parse(result);
 		} catch (e) {
 			// Invalid JSON, just return raw result
-			value = decrypted;
+			value = result;
 		}
 		return value;
 	}
@@ -41,8 +43,9 @@ class SecureSessionStorageRepository extends SessionStorageRepository {
 			value = JSON.stringify(value);
 		}
 
-		const encrypted = AES.encrypt(value, this.passphrase); // MOD
-		return this._store.session(name, encrypted);
+		value = AES.encrypt(value, this.passphrase); // MOD
+		
+		return this._store.session(name, value);
 	}
 
 };
