@@ -1044,14 +1044,10 @@ export default class Repository extends EventEmitter {
 			this.throwError('this.createStandaloneEntity is no longer valid. Repository has been destroyed.');
 			return;
 		}
-		if (this.isRemotePhantomMode) {
-			this.throwError('This repository uses isRemotePhantomMode, and therefore cannot create standalone entities.');
-			return;
-		}
 		
 		const entity = Repository._createEntity(this.schema, data, this, isPersisted, isDelayedSave, this.isRemotePhantomMode);
 
-		if (entity.isPhantom) {
+		if (entity.isPhantom && !this.isRemotePhantomMode) {
 			entity.createTempId();
 		}
 
