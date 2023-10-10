@@ -3,6 +3,7 @@
 import PercentIntProperty from './PercentInt.js';
 import Formatters from '../Util/Formatters.js';
 import Parsers from '../Util/Parsers.js';
+import _ from 'lodash';
 
 /**
  * Class represents a Property that stores a percentage value.
