@@ -362,8 +362,8 @@ class AjaxRepository extends Repository {
 	 * Refreshes entities.
 	 */
 	_onChangePagination = () => {
-		this.setBaseParam(this.paramPageNum, this.page);
-		this.setBaseParam(this.paramPageSize, this.pageSize);
+		this.setBaseParam(this.paramPageNum, this.isPaginated ? this.page : null);
+		this.setBaseParam(this.paramPageSize, this.isPaginated ? this.pageSize : null);
 
 		if (this.isLoaded && !this.eventsPaused) {
 			return this.reload();

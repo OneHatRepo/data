@@ -583,6 +583,15 @@ describe('Repository Base', function() {
 			expect(this.repository.page).to.be.eq(1);
 		});
 
+		it('setIsPaginated', function() {
+			
+			this.repository.setIsPaginated(true);
+			expect(this.repository.isPaginated).to.be.true;
+			
+			this.repository.setIsPaginated(false);
+			expect(this.repository.isPaginated).to.be.false;
+		});
+
 	});
 
 	describe('creating', function() {

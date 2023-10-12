@@ -802,7 +802,24 @@ export default class Repository extends EventEmitter {
 	}
 
 	/**
+	 * Sets isPaginated
+	 */
+	setIsPaginated = (bool) => {
+		if (this.isDestroyed) {
+			this.throwError('this.setIsPaginated is no longer valid. Repository has been destroyed.');
+			return;
+		}
+		this.isPaginated = bool;
+
+		if (this._onChangePagination) {
+			return this._onChangePagination();
+		}
+		return true;
+	}
+
+	/**
 	 * Sets the pageSize
+	 * @fires changePage
 	 * @fires changePageSize
 	 */
 	setPageSize = (pageSize) => {
@@ -834,6 +851,7 @@ export default class Repository extends EventEmitter {
 	/**
 	 * Advances to a specific page of entities
 	 * @return {boolean} success
+	 * @fires changePage
 	 */
 	setPage = (page) => {
 		if (this.isDestroyed) {
