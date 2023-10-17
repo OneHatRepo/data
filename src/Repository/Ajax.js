@@ -399,6 +399,17 @@ class AjaxRepository extends Repository {
 		this.emit('beforeLoad'); // TODO: canceling beforeLoad will cancel the load operation
 		this.markLoading();
 
+		if (params?.showMore) {
+			delete params.showMore;
+			this.isShowingMore = true;
+		} else {
+			this.isShowingMore = false;
+		}
+		if (this.isShowingMore) {
+			this.pauseEvents();
+			this.setPage(this.page +1);
+			this.resumeEvents();
+		}
 
 		if (!_.isNil(params) && _.isObject(params)) {
 			this.setParams(params);
@@ -426,14 +437,23 @@ class AjaxRepository extends Repository {
 							message
 						} = this._processServerResponse(result);
 
-						this._destroyEntities();
-
-						// Set the current entities
-						this.entities = _.map(root, (data) => {
-							const entity = Repository._createEntity(this.schema, data, repository, true);
-							this._relayEntityEvents(entity);
-							return entity;
-						});
+						if (this.isShowingMore) {
+							// Add to the current entities
+							const newEntities = _.map(root, (data) => {
+								const entity = Repository._createEntity(this.schema, data, repository, true);
+								this._relayEntityEvents(entity);
+								return entity;
+							});
+							this.entities = this.entities.concat(newEntities);
+						} else {
+							// Replace the current entities
+							this._destroyEntities();
+							this.entities = _.map(root, (data) => {
+								const entity = Repository._createEntity(this.schema, data, repository, true);
+								this._relayEntityEvents(entity);
+								return entity;
+							});
+						}
 				
 						// Set the total records that pass filter
 						this.total = total;
@@ -454,6 +474,11 @@ class AjaxRepository extends Repository {
 					.finally(() => {
 						this.markLoading(false);
 					});
+	}
+
+	showMore = (params = {}, callback) => {
+		params.showMore = true;
+		return this.load(params, callback);
 	}
 
 	/**

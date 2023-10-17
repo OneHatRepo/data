@@ -103,6 +103,11 @@ export default class Repository extends EventEmitter {
 			isPaginated: false,
 
 			/**
+			 * @member {bool} isShowingMore - Whether this repository is in "show more" mode
+			 */
+			isShowingMore: false,
+
+			/**
 			 * @member {number} pageSize - Max number of entities per page
 			 * Example: For "Showing 21-30 of 45" This would be 10
 			 */
