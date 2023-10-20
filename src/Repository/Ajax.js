@@ -488,7 +488,7 @@ class AjaxRepository extends Repository {
 	 * @returns {entity} The newly updated entity
 	 * @fires reloadEntity,beforeLoad,changeData,load,error
 	 */
-	reloadEntity = async (entity, callback = null) => {
+	async reloadEntity(entity, callback = null) { // use this notation so we can override it in subclasses
 		if (this.isDestroyed) {
 			this.throwError('this.reloadEntity is no longer valid. Repository has been destroyed.');
 			return;
