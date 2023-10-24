@@ -279,6 +279,9 @@ export default class Schema extends EventEmitter {
 					}
 				}
 			}
+			if (_.isFunction(defaultValue)) {
+				defaultValue = defaultValue();
+			}
 			found[property.name] = defaultValue;
 		});
 		return found;
