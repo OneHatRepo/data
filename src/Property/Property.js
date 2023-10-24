@@ -192,10 +192,14 @@ export default class Property extends EventEmitter {
 	 * @return {any} defaultValue
 	 */
 	getDefaultValue() {
+		let value = null;
 		if (!_.isNil(this.defaultValue)) {
-			return this.defaultValue;
+			value = this.defaultValue;
 		}
-		return null;
+		if (_.isFunction(value)) {
+			value = value();
+		}
+		return value;
 	}
 
 	/**
