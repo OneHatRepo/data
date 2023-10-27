@@ -1062,7 +1062,7 @@ export default class Repository extends EventEmitter {
 	 * @param {boolean} isDelayedSave - Should the repository skip autosave when immediately adding the record?
 	 * @return {object} entity - new Entity object
 	 */
-	createStandaloneEntity = async (data, isPersisted = false, isDelayedSave = false) => {
+	createStandaloneEntity = (data, isPersisted = false, isDelayedSave = false) => {
 		if (this.isDestroyed) {
 			this.throwError('this.createStandaloneEntity is no longer valid. Repository has been destroyed.');
 			return;

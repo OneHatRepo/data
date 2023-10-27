@@ -307,6 +307,52 @@ class OneBuildRepository extends AjaxRepository {
 			});
 	}
 
+	getSingleEntityFromServer = async (id) => {
+		if (this.isDestroyed) {
+			this.throwError('this.getSingleEntityFromServer is no longer valid. Repository has been destroyed.');
+			return;
+		}
+		if (!this.api.get) {
+			this.throwError('No "get" api endpoint defined.');
+			return;
+		}
+
+		const idPropertyName = this.getSchema().model.idProperty;
+		const params = {};
+		params['conditions[' + idPropertyName + ']'] = id;
+
+		const data = _.merge(params, this._baseParams);
+		return this._send(this.methods.get, this.api.get, data)
+					.then(result => {
+						if (this.debugMode) {
+							console.log('Response for getSingleEntityFromServer for ' + this.name, result);
+						}
+
+						if (this.isDestroyed) {
+							// If this repository gets destroyed before it has a chance
+							// to process the Ajax request, just ignore the response.
+							return;
+						}
+						
+						const {
+							root,
+							success,
+							total,
+							message
+						} = this._processServerResponse(result);
+
+						if (!root[0]) {
+							throw Error('Record does not exist!')
+						}
+
+						return this.createStandaloneEntity(root[0]);
+					})
+					.finally(() => {
+						this.markLoading(false);
+					});
+
+	}
+
 	/**
 	 * Login to OneBuild API
 	 * @param {object} creds - object with two properties:
