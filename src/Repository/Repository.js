@@ -7,6 +7,7 @@ import {
 	v4 as uuid,
 } from 'uuid';
 import moment from 'moment';
+import { waitUntil } from 'async-wait-until';
 import _ from 'lodash';
 
 /**
@@ -372,6 +373,18 @@ export default class Repository extends EventEmitter {
 	 */
 	markLoading = (bool = true) => {
 		this.isLoading = bool;
+	}
+
+	/**
+	 * Async function that resolves when !isLoading
+	 */
+	waitUntilDoneLoading = async (timeout = 10000) => {
+		if (this.isDestroyed) {
+			this.throwError('this.waitUntilDoneLoading is no longer valid. Repository has been destroyed.');
+			return;
+		}
+		
+		await waitUntil(() => !this.isLoading, { timeout });
 	}
 
 	/**
