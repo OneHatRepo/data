@@ -33,7 +33,7 @@ class OneBuildRepository extends AjaxRepository {
 		const defaults = {
 
 			isAutoLoad: false,
-			isAutoSave: true,
+			isAutoSave: false,
 
 			api: {
 				get: this.name + '/get',
