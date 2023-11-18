@@ -1045,7 +1045,7 @@ class AjaxRepository extends Repository {
 											}
 										})
 									}
-								} else if (this._operations.add || this._operations.delete) {
+								} else if (this._operations.delete) {
 									this.reload();
 								} else {
 									this.emit('changeData', this.entities);
