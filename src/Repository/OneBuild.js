@@ -322,6 +322,11 @@ class OneBuildRepository extends AjaxRepository {
 		params['conditions[' + idPropertyName + ']'] = id;
 
 		const data = _.merge(params, this._baseParams);
+
+		if (this.debugMode) {
+			console.log('Sending ' + url, options);
+		}
+
 		return this._send(this.methods.get, this.api.get, data)
 					.then(result => {
 						if (this.debugMode) {
@@ -497,6 +502,11 @@ class OneBuildRepository extends AjaxRepository {
 		this.markLoading();
 
 		const data = _.merge({ depth }, this._baseParams, this._params);
+
+		if (this.debugMode) {
+			console.log('loadRootNodes', data);
+		}
+
 		return this._send('POST', this.name + '/getNodes', data)
 			.then((result) => {
 				if (this.debugMode) {
@@ -580,6 +590,11 @@ class OneBuildRepository extends AjaxRepository {
 		this.markLoading();
 
 		const data = _.merge({ depth, nodeId: treeNode.id, }, this._baseParams, this._params);
+
+		if (this.debugMode) {
+			console.log('loadNode', data);
+		}
+
 		return this._send('POST', this.name + '/getNodes', data)
 			.then((result) => {
 				if (this.debugMode) {
@@ -655,6 +670,11 @@ class OneBuildRepository extends AjaxRepository {
 		this.markLoading();
 
 		const data = _.merge({ depth, parentId: treeNode.id, }, this._baseParams, this._params);
+
+		if (this.debugMode) {
+			console.log('loadChildNodes', data);
+		}
+
 		return this._send('POST', this.name + '/getNodes', data)
 			.then((result) => {
 				if (this.debugMode) {
@@ -729,6 +749,11 @@ class OneBuildRepository extends AjaxRepository {
 		}
 
 		const data = _.merge({ q, }, this._baseParams, this._params);
+
+		if (this.debugMode) {
+			console.log('searchNodes', data);
+		}
+
 		return this._send('POST', this.name + '/searchNodes', data)
 			.then((result) => {
 				if (this.debugMode) {
@@ -785,6 +810,11 @@ class OneBuildRepository extends AjaxRepository {
 		const oldParentId = treeNode.parent?.id;
 
 		const data = _.merge({ nodeId: treeNode.id, parentId: newParentId, }, this._baseParams, this._params);
+		
+		if (this.debugMode) {
+			console.log('moveTreeNode', data);
+		}
+
 		return this._send('POST', this.name + '/moveNode', data)
 			.then((result) => {
 				if (this.debugMode) {
