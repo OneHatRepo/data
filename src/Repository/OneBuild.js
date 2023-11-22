@@ -317,6 +317,10 @@ class OneBuildRepository extends AjaxRepository {
 			return;
 		}
 
+		if (!id) {
+			return null;
+		}
+
 		const idPropertyName = this.getSchema().model.idProperty;
 		const params = {};
 		params['conditions[' + idPropertyName + ']'] = id;
@@ -324,7 +328,7 @@ class OneBuildRepository extends AjaxRepository {
 		const data = _.merge(params, this._baseParams);
 
 		if (this.debugMode) {
-			console.log('getSingleEntityFromServer', options);
+			console.log('getSingleEntityFromServer', data);
 		}
 
 		return this._send(this.methods.get, this.api.get, data)
@@ -347,7 +351,7 @@ class OneBuildRepository extends AjaxRepository {
 						} = this._processServerResponse(result);
 
 						if (!root[0]) {
-							throw Error('Record does not exist!')
+							return null;
 						}
 
 						return this.createStandaloneEntity(root[0]);
