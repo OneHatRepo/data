@@ -1,6 +1,7 @@
 /** @module Repository */
 
 import SessionStorageRepository from '@onehat/data/src/Integration/Browser/Repository/SessionStorage';
+import CryptoJS from 'crypto-js';
 import AES from 'crypto-js/aes';
 import _ from 'lodash';
 
@@ -26,7 +27,7 @@ class SecureSessionStorageRepository extends SessionStorageRepository {
 		// BEGIN MOD
 		let result = this._store.session(name);
 		if (!_.isEmpty(result)) {
-			result = AES.decrypt(result, this.passphrase);
+			result = AES.decrypt(result, this.passphrase).toString(CryptoJS.enc.Utf8);
 		}
 		// END MOD
 
@@ -45,7 +46,7 @@ class SecureSessionStorageRepository extends SessionStorageRepository {
 			value = JSON.stringify(value);
 		}
 
-		value = AES.encrypt(value, this.passphrase); // MOD
+		value = AES.encrypt(value, this.passphrase).toString(); // MOD
 		
 		return this._store.session(name, value);
 	}

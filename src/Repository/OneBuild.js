@@ -324,7 +324,7 @@ class OneBuildRepository extends AjaxRepository {
 		const data = _.merge(params, this._baseParams);
 
 		if (this.debugMode) {
-			console.log('Sending ' + url, options);
+			console.log('getSingleEntityFromServer', options);
 		}
 
 		return this._send(this.methods.get, this.api.get, data)

@@ -1,6 +1,7 @@
 /** @module Repository */
 
 import LocalStorageRepository from '@onehat/data/src/Integration/Browser/Repository/LocalStorage';
+import CryptoJS from 'crypto-js';
 import AES from 'crypto-js/aes';
 import _ from 'lodash';
 
@@ -31,7 +32,7 @@ class SecureLocalStorageRepository extends LocalStorageRepository {
 			// BEGIN MOD
 			let result = this._store(name);
 			if (!_.isEmpty(result)) {
-				result = AES.decrypt(result, this.passphrase);
+				result = AES.decrypt(result, this.passphrase).toString(CryptoJS.enc.Utf8);
 			}
 			// END MOD
 			
@@ -66,7 +67,7 @@ class SecureLocalStorageRepository extends LocalStorageRepository {
 				value = JSON.stringify(value);
 			}
 
-			value = AES.encrypt(value, this.passphrase); // MOD
+			value = AES.encrypt(value, this.passphrase).toString(); // MOD
 
 			return this._store(name, value);
 
