@@ -277,20 +277,24 @@ class LocalFromRemoteRepository extends EventEmitter {
 		// NORMAL PROCESS, basically call super()
 		// This adds to the local repository, so we can sync later,
 		// if needed.
-		const normalAdd = this._getActiveRepository().add(data);
+		const normalAdd = await this._getActiveRepository().add(data);
 		if (this.mode !== MODE_COMMAND_QUEUE || !this.isOnline) {
 			return normalAdd;
 		}
 		
 		// MODE_COMMAND_QUEUE -- try to sync now!
-		const entity = await normalAdd;
-		return await this.sync(entity);
+		return await this.sync(normalAdd);
 	}
 
 	/**
 	 * Syncs local and remote repositories, based on operation mode.
 	 */
 	sync = async (entity, callback = null) => {
+
+		if (this.debugMode) {
+			console.log('sync');
+		}
+
 		try {
 			if (!this.isOnline) {
 				this._doAutoSync(true);
