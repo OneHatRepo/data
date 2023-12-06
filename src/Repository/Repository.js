@@ -1161,6 +1161,38 @@ export default class Repository extends EventEmitter {
 	}
 
 	/**
+	 * Inserts the newEntity directly before entity on the current page.
+	 */
+	_insertBefore = (newEntity, entity) => {
+
+		const
+			currentEntities = getEntities(),
+			existingEntityIx = _.findIndex(currentEntities, ent => ent === entity) || 0;
+
+		let firstHalf = [],
+			secondHalf = [];
+
+		if (!currentEntities.length || existingEntityIx === 0) {
+			firstHalf.push(newEntity);
+		} else {
+			firstHalf = _.slice(this.entities, 0, existingEntityIx -1);
+			secondHalf = _.slice(this.entities, existingEntityIx);
+		}
+
+
+		firstHalf.push(newEntity);
+
+		this.entities = [
+			...firstHalf,
+			...secondHalf,
+		];
+		
+		if (this._recalculate) {
+			this._recalculate();
+		}
+	}
+
+	/**
 	 * Deletes all locally cached entities in repository,
 	 * usually, the current "page".
 	 * Does not actually affect anything on the server.
@@ -1168,6 +1200,13 @@ export default class Repository extends EventEmitter {
 	clear = async () => {
 		this._destroyEntities();
 	}
+
+
+	//  _    __      __               
+	// | |  / /___ _/ /_  _____  _____
+	// | | / / __ `/ / / / / _ \/ ___/
+	// | |/ / /_/ / / /_/ /  __(__  ) 
+	// |___/\__,_/_/\__,_/\___/____/  
 
 	/**
 	 * Gets an array of "submit" values objects for the entities

@@ -307,6 +307,45 @@ class OneBuildRepository extends AjaxRepository {
 			});
 	}
 
+	remoteDuplicate = async (entity) => {
+		
+		this.markLoading();
+
+		const
+			Model = this.getSchema().name,
+			id = entity.id,
+			result = await this._send('POST', Model + '/duplicate', { id });
+		
+		if (!result) {
+			this.markLoading(false);
+			this.throwError('error duplicating on server');
+			return;
+		}
+
+		const {
+			root,
+			success,
+			total,
+			message
+		} = this._processServerResponse(result);
+
+		if (!success) {
+			this.markLoading(false);
+			throw Error(message);
+		}
+
+		// Click duplicateId. The new row appears directly above the one that was duplicated
+		// The new duplicate is selected
+		// The display field should read "{old name} (duplicate)"
+
+		
+		const duplicateEntity = await this.createStandaloneEntity(root, true, true);
+		this._insertBefore(duplicateEntity, entity);
+
+		this.markLoading(false);
+		return duplicateEntity;
+	}
+
 	getSingleEntityFromServer = async (id) => {
 		if (this.isDestroyed) {
 			this.throwError('this.getSingleEntityFromServer is no longer valid. Repository has been destroyed.');
@@ -320,6 +359,8 @@ class OneBuildRepository extends AjaxRepository {
 		if (!id) {
 			return null;
 		}
+
+		this.markLoading();
 
 		const idPropertyName = this.getSchema().model.idProperty;
 		const params = {};
