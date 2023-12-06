@@ -27,10 +27,8 @@ export default function useOneHatData(schemaName, uniqueRepository = false) {
 
 	useEffect(() => {
 
-		let repository;
-		const onChangeData = () => {
-			setEntities(repository.entities); // Set new state in component
-		};
+		let repository,
+			onChangeData = () => {};
 		(async () => {
 
 			if (uniqueRepository) {
@@ -45,6 +43,9 @@ export default function useOneHatData(schemaName, uniqueRepository = false) {
 			} else {
 				repository = oneHatData.getRepository(schemaName); // Get bound Repository for this schema
 			}
+			onChangeData = () => {
+				setEntities(repository.entities); // Set new state in component
+			};
 	
 			setRepository(repository);
 			setEntities(repository.entities);
