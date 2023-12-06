@@ -1114,6 +1114,38 @@ describe('Repository Base', function() {
 			const str = this.repository.toString();
 			expect(str).to.be.eq('NullRepository {bar} - foo');
 		});
+
+		it('_insertBefore', function() {
+			
+			const
+				repository = this.repository,
+				one = { id: 'one' },
+				two =  { id: 'two' },
+				three =  { id: 'three' };
+			
+			// insert into empty array
+			repository.entities = [];
+			repository._insertBefore(one);
+			expect(repository.entities.length).to.be.eq(1);
+			expect(repository.entities[0]).to.be.eq(one);
+
+			// insert into array with one
+			repository.entities = [two];
+			repository._insertBefore(one, two);
+			expect(repository.entities.length).to.be.eq(2);
+			expect(repository.entities[0]).to.be.eq(one);
+			expect(repository.entities[1]).to.be.eq(two);
+
+			// insert into middle of array
+			repository.entities = [one, three];
+			repository._insertBefore(two, three);
+			expect(repository.entities.length).to.be.eq(3);
+			expect(repository.entities[0]).to.be.eq(one);
+			expect(repository.entities[1]).to.be.eq(two);
+			expect(repository.entities[2]).to.be.eq(three);
+
+			repository.entities = []; // because the entities aren't real entities and we don't want a destory error
+		});
 	});
 
 	describe('tree', function() {

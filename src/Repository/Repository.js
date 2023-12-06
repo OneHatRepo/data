@@ -1163,33 +1163,29 @@ export default class Repository extends EventEmitter {
 	/**
 	 * Inserts the newEntity directly before entity on the current page.
 	 */
-	_insertBefore = (newEntity, entity) => {
+	_insertBefore = (newEntity, entity = null) => {
 
 		const
-			currentEntities = getEntities(),
-			existingEntityIx = _.findIndex(currentEntities, ent => ent === entity) || 0;
+			currentEntities = this.getEntities(),
+			foundIx = _.findIndex(currentEntities, ent => ent === entity),
+			existingEntityIx = foundIx === -1 ? 0 : foundIx;
 
 		let firstHalf = [],
 			secondHalf = [];
 
 		if (!currentEntities.length || existingEntityIx === 0) {
 			firstHalf.push(newEntity);
+			secondHalf = currentEntities;
 		} else {
-			firstHalf = _.slice(this.entities, 0, existingEntityIx -1);
-			secondHalf = _.slice(this.entities, existingEntityIx);
+			firstHalf = _.slice(currentEntities, 0, existingEntityIx);
+			firstHalf.push(newEntity);
+			secondHalf = _.slice(currentEntities, existingEntityIx);
 		}
-
-
-		firstHalf.push(newEntity);
 
 		this.entities = [
 			...firstHalf,
 			...secondHalf,
 		];
-		
-		if (this._recalculate) {
-			this._recalculate();
-		}
 	}
 
 	/**
