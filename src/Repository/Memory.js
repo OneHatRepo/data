@@ -590,6 +590,11 @@ class MemoryRepository extends Repository {
 		}
 	}
 
+
+	_insertBefore = (newEntity, entity = null) => {
+		throw Error('Not yet implemented');
+	}
+
 	/**
 	 * Gets the total number of Entities in the storage medium,
 	 * before any sorting or filtering is applied.
