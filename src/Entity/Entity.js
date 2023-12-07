@@ -602,9 +602,6 @@ class Entity extends EventEmitter {
 	 * @return {object} values
 	 */
 	get submitValues() {
-		if (this.isDestroyed) {
-			throw Error('this.submitValues is no longer valid. Entity has been destroyed.');
-		}
 		return this.getSubmitValues();
 	}
 
@@ -632,9 +629,6 @@ class Entity extends EventEmitter {
 	 * @return {object} values
 	 */
 	get submitValuesMapped() {
-		if (this.isDestroyed) {
-			throw Error('this.submitValuesMapped is no longer valid. Entity has been destroyed.');
-		}
 		return this.getSubmitValuesMapped();
 	}
 
@@ -645,7 +639,7 @@ class Entity extends EventEmitter {
 	 */
 	getDisplayValues = () => {
 		if (this.isDestroyed) {
-			throw Error('this.getSubmitValues is no longer valid. Entity has been destroyed.');
+			throw Error('this.getDisplayValues is no longer valid. Entity has been destroyed.');
 		}
 		let propertyValues = {};
 		_.forOwn(this.properties, (property) => {
@@ -659,9 +653,6 @@ class Entity extends EventEmitter {
 	 * @return {object} values
 	 */
 	get displayValues() {
-		if (this.isDestroyed) {
-			throw Error('this.displayValues is no longer valid. Entity has been destroyed.');
-		}
 		return this.getDisplayValues();
 	}
 
@@ -686,9 +677,6 @@ class Entity extends EventEmitter {
 	 * @return {object} values
 	 */
 	get rawValues() {
-		if (this.isDestroyed) {
-			throw Error('this.rawValues is no longer valid. Entity has been destroyed.');
-		}
 		return this.getRawValues();
 	}
 
@@ -713,9 +701,6 @@ class Entity extends EventEmitter {
 	 * @return {object} values
 	 */
 	get parsedRawValues() {
-		if (this.isDestroyed) {
-			throw Error('this.parsedRawValues is no longer valid. Entity has been destroyed.');
-		}
 		return this.getParsedRawValues();
 	}
 
@@ -726,7 +711,7 @@ class Entity extends EventEmitter {
 	 */
 	getParsedValues = () => {
 		if (this.isDestroyed) {
-			throw Error('this.getSubmitValues is no longer valid. Entity has been destroyed.');
+			throw Error('this.getParsedValues is no longer valid. Entity has been destroyed.');
 		}
 		let propertyValues = {};
 		_.forOwn(this.properties, (property) => {
@@ -740,9 +725,6 @@ class Entity extends EventEmitter {
 	 * @return {object} values
 	 */
 	get parsedValues() {
-		if (this.isDestroyed) {
-			throw Error('this.parsedValues is no longer valid. Entity has been destroyed.');
-		}
 		return this.getParsedValues();
 	}
 
