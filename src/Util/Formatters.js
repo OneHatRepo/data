@@ -69,9 +69,9 @@ class Formatters {
 			// See http://stackoverflow.com/questions/2587345/javascript-date-parse?rq=1
 			// If accuracy is absolutely needed and format is known, use a regex to 
 			// manually parse, then pass in arguments to new Date().
-			let date = moment(value, 'YYYY-MM-DD');
+			let date = moment(value, 'YYYY-MM-DD', true);
 			if (!date) {
-				date = moment(value, 'YYYY-MM-DD HH:mm:ss');
+				date = moment(value, 'YYYY-MM-DD HH:mm:ss', true);
 			}
 			if (typeof date !== 'undefined' && date !== null) {
 				date = new Date(date);
