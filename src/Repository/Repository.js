@@ -616,10 +616,6 @@ export default class Repository extends EventEmitter {
 	 * @member {boolean} hasFilters - Whether or not any filters are applied
 	 */
 	get hasFilters() {
-		if (this.isDestroyed) {
-			this.throwError('this.hasFilters is no longer valid. Repository has been destroyed.');
-			return;
-		}
 		return this.filters.length > 0;
 	}
 
