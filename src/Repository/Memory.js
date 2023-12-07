@@ -331,6 +331,11 @@ class MemoryRepository extends Repository {
 						passedAll = false;
 						return false; // break the forEach loop
 					}
+				} else if (!_.isNil(filter.fn)) {
+					if (!filter.fn(entity)) {
+						passedAll = false;
+						return false; // break the forEach loop
+					}
 				} else {
 					const { name, value } = filter,
 						property = entity.getProperty(name);

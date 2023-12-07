@@ -627,9 +627,7 @@ export default class Repository extends EventEmitter {
 		if (!this.hasFilters) {
 			return false;
 		}
-		const found = _.find(this.filters, (filter) => {
-			return filter.name === name;
-		});
+		const found = _.find(this.filters, (filter) => filter.name === name);
 		return !!found;
 	}
 
@@ -702,14 +700,14 @@ export default class Repository extends EventEmitter {
 		// Set up new filters
 		let filters = clearFirst ? 
 						[] : // Clear existing filters
-						_.map(this.filters, filter => filter); // Add to or modify existing filters. Work with a copy, so we can detect changes in _setFilters
+						_.clone(this.filters); // so we can detect changes in _setFilters
 		
 		_.each(newFilters, (newFilter) => {
 
 			let deleteExisting = false,
 				addNew = true;
 
-			if (!_.isFunction(newFilter)) {
+			if (!_.isFunction(newFilter) && _.isNil(newFilter.fn)) {
 				if (_.isNil(newFilter.value)) {
 					deleteExisting = true;
 					addNew = false;
