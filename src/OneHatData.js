@@ -487,6 +487,7 @@ export class OneHatData extends EventEmitter {
 			const id = uuid();
 			clone.name = clone.name + '-' + id;
 			clone.id = id;
+			clone.isUnique = true;
 			return clone;
 		}
 		return schema.getBoundRepository();
@@ -517,6 +518,7 @@ export class OneHatData extends EventEmitter {
 
 		const repository = await this.createRepository(schemaName);
 		this.uniqueRepositoriesMap[mapName] = repository.id;
+		repository.isUnique = true;
 		return repository;
 	}
 

@@ -33,6 +33,7 @@ export default function useOneHatData(schemaName, uniqueRepository = false) {
 
 			if (uniqueRepository) {
 				repository = await oneHatData.createRepository(schemaName);
+				repository.isUnique = true;
 			} else if (_.isObject(schemaName)) {
 				if (schemaName.id) {
 					repository = oneHatData.getRepositoryById(schemaName.id);

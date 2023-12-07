@@ -48,6 +48,11 @@ export default class Repository extends EventEmitter {
 			name: schema.name,
 
 			/**
+			 * @member {boolean} isUnique - Whether this repository is classified as 'unique'
+			 */
+			isUnique: false,
+
+			/**
 			 * @member {boolean} isAutoLoad - Whether to immediately load this repository's data on instantiation
 			 */
 			isAutoLoad: false,
