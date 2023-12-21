@@ -175,7 +175,7 @@ class OfflineRepository extends MemoryRepository {
 		let storageResult;
 		try {
 			storageResult = await this._storageSetValue(entity.id, entity.getOriginalData());
-			this._addToIndex(entity.id);
+			await this._addToIndex(entity.id);
 		} catch (e) {
 			// Revert to clone
 			delete this._keyedEntities[entity.id];
@@ -236,7 +236,7 @@ class OfflineRepository extends MemoryRepository {
 		let storageResult;
 		try {
 			storageResult = await this._storageDeleteValue(entity.id);
-			this._deleteFromIndex(entity.id);
+			await this._deleteFromIndex(entity.id);
 		} catch (e) {
 			// Revert to clone
 			this._keyedEntities[clone.id] = clone;
