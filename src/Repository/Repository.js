@@ -2194,6 +2194,7 @@ export default class Repository extends EventEmitter {
 		if (this.errorHandler) {
 			this.errorHandler(obj);
 		} else {
+			this.emit('error', obj);
 			throw Error(obj);
 		}
 	}
