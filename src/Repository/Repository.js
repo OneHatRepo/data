@@ -7,7 +7,6 @@ import {
 	v4 as uuid,
 } from 'uuid';
 import moment from 'moment';
-import { waitUntil } from 'async-wait-until';
 import _ from 'lodash';
 
 /**
@@ -388,8 +387,28 @@ export default class Repository extends EventEmitter {
 			this.throwError('this.waitUntilDoneLoading is no longer valid. Repository has been destroyed.');
 			return;
 		}
+
+		function delayUntil(fn, maxAttempts = 100, interval = 100) {
+			return new Promise((resolve, reject) => {
+				let currentAttempt = 0;
+				const checkCondition = async () => {
+					currentAttempt++;
 		
-		await waitUntil(() => !this.isLoading, { timeout });
+					if (fn()) {
+						resolve();
+					} else if (currentAttempt < maxAttempts) {
+						setTimeout(checkCondition, interval);
+					} else {
+						reject(new Error('maxAttempts reached. Condition not met.'));
+					}
+				};
+		
+				checkCondition();
+			});
+		}
+		
+		
+		await delayUntil(() => !this.isLoading);
 	}
 
 	/**
