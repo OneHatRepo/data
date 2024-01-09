@@ -545,13 +545,13 @@ export default class Repository extends EventEmitter {
 		} else if (!_.isNil(this.schema.model.sortProperty)) {
 			sorters = [{
 				name: this.schema.model.sortProperty,
-				direction: 'ASC',
+				direction: this.schema.model.sortDir,
 				fn: 'default',
 			}];
 		} else if (!_.isNil(this.schema.model.displayProperty)) {
 			sorters = [{
 				name: this.schema.model.displayProperty,
-				direction: 'ASC',
+				direction: this.schema.model.sortDir,
 				fn: 'default',
 			}];
 		}

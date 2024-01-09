@@ -66,6 +66,12 @@ export default class Schema extends EventEmitter {
 				sortProperty: null,
 
 				/**
+				 * @member {string} sortDir - direction of sort Property ('ASC' || 'DESC')
+				 * if sortProperty has a value and sorters is left blank, an automatic sorter with this property will be created.
+				 */
+				sortDir: 'ASC',
+
+				/**
 				 * @member {string} parentIdProperty - name of parent_id Property (e.g. 'categories__parent_id' for Adjacency Lists, and parent_id for Closure Tables)
 				 * For trees only
 				 */
