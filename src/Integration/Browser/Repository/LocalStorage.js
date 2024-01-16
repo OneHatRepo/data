@@ -92,7 +92,7 @@ class LocalStorageRepository extends OfflineRepository {
 		}
 	}
 
-	_clearAll = () => {
+	clearAll = () => {
 		return this._store.clearAll();
 	}
 

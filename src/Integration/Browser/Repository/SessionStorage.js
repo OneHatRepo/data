@@ -47,7 +47,7 @@ class SessionStorageRepository extends OfflineRepository {
 		return this._store.session.remove(name);
 	}
 
-	_clearAll = () => {
+	clearAll = () => {
 		return this._store.session.clearAll();
 	}
 
