@@ -703,19 +703,19 @@ export default class Repository extends EventEmitter {
 			let deleteExisting = false,
 				addNew = true;
 
-			if (!_.isFunction(newFilter) && _.isNil(newFilter.fn)) {
-				if (_.isNil(newFilter.value)) {
+			if (!_.isFunction(newFilter) && _.isNil(newFilter?.fn)) {
+				if (_.isNil(newFilter?.value)) {
 					deleteExisting = true;
 					addNew = false;
 				} else
-				if (_.find(filters, (filter) => filter.name === newFilter.name)) {
+				if (_.find(filters, (filter) => filter?.name === newFilter?.name)) {
 					// Filter already exists
 					deleteExisting = true;
 				}
 			}
 
 			if (deleteExisting) {
-				filters = _.filter(filters, (filter) => filter.name !== newFilter.name)
+				filters = _.filter(filters, (filter) => filter?.name !== newFilter?.name)
 			}
 			if (addNew) {
 				filters.push(newFilter);
