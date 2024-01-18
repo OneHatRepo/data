@@ -395,7 +395,9 @@ class OneBuildRepository extends AjaxRepository {
 							return null;
 						}
 
-						return this.createStandaloneEntity(root[0]);
+						const entity = this.createStandaloneEntity(root[0]);
+						entity.isRemotePhantom = false;
+						return entity;
 					})
 					.finally(() => {
 						this.markLoading(false);
