@@ -346,6 +346,20 @@ class OneBuildRepository extends AjaxRepository {
 		return duplicateEntity;
 	}
 
+	loadOneAdditionalRecord = async (id) => {
+		const entity = await this.getSingleEntityFromServer(id);
+		if (!entity) {
+			this.throwError('entity not found');
+			return;
+		}
+
+		this._relayEntityEvents(entity);
+		this.entities.push(entity);
+		this.total++;
+		this._setPaginationVars();
+		this.emit('changeData', this.entities);
+	}
+
 	getSingleEntityFromServer = async (id) => {
 		if (this.isDestroyed) {
 			this.throwError('this.getSingleEntityFromServer is no longer valid. Repository has been destroyed.');
