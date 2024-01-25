@@ -346,7 +346,7 @@ class OneBuildRepository extends AjaxRepository {
 		return duplicateEntity;
 	}
 
-	loadOneAdditionalRecord = async (id) => {
+	loadOneAdditionalEntity = async (id) => {
 		const entity = await this.getSingleEntityFromServer(id);
 		if (!entity) {
 			this.throwError('entity not found');
