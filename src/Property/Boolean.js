@@ -53,6 +53,13 @@ export default class BooleanProperty extends Property {
 		return Parsers.ParseBool(this.parsedValue); // Use a Parser instead of a Formatter to make sure we submit it as an actual boolean primitive value
 	}
 
+	toggle = () => {
+		if (this.isDestroyed) {
+			throw Error('this.toggle is no longer valid. Property has been destroyed.');
+		}
+		this.parsedValue = !this.parsedValue;
+	}
+
 };
 
 BooleanProperty.className = 'Boolean';
