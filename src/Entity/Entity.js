@@ -908,7 +908,7 @@ class Entity extends EventEmitter {
 		if (this.isDestroyed) {
 			throw Error('this.getIdProperty is no longer valid. Entity has been destroyed.');
 		}
-		const idProperty = this.getSchema().model?.idProperty || null;
+		const idProperty = this.getSchema()?.model?.idProperty || null;
 		if (!idProperty) {
 			throw new Error('No idProperty found for ' + schema.name);
 		}
@@ -964,7 +964,7 @@ class Entity extends EventEmitter {
 		}
 		const
 			schema = this.getSchema(),
-			model = schema.model,
+			model = schema?.model,
 			displayProperty = model && model.displayProperty ? model.displayProperty : null;
 		if (!displayProperty) {
 			throw new Error('No displayProperty found for ' + schema.name);
@@ -1066,10 +1066,10 @@ class Entity extends EventEmitter {
 		}
 
 		const schema = this.getSchema();
-		if (!schema.model.associations.hasOne.includes(repositoryName) &&
-			!schema.model.associations.hasMany.includes(repositoryName) &&
-			!schema.model.associations.belongsTo.includes(repositoryName) &&
-			!schema.model.associations.belongsToMany.includes(repositoryName)
+		if (!schema?.model.associations.hasOne.includes(repositoryName) &&
+			!schema?.model.associations.hasMany.includes(repositoryName) &&
+			!schema?.model.associations.belongsTo.includes(repositoryName) &&
+			!schema?.model.associations.belongsToMany.includes(repositoryName)
 			) {
 			throw Error(repositoryName + ' is not associated with this schema');
 		}
@@ -1449,7 +1449,7 @@ class Entity extends EventEmitter {
 			throw Error('this.getParentIdProperty is no longer valid. TreeNode has been destroyed.');
 		}
 
-		const parentIdProperty = this.getSchema().model.parentIdProperty;
+		const parentIdProperty = this.getSchema()?.model.parentIdProperty;
 		return this.getProperty(parentIdProperty);
 	}
 
@@ -1509,7 +1509,7 @@ class Entity extends EventEmitter {
 			throw Error('this.getDepthProperty is no longer valid. TreeNode has been destroyed.');
 		}
 
-		const depthProperty = this.getSchema().model.depthProperty;
+		const depthProperty = this.getSchema()?.model.depthProperty;
 		return this.getProperty(depthProperty);
 	}
 
@@ -1546,7 +1546,7 @@ class Entity extends EventEmitter {
 			throw Error('this.getHasChildrenProperty is no longer valid. TreeNode has been destroyed.');
 		}
 
-		const hasChildrenProperty = this.getSchema().model.hasChildrenProperty;
+		const hasChildrenProperty = this.getSchema()?.model.hasChildrenProperty;
 		return this.getProperty(hasChildrenProperty);
 	}
 
@@ -1840,8 +1840,8 @@ class Entity extends EventEmitter {
 		})
 		this.properties = null;
 
-		this.emit('destroy', this._proxy);
 		this.isDestroyed = true;
+		this.emit('destroy', this._proxy);
 		
 		// listeners
 		this.removeAllListeners();
