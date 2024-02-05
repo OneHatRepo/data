@@ -1,6 +1,6 @@
 {
 	"name": "@onehat/data",
-	"version": "1.19.41",
+	"version": "1.20.0",
 	"description": "JS data modeling package with adapters for many storage mediums.",
 	"main": "src/index.js",
 	"type": "module",
@@ -47,6 +47,7 @@
 		"moment": "^2.29.4",
 		"natsort": "^2.0.3",
 		"numeral": "^2.0.6",
+		"object-hash": "^3.0.0",
 		"qs": "^6.11.2",
 		"relative-time-parser": "^1.0.15",
 		"uuid": "^9.0.1"

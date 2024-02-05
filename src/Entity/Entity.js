@@ -3,6 +3,7 @@
 import EventEmitter from '@onehat/events';
 import PropertyTypes from '../Property/index.js';
 import moment from 'moment';
+import hash from 'object-hash';
 import _ from 'lodash';
 
 /**
@@ -103,6 +104,11 @@ class Entity extends EventEmitter {
 		 * @public
 		 */
 		this.properties = [];
+
+		/**
+		 * @member {string} hash - A hash of this.submitValues, so we can detect changes
+		 */
+		this.hash = null;
 
 		/**
 		 * @member {boolean} isTree - Whether this Entity is a TreeNode
@@ -254,11 +260,22 @@ class Entity extends EventEmitter {
 		return this._proxy; // Return the Proxy, not 'this'
 	}
 
+	/**
+	 * Decorator for parent emit() method so we can rehash
+	 */
+	emit(name) { // NOTE: Purposefully do not use an arrow-function, so we have access to arguments
+		
+		this.rehash();
+		
+		return super.emit(...arguments);
+	}
+
 	initialize() {
 		this.properties = this._createProperties();
 		this._createMethods();
 		this._createStatics();
 		this.reset();
+		this.rehash();
 		this.isInitialized = true;
 	}
 
@@ -1023,47 +1040,6 @@ class Entity extends EventEmitter {
 	}
 
 	/**
-	 * Gets the a hash of the current submitValues.
-	 * This allows easy detection of changes in data.
-	 * @return {integer} hash
-	 */
-	getHash = () => {
-		if (this.isDestroyed) {
-			throw Error('this.getHash is no longer valid. Entity has been destroyed.');
-		}
-
-		const str = JSON.stringify(_.merge({}, this.submitValues, {
-			// include Entity state in hash
-			isDestroyed: this.isDestroyed,
-			isPhantom: this.isPhantom,
-			isDirty: this.isDirty,
-			isTempId: this.isTempId,
-		}));
-
-		// from https://github.com/bryc/code/blob/master/jshash/experimental/cyrb53.js
-		const seed = 0;
-		let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
-		for (let i = 0, ch; i < str.length; i++) {
-			ch = str.charCodeAt(i);
-			h1 = Math.imul(h1 ^ ch, 2654435761);
-			h2 = Math.imul(h2 ^ ch, 1597334677);
-		}
-		h1 = Math.imul(h1 ^ (h1>>>16), 2246822507) ^ Math.imul(h2 ^ (h2>>>13), 3266489909);
-		h2 = Math.imul(h2 ^ (h2>>>16), 2246822507) ^ Math.imul(h1 ^ (h1>>>13), 3266489909);
-		const hash = 4294967296 * (2097151 & h2) + (h1>>>0);
-
-		return hash;
-	}
-
-	/**
-	 * Getter of the hash for this Entity.
-	 * @return {integer} hash
-	 */
-	get hash() {
-		return this.getHash();
-	}
-
-	/**
 	 * Gets the original data object for this Entity.
 	 * This is either what was persisted to storage medium, or what was
 	 * loaded in at initialization.
@@ -1815,6 +1791,22 @@ class Entity extends EventEmitter {
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Sets the hash of the current submitValues and state.
+	 * This allows easy detection of changes in data.
+	 * @return {integer} hash
+	 */
+	rehash = () => {
+		const toHash = JSON.stringify(_.merge({}, this.submitValues, {
+			// include Entity state in hash
+			isDestroyed: this.isDestroyed,
+			isPhantom: this.isPhantom,
+			isDirty: this.isDirty,
+			isTempId: this.isTempId,
+		}));
+		this.hash = hash(toHash);
 	}
 
 

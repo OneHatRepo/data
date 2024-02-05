@@ -8,6 +8,7 @@ import {
 } from 'uuid';
 import moment from 'moment';
 import { waitUntil } from 'async-wait-until';
+import hash from 'object-hash';
 import _ from 'lodash';
 
 /**
@@ -112,6 +113,11 @@ export default class Repository extends EventEmitter {
 			 * @member {bool} isShowingMore - Whether this repository is in "show more" mode
 			 */
 			isShowingMore: false,
+
+			/**
+			 * @member {string} hash - A hash of this.entities, so we can detect changes
+			 */
+			hash: null,
 
 			/**
 			 * @member {number} pageSize - Max number of entities per page
@@ -285,6 +291,19 @@ export default class Repository extends EventEmitter {
 	}
 
 	/**
+	 * Decorator for parent emit() method
+	 * so we can rehash on changeData events
+	 */
+	emit(name) { // NOTE: Purposefully do not use an arrow-function, so we have access to arguments
+		
+		if (name === 'changeData') {
+			this.rehash();
+		}
+
+		return super.emit(...arguments);
+	}
+
+	/**
 	 * Initializes the Repository.
 	 * - Applies default sorters
 	 * - Autoloads data, if needed
@@ -318,6 +337,7 @@ export default class Repository extends EventEmitter {
 		if (init) {
 			await init.call(this);
 		}
+		this.rehash();
 
 		this.isInitialized = true;
 		this.emit('initialize');
@@ -2121,6 +2141,11 @@ export default class Repository extends EventEmitter {
 	 */
 	setOptions = (options) => {
 		_.merge(this, options);
+	}
+
+	rehash = () => {
+		const hashes = _.map(this.entities, (entity) => entity.hash);
+		this.hash = hash(hashes);
 	}
 
 	unmapData = (mappedData) => {

@@ -611,6 +611,7 @@ class OneBuildRepository extends AjaxRepository {
 
 				
 				// Don't emit events for root nodes...
+				this.rehash();
 				this.emit('load', this);
 				// this.emit('changeData', this.entities);
 
@@ -693,6 +694,7 @@ class OneBuildRepository extends AjaxRepository {
 				
 				this._setPaginationVars();
 
+				this.rehash();
 				// this.emit('changeData', this.entities);
 				this.emit('load', this);
 
@@ -773,6 +775,7 @@ class OneBuildRepository extends AjaxRepository {
 				
 				this._setPaginationVars();
 
+				this.rehash();
 				// this.emit('changeData', this.entities);
 				this.emit('load', this);
 
