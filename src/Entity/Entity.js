@@ -265,7 +265,9 @@ class Entity extends EventEmitter {
 	 */
 	emit(name) { // NOTE: Purposefully do not use an arrow-function, so we have access to arguments
 		
-		this.rehash();
+		if (!this.isDestroyed) {
+			this.rehash();
+		}
 		
 		return super.emit(...arguments);
 	}
