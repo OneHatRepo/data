@@ -1716,6 +1716,10 @@ export default class Repository extends EventEmitter {
 						break;
 					case 'edit':
 						entities = this.getDirty();
+						if (_.isEmpty(entities) && this.isRemotePhantomMode) {
+							// In remote phantom mode, we need to save phantoms even if they're not dirty
+							entities = this.getPhantom();
+						}
 						if (useStaged) {
 							entities = this.getStaged(entities);
 						}

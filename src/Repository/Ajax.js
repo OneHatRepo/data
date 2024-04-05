@@ -1036,7 +1036,10 @@ class AjaxRepository extends Repository {
 									this.assembleTreeNodes();
 									this.emit('changeData', this.entities);
 								} else if (this.isRemotePhantomMode && (this._operations.add || this._operations.deletePhantom)) {
-									// Do nothing, as we don't want to immediately reload on add for a remote phantom mode record. It won't appear, and it will cause all kinds of trouble!
+									if (this._operations.add) {
+										// Do nothing, as we don't want to immediately reload on add for a remote phantom mode record. 
+										// The entity wouldn't appear, and it would cause all kinds of trouble!
+									}
 									if (this._operations.deletePhantom) {
 										// sweep existing deleted records and remove them
 										_.each(this.entities, (entity) => {

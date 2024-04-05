@@ -340,6 +340,9 @@ class OneBuildRepository extends AjaxRepository {
 
 		
 		const duplicateEntity = await this.createStandaloneEntity(root, true, true);
+		if (entity.isRemotePhantomMode) {
+			entity.isRemotePhantom = true;
+		}
 		this._insertBefore(duplicateEntity, entity);
 
 		this.markLoading(false);
