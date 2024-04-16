@@ -262,22 +262,31 @@ class OneBuildRepository extends AjaxRepository {
 	
 	/**
 	 * Integrates with RestTrait::reorder in OneBuild API
-	 * @param {entity} dragRecord - which entity was being dragged
+	 * @param {entity|array} dragRecordOrIds - which entity or ids were being dragged
 	 * @param {entity} dropRecord - which entity it was dropped on to
 	 * @param {string} dropPosition - position in which it was dropped; could be 'before' or 'after'
 	 * @return {Promise}
 	 */
-	reorder = (dragRecord, dropRecord, dropPosition) => {
+	reorder = (dragRecordOrIds, dropRecord, dropPosition) => {
 
 		if (!this.isOnline) {
 			this.throwError('Offline');
 			return;
 		}
-		
+
+		let ids;
+		if (_.isArray(dragRecordOrIds)) {
+			ids = dragRecordOrIds;
+		} else if (dragRecordOrIds?.id) {
+			ids = [dragRecordOrIds.id];
+		} else {
+			throw Error('dragRecordOrIds must be an entity or array of ids')
+		}
+
 		const data = {
 			url: this.name + '/reorder',
 			data: qs.stringify({
-				ids: dragRecord.id,
+				ids,
 				dropPosition,
 				dropRecord_id: dropRecord.id,
 			}),
