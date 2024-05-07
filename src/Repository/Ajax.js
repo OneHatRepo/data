@@ -519,7 +519,7 @@ class AjaxRepository extends Repository {
 						} = this._processServerResponse(result);
 
 						if (!success) {
-							this.throwError(message);
+							this.throwError(message, root);
 							return;
 						}
 
@@ -603,7 +603,7 @@ class AjaxRepository extends Repository {
 						entity.isSaving = false;
 
 						if (!success) {
-							this.throwError(message);
+							this.throwError(message, root);
 							return;
 						}
 
@@ -661,7 +661,7 @@ class AjaxRepository extends Repository {
 						});
 
 						if (!success) {
-							this.throwError(message);
+							this.throwError(message, root);
 							return;
 						}
 
@@ -714,7 +714,7 @@ class AjaxRepository extends Repository {
 						entity.isSaving = false;
 
 						if (!success) {
-							this.throwError(message);
+							this.throwError(message, root);
 							return;
 						}
 
@@ -772,7 +772,7 @@ class AjaxRepository extends Repository {
 						});
 
 						if (!success) {
-							this.throwError(message);
+							this.throwError(message, root);
 							return;
 						}
 
@@ -835,7 +835,7 @@ class AjaxRepository extends Repository {
 						entity.isSaving = false;
 						
 						if (!success) {
-							this.throwError(message);
+							this.throwError(message, root);
 							return;
 						}
 
@@ -891,7 +891,7 @@ class AjaxRepository extends Repository {
 						});
 
 						if (!success) {
-							this.throwError(message);
+							this.throwError(message, root);
 							return;
 						}
 

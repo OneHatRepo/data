@@ -2218,13 +2218,14 @@ export default class Repository extends EventEmitter {
 	/**
 	 * Either generates an exception, or handles it with the repository's errorHandler
 	 * @param {string|object|bool} error - the error message
+	 * @param {object} data - optional data object to describe the error
 	 */
-	throwError(obj) {
+	throwError(obj, data = null) {
 		if (this.errorHandler) {
-			this.errorHandler(obj);
+			this.errorHandler(obj, data);
 		} else {
-			this.emit('error', obj);
-			throw Error(obj);
+			this.emit('error', obj, data);
+			throw Error(obj, data);
 		}
 	}
 
