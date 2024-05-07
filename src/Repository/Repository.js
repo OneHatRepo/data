@@ -2225,7 +2225,11 @@ export default class Repository extends EventEmitter {
 			this.errorHandler(obj, data);
 		} else {
 			this.emit('error', obj, data);
-			throw Error({ obj, data });
+			let message = obj;
+			if (data) {
+				message = JSON.stringify({ obj, data });
+			}
+			throw Error(message);
 		}
 	}
 
