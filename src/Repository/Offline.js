@@ -166,6 +166,11 @@ class OfflineRepository extends MemoryRepository {
 	 * @private
 	 */
 	async _doAdd(entity) {
+		if (!this.canAdd) {
+			this.throwError('Adding has been disabled on this repository.');
+			return;
+		}
+
 		// Get a clone, in case we need to revert back to it later
 		const clone = entity.clone();
 
@@ -203,6 +208,11 @@ class OfflineRepository extends MemoryRepository {
 	 * Hook into super._doEdit, so we can save Entity changes to storage medium.
 	 */
 	async _doEdit(entity) {
+		if (!this.canEdit) {
+			this.throwError('Editing has been disabled on this repository.');
+			return;
+		}
+
 		// Get a clone, in case we need to revert back to it later
 		const clone = entity.clone();
 
@@ -226,6 +236,11 @@ class OfflineRepository extends MemoryRepository {
 	 * Hook into super._doDelete, so we can delete Entity from storage medium.
 	 */
 	async _doDelete(entity) {
+		if (!this.canDelete) {
+			this.throwError('Deleting has been disabled on this repository.');
+			return;
+		}
+		
 		// Get a clone, in case we need to revert back to it later
 		const clone = entity.clone();
 

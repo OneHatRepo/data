@@ -143,6 +143,21 @@ export default class Repository extends EventEmitter {
 			combineBatch: false,
 
 			/**
+			 * @member {boolean} canAdd - Whether this Repository allows adding entities
+			 */
+			canAdd: true,
+
+			/**
+			 * @member {boolean} canEdit - Whether this Repository allows editing entities
+			 */
+			canEdit: true,
+
+			/**
+			 * @member {boolean} canDelete - Whether this Repository allows deleting entities
+			 */
+			canDelete: true,
+
+			/**
 			 * @member {boolean} debugMode - Whether this Repository should output debug messages
 			 */
 			debugMode: false,
@@ -1039,6 +1054,10 @@ export default class Repository extends EventEmitter {
 			this.throwError('this.add is no longer valid. Repository has been destroyed.');
 			return;
 		}
+		if (!this.canAdd) {
+			this.throwError('Adding has been disabled on this repository.');
+			return;
+		}
 		
 		// Does it already exist? If so, edit the existing
 		const idProperty = this.getSchema().model.idProperty;
@@ -1116,6 +1135,11 @@ export default class Repository extends EventEmitter {
 	 * @return {array} entities - new Entity objects
 	 */
 	addMultiple = async (allData, isPersisted = false) => {
+
+		if (!this.canAdd) {
+			this.throwError('Adding has been disabled on this repository.');
+			return;
+		}
 
 		let entities = [],
 			i,
@@ -1868,7 +1892,6 @@ export default class Repository extends EventEmitter {
 		return this._doDelete(entity);
 	}
 
-
 	/**
 	 * Helper for save.
 	 * Should take the promises returned from batch operations and handle any errors.
@@ -1893,6 +1916,10 @@ export default class Repository extends EventEmitter {
 	delete = async (entities, moveSubtreeUp = false) => {
 		if (this.isDestroyed) {
 			this.throwError('this.delete is no longer valid. Repository has been destroyed.');
+			return;
+		}
+		if (!this.canDelete) {
+			this.throwError('Deleting has been disabled on this repository.');
 			return;
 		}
 		if (!entities) {

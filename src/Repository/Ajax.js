@@ -579,6 +579,10 @@ class AjaxRepository extends Repository {
 			this.throwError('No "add" api endpoint defined.');
 			return;
 		}
+		if (!this.canAdd) {
+			this.throwError('Adding has been disabled on this repository.');
+			return;
+		}
 
 		this._operations.add = true;
 		entity.isSaving = true;
@@ -628,6 +632,10 @@ class AjaxRepository extends Repository {
 	_doBatchAdd(entities) { // standard function notation
 		if (!this.api.batchAdd) {
 			this.throwError('No "batchAdd" api endpoint defined.');
+			return;
+		}
+		if (!this.canAdd) {
+			this.throwError('Adding has been disabled on this repository.');
 			return;
 		}
 
@@ -690,6 +698,10 @@ class AjaxRepository extends Repository {
 			this.throwError('No "edit" api endpoint defined.');
 			return;
 		}
+		if (!this.canEdit) {
+			this.throwError('Editing has been disabled on this repository.');
+			return;
+		}
 
 		this._operations.edit = true;
 		entity.isSaving = true;
@@ -739,6 +751,10 @@ class AjaxRepository extends Repository {
 	_doBatchEdit(entities) { // standard function notation
 		if (!this.api.batchEdit) {
 			this.throwError('No "batchEdit" api endpoint defined.');
+			return;
+		}
+		if (!this.canEdit) {
+			this.throwError('Editing has been disabled on this repository.');
 			return;
 		}
 
@@ -801,6 +817,10 @@ class AjaxRepository extends Repository {
 			this.throwError('No "delete" api endpoint defined.');
 			return;
 		}
+		if (!this.canDelete) {
+			this.throwError('Deleting has been disabled on this repository.');
+			return;
+		}
 
 		if (entity.isRemotePhantomMode && entity.isPhantom) {
 			this._operations.deletePhantom = true;
@@ -860,6 +880,10 @@ class AjaxRepository extends Repository {
 	_doBatchDelete(entities) { // standard function notation
 		if (!this.api.batchDelete) {
 			this.throwError('No "batchDelete" api endpoint defined.');
+			return;
+		}
+		if (!this.canDelete) {
+			this.throwError('Deleting has been disabled on this repository.');
 			return;
 		}
 

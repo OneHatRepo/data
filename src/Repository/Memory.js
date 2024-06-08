@@ -369,6 +369,10 @@ class MemoryRepository extends Repository {
 			this.throwError('this._doAdd is no longer valid. Repository has been destroyed.');
 			return;
 		}
+		if (!this.canAdd) {
+			this.throwError('Adding has been disabled on this repository.');
+			return;
+		}
 
 		// Give it a non-temporary ID, if needed
 		if (entity.isPhantom) {
@@ -419,6 +423,10 @@ class MemoryRepository extends Repository {
 			this.throwError('this._doEdit is no longer valid. Repository has been destroyed.');
 			return;
 		}
+		if (!this.canEdit) {
+			this.throwError('Editing has been disabled on this repository.');
+			return;
+		}
 
 		entity.markSaved();
 		return entity;
@@ -435,6 +443,11 @@ class MemoryRepository extends Repository {
 			this.throwError('this._doDelete is no longer valid. Repository has been destroyed.');
 			return;
 		}
+		if (!this.canDelete) {
+			this.throwError('Deleting has been disabled on this repository.');
+			return;
+		}
+		
 		delete this._keyedEntities[entity.id];
 		this.entities = _.filter(this.entities, (x) => x.id !== entity.id);
 
