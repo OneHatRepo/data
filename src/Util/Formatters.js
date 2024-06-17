@@ -106,9 +106,9 @@ class Formatters {
 			return moment(value).format(format);
 		}
 		if (!_.isNil(value)) {
-			const date = moment(value, 'HH:mm:ss');
-			if (!_.isNil(date)) {
-				return moment(date).format(format);
+			const m = moment(value, format);
+			if (!_.isNil(m)) {
+				return m.format(format);
 			}
 		}
 		return null;

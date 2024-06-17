@@ -18,9 +18,10 @@ describe('TimeProperty', function() {
 	describe('parse', function() {
 
 		it('parse HH:mm:ss', function() {
-			const parsed = this.property.parse('12:34:56');
+			const time = '02:23:23';
+			const parsed = this.property.parse(time);
 			expect(parsed.isValid()).to.be.true;
-			expect(parsed.format('HH:mm:ss')).to.be.eq('12:34:56');
+			expect(parsed.format('HH:mm:ss')).to.be.eq(time);
 		});
 
 	});

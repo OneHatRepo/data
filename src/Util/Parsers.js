@@ -110,7 +110,7 @@ class Parsers {
 		return Parsers.ParseDate(value, format);
 	}
 
-	static ParseTime = (value, format = null) => {
+	static ParseTime = (value, format = 'HH:mm:ss') => {
 		return Parsers.ParseDate(value, format);
 	}
 
