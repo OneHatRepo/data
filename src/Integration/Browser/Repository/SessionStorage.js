@@ -24,7 +24,7 @@ class SessionStorageRepository extends OfflineRepository {
 		}
 	}
 
-	_storageGetValue = (name) => {
+	_storageGetValue(name) {
 		const result = this._store.session(name);
 		let value;
 		try {
@@ -36,18 +36,18 @@ class SessionStorageRepository extends OfflineRepository {
 		return value;
 	}
 
-	_storageSetValue = (name, value) => {
+	_storageSetValue(name, value) {
 		if (!_.isString(value)) {
 			value = JSON.stringify(value);
 		}
 		return this._store.session(name, value);
 	}
 
-	_storageDeleteValue = (name) => {
+	_storageDeleteValue(name) {
 		return this._store.session.remove(name);
 	}
 
-	clearAll = () => {
+	clearAll() {
 		return this._store.session.clearAll();
 	}
 

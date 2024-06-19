@@ -187,7 +187,7 @@ class AjaxRepository extends Repository {
 	 * Helper for initialize
 	 * Sets the query params for initial loading
 	 */
-	_setInitialQueryParams = () => {
+	_setInitialQueryParams() {
 		// Pagination
 		if (this.isPaginated) {
 			this._onChangePagination();
@@ -215,7 +215,7 @@ class AjaxRepository extends Repository {
 	 * @param {any} value - Param value to set.
 	 * @param {boolean} isBaseParam - Whether param is a base param (to be sent on every request).
 	 */
-	setParam = (name, value, isBaseParam = false) => {
+	setParam(name, value, isBaseParam = false) {
 		const re = /^([^\[]+)\[([^\]]+)\](.*)$/,
 			matches = name.match(re),
 			paramsToChange = isBaseParam ? this._baseParams : this._params;
@@ -246,7 +246,7 @@ class AjaxRepository extends Repository {
 	 * @param {string} name - Param name to set.
 	 * @param {boolean} isBaseParam - Whether param is a base param (to be sent on every request).
 	 */
-	setValuelessParam = (name, isBaseParam = false) => {
+	setValuelessParam(name, isBaseParam = false) {
 		const re = /^([^\[]+)\[([^\]]+)\](.*)$/,
 			matches = name.match(re),
 			paramsToChange = isBaseParam ? this._baseParams : this._params;
@@ -272,9 +272,10 @@ class AjaxRepository extends Repository {
 	 * Sets query params
 	 * @param {object} params - Params to set. Key is parameter name, value is parameter value
 	 */
-	setParams = (params) => {
+	setParams(params) {
+		const oThis = this;
 		_.each(params, (value, name) => {
-			this.setParam(name, value);
+			oThis.setParam(name, value);
 		});
 	}
 
@@ -282,7 +283,7 @@ class AjaxRepository extends Repository {
 	 * Determines if base query param exists
 	 * @param {string} name - Param name
 	 */
-	hasBaseParam = (name) => {
+	hasBaseParam(name) {
 		return this._baseParams.hasOwnProperty(name);
 	}
 
@@ -290,7 +291,7 @@ class AjaxRepository extends Repository {
 	 * Determines if query param exists
 	 * @param {string} name - Param name
 	 */
-	hasParam = (name) => {
+	hasParam(name) {
 		return this._params.hasOwnProperty(name);
 	}
 
@@ -299,7 +300,7 @@ class AjaxRepository extends Repository {
 	 * @param {string} name - Param name to set.
 	 * @param {any} value - Param value to set.
 	 */
-	setBaseParam = (name, value) => {
+	setBaseParam(name, value) {
 		this.setParam(name, value, true);
 	}
 
@@ -307,9 +308,10 @@ class AjaxRepository extends Repository {
 	 * Sets base query params. These params are sent on every request.
 	 * @param {object} params - Base params to set. Key is parameter name, value is parameter value
 	 */
-	setBaseParams = (params) => {
+	setBaseParams(params) {
+		const oThis = this;
 		_.each(params, (value, name) => {
-			this.setBaseParam(name, value);
+			oThis.setBaseParam(name, value);
 		});
 	}
 
@@ -318,7 +320,7 @@ class AjaxRepository extends Repository {
 	 * *Not intended for normal usage,* but rather for testing.
 	 * @param {boolean} reload - Whether to reload repository. Defaults to false.
 	 */
-	clearParams = (reload = false, clearBase = false) => {
+	clearParams(reload = false, clearBase = false) {
 		this._params = {};
 		if (clearBase) {
 			this._baseParams = {};
@@ -333,7 +335,7 @@ class AjaxRepository extends Repository {
 	 * Only one sorter is allowed with this Repository type.
 	 * Refreshes entities.
 	 */
-	_onChangeSorters = () => {
+	_onChangeSorters() {
 		const sorter = this.sorters[0];
 		this.setBaseParam(this.paramSort, sorter.name);
 		this.setBaseParam(this.paramDirection, sorter.direction);
@@ -347,9 +349,10 @@ class AjaxRepository extends Repository {
 	 * Sets filter params.
 	 * Refreshes entities.
 	 */
-	_onChangeFilters = () => {
+	_onChangeFilters() {
+		const oThis = this;
 		_.each(this.filters, (value, name) => {
-			this.setParam(name, value);
+			oThis.setParam(name, value);
 		});
 
 		if (this.isLoaded && !this.eventsPaused) {
@@ -361,7 +364,7 @@ class AjaxRepository extends Repository {
 	 * Sets pagination params.
 	 * Refreshes entities.
 	 */
-	_onChangePagination = () => {
+	_onChangePagination() {
 		this.setBaseParam(this.paramPageNum, this.isPaginated ? this.page : null);
 		this.setBaseParam(this.paramPageSize, this.isPaginated ? this.pageSize : null);
 
@@ -384,7 +387,7 @@ class AjaxRepository extends Repository {
 	 * @param {function} callback - Function to call after loading is complete
 	 * @fires beforeLoad,changeData,load,error
 	 */
-	load = async (params, callback = null) => {
+	async load(params, callback = null) {
 		if (this.isTree && this.loadRootNodes) {
 			return this.loadRootNodes();
 		}
@@ -437,11 +440,12 @@ class AjaxRepository extends Repository {
 							message
 						} = this._processServerResponse(result);
 
+						const oThis = this;
 						if (this.isShowingMore) {
 							// Add to the current entities
 							const newEntities = _.map(root, (data) => {
-								const entity = Repository._createEntity(this.schema, data, repository, true);
-								this._relayEntityEvents(entity);
+								const entity = Repository._createEntity(oThis.schema, data, repository, true);
+								oThis._relayEntityEvents(entity);
 								return entity;
 							});
 							this.entities = this.entities.concat(newEntities);
@@ -449,8 +453,8 @@ class AjaxRepository extends Repository {
 							// Replace the current entities
 							this._destroyEntities();
 							this.entities = _.map(root, (data) => {
-								const entity = Repository._createEntity(this.schema, data, repository, true);
-								this._relayEntityEvents(entity);
+								const entity = Repository._createEntity(oThis.schema, data, repository, true);
+								oThis._relayEntityEvents(entity);
 								return entity;
 							});
 						}
@@ -476,7 +480,7 @@ class AjaxRepository extends Repository {
 					});
 	}
 
-	showMore = (params = {}, callback) => {
+	showMore(params = {}, callback) {
 		params.showMore = true;
 		return this.load(params, callback);
 	}
@@ -560,7 +564,7 @@ class AjaxRepository extends Repository {
 	 * Helper for save.
 	 * @private
 	 */
-	_onBeforeSave = () => {
+	_onBeforeSave() {
 		this._operations = {
 			add: false,
 			edit: false,
@@ -961,7 +965,7 @@ class AjaxRepository extends Repository {
 	 * Fires off axios request to server
 	 * @private
 	 */
-	_send = (method, url, data) => {
+	_send(method, url, data) {
 
 		if (!url) {
 			this.throwError('No url submitted');
@@ -1013,7 +1017,7 @@ class AjaxRepository extends Repository {
 	 * @fires error
 	 * @private
 	 */
-	_processServerResponse = (result) => {
+	_processServerResponse(result) {
 		return this.reader.read(result);
 	}
 
@@ -1022,7 +1026,7 @@ class AjaxRepository extends Repository {
 	 * This is mainly used to sort isPhantom entities,
 	 * since the server normally sorts, and they haven't yet gone to server.
 	 */
-	sortInMemory = () => {
+	sortInMemory() {
 		const sorters = this.sorters;
 		let sortNames = [],
 			sortDirections = [];
@@ -1043,7 +1047,7 @@ class AjaxRepository extends Repository {
 	 * @fires save, changeData
 	 * @private
 	 */
-	_finalizeSave = (promises) => {
+	_finalizeSave(promises) {
 		if (!promises.length) {
 			return;
 		}
@@ -1066,9 +1070,10 @@ class AjaxRepository extends Repository {
 									}
 									if (this._operations.deletePhantom) {
 										// sweep existing deleted records and remove them
+										const oThis = this;
 										_.each(this.entities, (entity) => {
 											if (entity.isDeleted && entity.isDestroyed) {
-												this.removeEntity(entity);
+												oThis.removeEntity(entity);
 											}
 										})
 									}
@@ -1081,7 +1086,7 @@ class AjaxRepository extends Repository {
 						}));
 	}
 
-	setIsOnline = (isOnline) => {
+	setIsOnline(isOnline) {
 		this.isOnline = !!isOnline; // force convert type to boolean
 	}
 

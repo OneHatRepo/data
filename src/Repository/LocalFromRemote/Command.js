@@ -35,7 +35,7 @@ export default class Command extends EventEmitter {
 	 * Register a handler for this command.
 	 * @param {function} handler - The event handler
 	 */
-	registerHandler = (handler) => {
+	registerHandler(handler) {
 		this.on('handleServerResponse', handler);
 	}
 
@@ -43,7 +43,7 @@ export default class Command extends EventEmitter {
 	 * Register a handler for this command.
 	 * @param {function} handler - The event handler
 	 */
-	unregisterHandler = (handler) => {
+	unregisterHandler(handler) {
 		this.off('handleServerResponse', handler);
 	}
 
@@ -51,7 +51,7 @@ export default class Command extends EventEmitter {
 	 * Detect whether this command has any handlers.
 	 * @return {int} count - Number of handlers this command has
 	 */
-	hasHandlers = () => {
+	hasHandlers() {
 		return this.listenerCount('handleServerResponse');
 	}
 
@@ -59,7 +59,7 @@ export default class Command extends EventEmitter {
 	 * Convenience function to invoke handlers
 	 * @return {boolean} results - Results of running all handlers
 	 */
-	processResponse = async (entity) => {
+	async processResponse(entity) {
 		return await this.emitAsync('handleServerResponse', entity);
 	}
 
@@ -68,7 +68,7 @@ export default class Command extends EventEmitter {
 	 * - Removes event listeners
 	 * @fires destroy
 	 */
-	destroy = () => {
+	destroy() {
 		this.emit('destroy');
 		this.isDestroyed = true;
 		

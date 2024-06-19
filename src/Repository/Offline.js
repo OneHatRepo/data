@@ -41,7 +41,7 @@ class OfflineRepository extends MemoryRepository {
 	 * Deletes all data in storage medium.
 	 * @private
 	 */
-	_deleteFromStorage = async () => {
+	async _deleteFromStorage() {
 		try {
 			const ids = await this._getIndex(),
 				total = ids.length,
@@ -80,7 +80,7 @@ class OfflineRepository extends MemoryRepository {
 	 * @return {array} data - Array of rawData objects
 	 * @private
 	 */
-	_loadFromStorage = async () => {
+	async _loadFromStorage() {
 		try {
 
 			this._index = await this._getIndex();
@@ -122,7 +122,7 @@ class OfflineRepository extends MemoryRepository {
 	 * @return {array} data - Array of rawData objects
 	 * @private
 	 */
-	_saveToStorage = async (entities) => {
+	async _saveToStorage(entities) {
 		try {
 			let i, entity,
 				total = entities.length,
@@ -197,7 +197,7 @@ class OfflineRepository extends MemoryRepository {
 	 * @param {string} id - The id to add.
 	 * @private
 	 */
-	_addToIndex = async (id) => {
+	async _addToIndex(id) {
 		let index = await this._getIndex();
 		index.push(id);
 		index = _.uniq(index);
@@ -266,7 +266,7 @@ class OfflineRepository extends MemoryRepository {
 	 * @param {string} id - The id to delete.
 	 * @private
 	 */
-	_deleteFromIndex = async (id) => {
+	async _deleteFromIndex(id) {
 		let index = await this._getIndex();
 		_.pull(index, id);
 		await this._setIndex(index);
@@ -289,7 +289,7 @@ class OfflineRepository extends MemoryRepository {
 	 * @fires save
 	 * @private
 	 */
-	_finalizeSave = async (results) => {
+	async _finalizeSave(results) {
 		return Promise.all(results)
 					.then(() => {
 						this.isSaving = false;
@@ -309,7 +309,7 @@ class OfflineRepository extends MemoryRepository {
 	 * @return {array} index - Array of ids.
 	 * @private
 	 */
-	_getIndex = async () => {
+	async _getIndex() {
 		// return await this._storageGetValue('index');
 		let result = await this._storageGetValue('index');
 		if (!result) {
@@ -325,7 +325,7 @@ class OfflineRepository extends MemoryRepository {
 	 * @return {array} index - Array of keys.
 	 * @private
 	 */
-	_getKeys = async () => {
+	async _getKeys() {
 		if (!this._getAllKeys) {
 			this.throwError('Storage medium does not support _getAllKeys');
 			return;
@@ -342,7 +342,7 @@ class OfflineRepository extends MemoryRepository {
 	 * @param {array} index - Array of ids.
 	 * @private
 	 */
-	_setIndex = async (index) => {
+	async _setIndex(index) {
 		if (!_.isEqual(this._index, index)) {
 			this._index = index;
 			return await this._storageSetValue('index', index);
@@ -358,7 +358,7 @@ class OfflineRepository extends MemoryRepository {
 	 * @private
 	 * @abstract
 	 */
-	_storageGetValue = async (name) => {
+	async _storageGetValue(name) {
 		this.throwError('this._storageGetValue must be implemented by OfflineRepository subclass.');
 		return;
 	}
@@ -370,7 +370,7 @@ class OfflineRepository extends MemoryRepository {
 	 * @private
 	 * @abstract
 	 */
-	_storageSetValue = async (name, value) => {
+	async _storageSetValue(name, value) {
 		this.throwError('this._storageSetValue must be implemented by OfflineRepository subclass.');
 		return;
 	}
@@ -381,7 +381,7 @@ class OfflineRepository extends MemoryRepository {
 	 * @private
 	 * @abstract
 	 */
-	_storageDeleteValue = async (name) => {
+	async _storageDeleteValue(name) {
 		this.throwError('this._storageDeleteValue must be implemented by OfflineRepository subclass.');
 		return;
 	}
@@ -394,7 +394,8 @@ class OfflineRepository extends MemoryRepository {
 	 */
 	_namespace(name) {
 		if (_.isArray(name)) {
-			return _.map(name, (key) => this.schema.name + '-' + key);
+			const oThis = this;
+			return _.map(name, (key) => oThis.schema.name + '-' + key);
 		}
 		return this.schema.name + '-' + name;	
 	}
@@ -404,7 +405,7 @@ class OfflineRepository extends MemoryRepository {
 	 * (when this is the "local" side of at LocalFromRemoteRepository)
 	 * @return {moment} lastSync
 	 */
-	getLastSync = async () => {
+	async getLastSync() {
 		const dateStr = await this._storageGetValue(LAST_SYNC);
 		if (!_.isNil(dateStr)) {
 			const date = moment(dateStr);
@@ -420,7 +421,7 @@ class OfflineRepository extends MemoryRepository {
 	 * Used when this is the "local" side of a LocalFromRemoteRepository
 	 * @param {date} lastSync
 	 */
-	setLastSync = async (date) => {
+	async setLastSync(date) {
 		await this._storageSetValue(LAST_SYNC, date);
 	}
 
@@ -429,7 +430,7 @@ class OfflineRepository extends MemoryRepository {
 	 * Clears the date when this Repository was last synced with remote.
 	 * Used when this is the "local" side of a LocalFromRemoteRepository
 	 */
-	clearLastSync = async () => {
+	async clearLastSync() {
 		await this._storageDeleteValue(LAST_SYNC);
 	}
 

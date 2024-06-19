@@ -21,7 +21,7 @@ class AsyncStorageRepository extends OfflineRepository {
 		_.merge(this, config);
 	}
 
-	_storageGetValue = async (name) => {
+	async _storageGetValue(name) {
 		try {
 			
 			if (this.debugMode) {
@@ -51,7 +51,7 @@ class AsyncStorageRepository extends OfflineRepository {
 		}
 	}
 
-	_storageGetMultiple = async (keys) => {
+	async _storageGetMultiple(keys) {
 		try {
 
 			if (keys.length === 0) {
@@ -115,7 +115,7 @@ class AsyncStorageRepository extends OfflineRepository {
 		}
 	}
 
-	_storageSetValue = async (name, value) => {
+	async _storageSetValue(name, value) {
 		try {
 			if (!_.isString(value)) {
 				value = JSON.stringify(value);
@@ -134,7 +134,7 @@ class AsyncStorageRepository extends OfflineRepository {
 		}
 	}
 
-	_storageSetMultiple = async (values) => {
+	async _storageSetMultiple(values) {
 		try {
 			const converted = [],
 				keys = [];
@@ -166,7 +166,7 @@ class AsyncStorageRepository extends OfflineRepository {
 		}
 	}
 
-	_storageDeleteValue = async (name) => {
+	async _storageDeleteValue(name) {
 		try {
 			if (_.isNil(name) || (_.isString(name) && name === '')) {
 				return;
@@ -186,7 +186,7 @@ class AsyncStorageRepository extends OfflineRepository {
 		}
 	}
 
-	_storageDeleteMultiple = async (keys) => {
+	async _storageDeleteMultiple(keys) {
 		try {
 			if (_.isNil(keys) || (_.isArray(keys) && !keys.length)) {
 				return;
@@ -206,12 +206,12 @@ class AsyncStorageRepository extends OfflineRepository {
 		}
 	}
 
-	clearAll = async () => {
+	async clearAll() {
 		await this.load([]);
 		await this.clearLastSync();
 	}
 
-	getAllKeys = async () => {
+	async getAllKeys() {
 		return await AsyncStorage.getAllKeys();
 	}
 

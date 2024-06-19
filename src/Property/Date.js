@@ -41,7 +41,7 @@ export default class DateProperty extends Property {
 	 * @param {any} value
 	 * @return {moment} parsedValue
 	 */
-	parse = (value) => {
+	parse(value) {
 		if (this.isDestroyed) {
 			throw Error('this.parse is no longer valid. Property has been destroyed.');
 		}
@@ -61,32 +61,32 @@ export default class DateProperty extends Property {
 		return result;
 	}
 
-	getDisplayValue = () => {
+	getDisplayValue() {
 		if (this.isDestroyed) {
 			throw Error('this.getDisplayValue is no longer valid. Property has been destroyed.');
 		}
 		return Formatters.FormatDate(this.parsedValue, this.displayFormat);
 	}
 
-	getSubmitValue = () => {
+	getSubmitValue() {
 		if (this.isDestroyed) {
 			throw Error('this.getSubmitValue is no longer valid. Property has been destroyed.');
 		}
 		return Formatters.FormatDate(this.parsedValue, this.submitFormat);
 	}
 
-	getValueFormattedAs = (format) => {
+	getValueFormattedAs(format) {
 		if (this.isDestroyed) {
 			throw Error('this.getValueFormattedAs is no longer valid. Property has been destroyed.');
 		}
 		return Formatters.FormatDate(this.parsedValue, format);
 	}
 
-	getMoment = () => {
+	getMoment() {
 		return this.getParsedValue();
 	}
 
-	isToday = () => {
+	isToday() {
 		return this.getMoment().isSame(new Date(), 'day');
 	}
 };

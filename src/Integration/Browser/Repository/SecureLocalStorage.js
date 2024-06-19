@@ -22,7 +22,7 @@ class SecureLocalStorageRepository extends LocalStorageRepository {
 		this.passphrase = config.passphrase;
 	}
 
-	_storageGetValue = (name) => {
+	_storageGetValue(name) {
 		try {
 			
 			if (this.debugMode) {
@@ -58,7 +58,7 @@ class SecureLocalStorageRepository extends LocalStorageRepository {
 		}
 	}
 
-	_storageSetValue = (name, value) => {
+	_storageSetValue(name, value) {
 		try {
 			if (this.debugMode) {
 				console.log(this.name, 'LocalStorage.set', name, value);

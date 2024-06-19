@@ -36,21 +36,21 @@ export default class UuidProperty extends Property {
 	/**
 	 * Generates a new UUID
 	 */
-	newId = () => {
+	newId() {
 		return uuid();
 	}
 
 	/**
 	 * Validates a UUID
 	 */
-	isValid = (value) => {
+	isValid(value) {
 		return validate(value);
 	}
 
 	/**
 	 * Determines whether a given UUID is empty (i.e. all zeros)
 	 */
-	isEmpty = (value) => {
+	isEmpty(value) {
 		if (_.isNil(value)) {
 			value = this.submitValue;
 		}

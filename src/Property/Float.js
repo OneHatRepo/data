@@ -21,7 +21,7 @@ export default class FloatProperty extends Property {
 		_.merge(this, defaults, config);
 	}
 
-	setPrecision = (precision) => {
+	setPrecision(precision) {
 		this.precision = precision;
 		this.parsedValue = this.parse(this.rawValue);
 	}
@@ -31,7 +31,7 @@ export default class FloatProperty extends Property {
 	 * @param {any} value
 	 * @return {string} parsedValue
 	 */
-	parse = (value) => {
+	parse(value) {
 		if (this.isDestroyed) {
 			throw Error('this.parse is no longer valid. Property has been destroyed.');
 		}

@@ -22,7 +22,7 @@ class LocalStorageRepository extends OfflineRepository {
 		}
 	}
 
-	_storageGetValue = (name) => {
+	_storageGetValue(name){
 		try {
 			
 			if (this.debugMode) {
@@ -53,7 +53,7 @@ class LocalStorageRepository extends OfflineRepository {
 		}
 	}
 
-	_storageSetValue = (name, value) => {
+	_storageSetValue(name, value) {
 		try {
 			if (this.debugMode) {
 				console.log(this.name, 'LocalStorage.set', name, value);
@@ -72,7 +72,7 @@ class LocalStorageRepository extends OfflineRepository {
 		}
 	}
 
-	_storageDeleteValue = (name) => {
+	_storageDeleteValue(name) {
 		try {
 			if (_.isNil(name) || (_.isString(name) && name === '')) {
 				return;
@@ -92,7 +92,7 @@ class LocalStorageRepository extends OfflineRepository {
 		}
 	}
 
-	clearAll = () => {
+	clearAll() {
 		return this._store.clearAll();
 	}
 

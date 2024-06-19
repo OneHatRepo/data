@@ -20,14 +20,14 @@ export default class Base64Property extends Property {
 		this._originalConfig = config;
 	}
 
-	encode = (value) => {
+	encode(value) {
 		return Base64.encode(value);
 	}
 
 	/**
 	 * Decodes to UTF-8 string
 	 */
-	decode = (value) => {
+	decode(value) {
 		return Base64.decode(value);
 	}
 
@@ -35,11 +35,11 @@ export default class Base64Property extends Property {
 	 * Decodes to bytes, which is compatible with browser's built-in atob()
 	 * (Which is absent in node)
 	 */
-	atob = (value) => {
+	atob(value) {
 		return Base64.atob(value);
 	}
 
-	btoa = (value) => {
+	btoa(value) {
 		return Base64.btoa(value);
 	}
 

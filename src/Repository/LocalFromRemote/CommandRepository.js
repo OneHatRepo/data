@@ -29,7 +29,7 @@ class CommandRepository extends OneBuildRepository {
 	 * Override Ajax._finalizeSave because we *don't* want to automatically
 	 * reload after the save.
 	 */
-	_finalizeSave = (promises) => {
+	_finalizeSave(promises) {
 		return this.axios.all(promises);
 	}
 

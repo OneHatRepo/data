@@ -1,6 +1,6 @@
 /** @module Repository */
 
-import EventEmitter from '@onehat/events';
+import EventEmitter from '../EventEmitter.js';
 import Entity from '../Entity/Entity.js'
 import PropertyTypes from '../Property/index.js';
 import {
@@ -33,8 +33,7 @@ export default class Repository extends EventEmitter {
 		const { schema } = config;
 
 		if (!schema || !schema.model) {
-			this.throwError('Schema cannot be empty');
-			return;
+			throw Error('Schema cannot be empty'); // don't use throwError() because Repository is not yet successfully constructed
 		}
 
 		const defaults = {
@@ -362,15 +361,16 @@ export default class Repository extends EventEmitter {
 	 * Creates the methods for this Repository, based on Schema.
 	 * @private
 	 */
-	_createMethods = () => {
+	_createMethods() {
 		if (this.isDestroyed) {
 			this.throwError('this._createMethods is no longer valid. Repository has been destroyed.');
 			return;
 		}
 		const methodDefinitions = this.schema.repository.methods || this.originalConfig.methods; // The latter is mainly for lfr repositories
 		if (!_.isEmpty(methodDefinitions)) {
+			const oThis = this;
 			_.each(methodDefinitions, (method, name) => {
-				this[name] = method; // NOTE: Methods must be defined in schema as "function() {}", not as "() => {}" so scope of "this" will be correct
+				oThis[name] = method; // NOTE: Methods must be defined in schema as "function() {}", not as "() => {}" so scope of "this" will be correct
 			});
 		}
 	}
@@ -379,15 +379,16 @@ export default class Repository extends EventEmitter {
 	 * Creates the static properties for this Repository, based on Schema.
 	 * @private
 	 */
-	 _createStatics = () => {
+	_createStatics() {
 		if (this.isDestroyed) {
 			this.throwError('this._createStatics is no longer valid. Repository has been destroyed.');
 			return;
 		}
 		const staticsDefinitions = this.schema.repository.statics || this.originalConfig.statics; // The latter is mainly for lfr repositories
 		if (!_.isEmpty(staticsDefinitions)) {
+			const oThis = this;
 			_.each(staticsDefinitions, (value, key) => {
-				this[key] = value;
+				oThis[key] = value;
 			});
 		}
 	}
@@ -403,7 +404,7 @@ export default class Repository extends EventEmitter {
 	 * Tells storage medium to load data
 	 * @abstract
 	 */
-	load = async () => {
+	async load() {
 		this.throwError('load must be implemented by Repository subclass');
 		return;
 	}
@@ -411,14 +412,14 @@ export default class Repository extends EventEmitter {
 	/**
 	 * Marks this repository as loading
 	 */
-	markLoading = (bool = true) => {
+	markLoading(bool = true) {
 		this.isLoading = bool;
 	}
 
 	/**
 	 * Async function that resolves when !isLoading
 	 */
-	waitUntilDoneLoading = async (timeout = 10000) => {
+	async waitUntilDoneLoading(timeout = 10000) {
 		if (this.isDestroyed) {
 			this.throwError('this.waitUntilDoneLoading is no longer valid. Repository has been destroyed.');
 			return;
@@ -430,7 +431,7 @@ export default class Repository extends EventEmitter {
 	/**
 	 * Marks this repository as loaded
 	 */
-	markLoaded = () => {
+	markLoaded() {
 		this.markLoading(false);
 		this.isLoaded = true;
 		this.lastLoaded = moment(new Date()).format('YYYY-MM-DD HH:mm:ss.SSSS');
@@ -449,7 +450,7 @@ export default class Repository extends EventEmitter {
 	 * Tells storage medium to reload just this one entity
 	 * @abstract
 	 */
-	reloadEntity = async (entity) => {
+	async reloadEntity(entity) {
 		this.throwError('reloadEntity must be implemented by Repository subclass');
 		return;
 	}
@@ -458,7 +459,7 @@ export default class Repository extends EventEmitter {
 	 * Sets the isAutoSave setting of this Repository
 	 * @param {boolean} isAutoSave
 	 */
-	setAutoSave = (isAutoSave) => {
+	setAutoSave(isAutoSave) {
 		if (this.isDestroyed) {
 			this.throwError('this.setAutoSave is no longer valid. Repository has been destroyed.');
 			return;
@@ -470,7 +471,7 @@ export default class Repository extends EventEmitter {
 	 * Sets the isAutoLoad setting of this Repository
 	 * @param {boolean} isAutoLoad
 	 */
-	setAutoLoad = (isAutoLoad) => {
+	setAutoLoad(isAutoLoad) {
 		if (this.isDestroyed) {
 			this.throwError('this.setAutoLoad is no longer valid. Repository has been destroyed.');
 			return;
@@ -499,7 +500,7 @@ export default class Repository extends EventEmitter {
 	/**
 	 * Clear all sorting from this Repository.
 	 */
-	clearSort = () => {
+	clearSort() {
 		if (this.isDestroyed) {
 			this.throwError('this.clearSort is no longer valid. Repository has been destroyed.');
 			return;
@@ -537,7 +538,7 @@ export default class Repository extends EventEmitter {
 	 * 
 	 * @return this
 	 */
-	sort = (arg1 = null, arg2 = 'ASC', arg3 = null) => {
+	sort(arg1 = null, arg2 = 'ASC', arg3 = null) {
 		if (this.isDestroyed) {
 			this.throwError('this.sort is no longer valid. Repository has been destroyed.');
 			return;
@@ -569,7 +570,7 @@ export default class Repository extends EventEmitter {
 	 * Gets default sorters. Either what was specified on schema, or sorty by displayProperty ASC.
 	 * @return {array} sorters
 	 */
-	getDefaultSorters = () => {
+	getDefaultSorters() {
 		if (this.isDestroyed) {
 			this.throwError('this.getDefaultSorters is no longer valid. Repository has been destroyed.');
 			return;
@@ -597,7 +598,7 @@ export default class Repository extends EventEmitter {
 	 * Sets the sorters directly
 	 * @fires changeSorters
 	 */
-	setSorters = (sorters) => {
+	setSorters(sorters) {
 		if (this.isDestroyed) {
 			this.throwError('this.setSorters is no longer valid. Repository has been destroyed.');
 			return;
@@ -612,20 +613,21 @@ export default class Repository extends EventEmitter {
 			isChanged = true;
 
 			// Check to make sure specified properties are sortable
+			const oThis = this;
 			_.each(sorters, (sorter) => {
 				if (_.isFunction(sorter)) {
 					return; // skip
 				}
-				const propertyDefinition = _.find(this.schema.model.properties, (property) => property.name === sorter.name);
+				const propertyDefinition = _.find(oThis.schema.model.properties, (property) => property.name === sorter.name);
 				if (!propertyDefinition) {
-					this.throwError('Sorting property does not exist.');
+					oThis.throwError('Sorting property does not exist.');
 					return;
 				}
 				const propertyType = propertyDefinition.type;
 				if (propertyType && PropertyTypes[propertyType]) {
 					const propertyInstance = new PropertyTypes[propertyType]();
 					if (!propertyInstance.isSortable) {
-						this.throwError('Sorting property type is not sortable.');
+						oThis.throwError('Sorting property type is not sortable.');
 						return;
 					}
 				}
@@ -654,7 +656,7 @@ export default class Repository extends EventEmitter {
 		return this.filters.length > 0;
 	}
 
-	hasFilter = (name) => {
+	hasFilter(name) {
 		if (!this.hasFilters) {
 			return false;
 		}
@@ -662,7 +664,7 @@ export default class Repository extends EventEmitter {
 		return !!found;
 	}
 
-	hasFilterValue = (name, value) => {
+	hasFilterValue(name, value) {
 		if (!this.hasFilters) {
 			return false;
 		}
@@ -705,7 +707,7 @@ export default class Repository extends EventEmitter {
 	 * 
 	 * @return this
 	 */
-	filter = (arg1 = null, arg2 = null, clearFirst = true) => {
+	filter(arg1 = null, arg2 = null, clearFirst = true) {
 		if (this.isDestroyed) {
 			this.throwError('this.filter is no longer valid. Repository has been destroyed.');
 			return;
@@ -773,7 +775,7 @@ export default class Repository extends EventEmitter {
 	 * 
 	 * @return this
 	 */
-	setFilters = (filters, clearFirst = true) => {
+	setFilters(filters, clearFirst = true) {
 		const parsed = _.map(filters, (value, name) => {
 			return {
 				name,
@@ -793,7 +795,7 @@ export default class Repository extends EventEmitter {
 	 * - repository.clearFilters('first_name'); // Clear a single filter
 	 * - repository.clearFilters(['first_name', 'last_name']); // Clear multiple filters
 	 */
-	clearFilters = (filtersToClear) => {
+	clearFilters(filtersToClear) {
 		let filters = [];
 		if (filtersToClear) {
 			if (_.isString(filtersToClear)) {
@@ -811,7 +813,7 @@ export default class Repository extends EventEmitter {
 	 * @private
 	 * @fires changeFilters
 	 */
-	_setFilters = (filters) => {
+	_setFilters(filters) {
 		if (this.isDestroyed) {
 			this.throwError('this._setFilters is no longer valid. Repository has been destroyed.');
 			return;
@@ -845,7 +847,7 @@ export default class Repository extends EventEmitter {
 	 * Resets the pagination to page one
 	 * @fires changePageSize
 	 */
-	resetPagination = () => {
+	resetPagination() {
 		if (this.isDestroyed) {
 			this.throwError('this.resetPagination is no longer valid. Repository has been destroyed.');
 			return;
@@ -856,7 +858,7 @@ export default class Repository extends EventEmitter {
 	/**
 	 * Sets isPaginated
 	 */
-	setIsPaginated = (bool) => {
+	setIsPaginated(bool) {
 		if (this.isDestroyed) {
 			this.throwError('this.setIsPaginated is no longer valid. Repository has been destroyed.');
 			return;
@@ -874,7 +876,7 @@ export default class Repository extends EventEmitter {
 	 * @fires changePage
 	 * @fires changePageSize
 	 */
-	setPageSize = (pageSize) => {
+	setPageSize(pageSize) {
 		if (this.isDestroyed) {
 			this.throwError('this.setPageSize is no longer valid. Repository has been destroyed.');
 			return;
@@ -905,7 +907,7 @@ export default class Repository extends EventEmitter {
 	 * @return {boolean} success
 	 * @fires changePage
 	 */
-	setPage = (page) => {
+	setPage(page) {
 		if (this.isDestroyed) {
 			this.throwError('this.setPage is no longer valid. Repository has been destroyed.');
 			return;
@@ -935,7 +937,7 @@ export default class Repository extends EventEmitter {
 	 * Advances to the previous page of entities
 	 * @return {boolean} success
 	 */
-	prevPage = () => {
+	prevPage() {
 		return this.setPage(this.page -1);
 	}
 
@@ -943,7 +945,7 @@ export default class Repository extends EventEmitter {
 	 * Advances to the next page of entities
 	 * @return {boolean} success
 	 */
-	nextPage = () => {
+	nextPage() {
 		return this.setPage(this.page +1);
 	}
 
@@ -953,7 +955,7 @@ export default class Repository extends EventEmitter {
 	 * This function takes care of calculating and setting the rest.
 	 * @private
 	 */
-	_setPaginationVars = () => {
+	_setPaginationVars() {
 		if (this.isDestroyed) {
 			this.throwError('this._setPaginationVars is no longer valid. Repository has been destroyed.');
 			return;
@@ -988,7 +990,7 @@ export default class Repository extends EventEmitter {
 	 * @private
 	 * @static
 	 */
-	static _calculatePaginationVars = (total, page, pageSize) => {
+	static _calculatePaginationVars(total, page, pageSize) {
 
 		// Special case: empty pages
 		if (total < 1) {
@@ -1049,7 +1051,7 @@ export default class Repository extends EventEmitter {
 	 * @return {object} entity - new Entity object
 	 * @fires add
 	 */
-	add = async (data, isPersisted = false, isDelayedSave = false) => {
+	async add(data, isPersisted = false, isDelayedSave = false) {
 		if (this.isDestroyed) {
 			this.throwError('this.add is no longer valid. Repository has been destroyed.');
 			return;
@@ -1113,7 +1115,7 @@ export default class Repository extends EventEmitter {
 	 * @param {boolean} isDelayedSave - Should the repository skip autosave when immediately adding the record?
 	 * @return {object} entity - new Entity object
 	 */
-	createStandaloneEntity = (data, isPersisted = false, isDelayedSave = false) => {
+	createStandaloneEntity(data, isPersisted = false, isDelayedSave = false) {
 		if (this.isDestroyed) {
 			this.throwError('this.createStandaloneEntity is no longer valid. Repository has been destroyed.');
 			return;
@@ -1134,7 +1136,7 @@ export default class Repository extends EventEmitter {
 	 * @param {boolean} isPersisted - Whether the new entities should be marked as already being persisted in storage medium.
 	 * @return {array} entities - new Entity objects
 	 */
-	addMultiple = async (allData, isPersisted = false) => {
+	async addMultiple(allData, isPersisted = false) {
 
 		if (!this.canAdd) {
 			this.throwError('Adding has been disabled on this repository.');
@@ -1166,7 +1168,7 @@ export default class Repository extends EventEmitter {
 	 * @return {object} entity - new Entity object
 	 * @private
 	 */
-	static _createEntity = (schema, rawData, repository = null, isPersisted = false, isDelayedSave = false, isRemotePhantomMode = false) => {
+	static _createEntity(schema, rawData, repository = null, isPersisted = false, isDelayedSave = false, isRemotePhantomMode = false) {
 		const entity = new Entity(schema, rawData, repository, isDelayedSave, isRemotePhantomMode);
 		entity.initialize();
 		entity.isPersisted = isPersisted;
@@ -1179,7 +1181,7 @@ export default class Repository extends EventEmitter {
 	 * @param {object} entity - Entity
 	 * @private
 	 */
-	_relayEntityEvents = (entity) => {
+	_relayEntityEvents(entity) {
 		if (this.isDestroyed) {
 			this.throwError('this._relayEntityEvents is no longer valid. Repository has been destroyed.');
 			return;
@@ -1196,7 +1198,7 @@ export default class Repository extends EventEmitter {
 	 * Destroys the current entities - 
 	 * mostly so they can be replaced with other entities.
 	 */
-	_destroyEntities = () => {
+	_destroyEntities() {
 		_.each(this.entities, (entity) => {
 			entity.destroy();
 		});
@@ -1206,7 +1208,7 @@ export default class Repository extends EventEmitter {
 	/**
 	 * Inserts the newEntity directly before entity on the current page.
 	 */
-	_insertBefore = (newEntity, entity = null) => {
+	_insertBefore(newEntity, entity = null) {
 
 		const
 			currentEntities = this.getEntities(),
@@ -1236,7 +1238,7 @@ export default class Repository extends EventEmitter {
 	 * usually, the current "page".
 	 * Does not actually affect anything on the server.
 	 */
-	clear = async () => {
+	async clear() {
 		this._destroyEntities();
 	}
 
@@ -1251,7 +1253,7 @@ export default class Repository extends EventEmitter {
 	 * Gets an array of "submit" values objects for the entities
 	 * @return {array} map - 
 	 */
-	getSubmitValues = () => {
+	getSubmitValues() {
 		return _.map(this.entities, (entity) => {
 			return entity.getSubmitValues();
 		});
@@ -1261,7 +1263,7 @@ export default class Repository extends EventEmitter {
 	 * Gets an array of "display" values objects for the entities
 	 * @return {array} map - 
 	 */
-	getDisplayValues = () => {
+	getDisplayValues() {
 		return _.map(this.entities, (entity) => {
 			return entity.getDisplayValues();
 		});
@@ -1271,7 +1273,7 @@ export default class Repository extends EventEmitter {
 	 * Gets an array of "raw" values objects for the entities
 	 * @return {array} map - 
 	 */
-	getRawValues = () => {
+	getRawValues() {
 		return _.map(this.entities, (entity) => {
 			return entity.getRawValues();
 		});
@@ -1281,7 +1283,7 @@ export default class Repository extends EventEmitter {
 	 * Gets an array of "originalData" values objects for the entities
 	 * @return {array} map - 
 	 */
-	getOriginalData = () => {
+	getOriginalData() {
 		return _.map(this.entities, (entity) => {
 			return entity.getOriginalData();
 		});
@@ -1291,7 +1293,7 @@ export default class Repository extends EventEmitter {
 	 * Gets a single random entity
 	 * @return {array} map - 
 	 */
-	getRandomEntity = () => {
+	getRandomEntity() {
 		const len = this.entities.length;
 		if (!len) {
 			return null;
@@ -1304,7 +1306,7 @@ export default class Repository extends EventEmitter {
 	 * Gets an array of "parsed" values objects for the entities
 	 * @return {array} map - 
 	 */
-	getParsedValues = () => {
+	getParsedValues() {
 		return _.map(this.entities, (entity) => {
 			return entity.getParsedValues();
 		});
@@ -1315,7 +1317,7 @@ export default class Repository extends EventEmitter {
 	 * @param {integer} ix - Index
 	 * @return {object} entity - Entity
 	 */
-	getByIx = (ix) => {
+	getByIx(ix) {
 		if (this.isDestroyed) {
 			this.throwError('this.getByIx is no longer valid. Repository has been destroyed.');
 			return;
@@ -1330,7 +1332,7 @@ export default class Repository extends EventEmitter {
 	 * @param {integer} endIx - Index (inclusive)
 	 * @return {array} entities - Array of Entities
 	 */
-	getByRange = (startIx, endIx) => {
+	getByRange(startIx, endIx) {
 		if (this.isDestroyed) {
 			this.throwError('this.getByRange is no longer valid. Repository has been destroyed.');
 			return;
@@ -1343,7 +1345,7 @@ export default class Repository extends EventEmitter {
 	 * @param {integer} id - id of record to retrieve
 	 * @return {Entity} The Entity with matching id, or undefined
 	 */
-	getById = (id) => {
+	getById(id) {
 		if (this.isDestroyed) {
 			this.throwError('this.getById is no longer valid. Repository has been destroyed.');
 			return;
@@ -1356,7 +1358,7 @@ export default class Repository extends EventEmitter {
 	 * @param {integer} id - id of record to retrieve
 	 * @return {integer} The numerical index, or undefined
 	 */
-	getIxById = (id) => {
+	getIxById(id) {
 		if (this.isDestroyed) {
 			this.throwError('this.getIxById is no longer valid. Repository has been destroyed.');
 			return;
@@ -1374,7 +1376,7 @@ export default class Repository extends EventEmitter {
 	 * @param {function} filter - Filter function to apply to all entities
 	 * @return {Entity[]} Entities that passed through filter, or []
 	 */
-	getBy = (filter) => {
+	getBy(filter) {
 		if (this.isDestroyed) {
 			this.throwError('this.getBy is no longer valid. Repository has been destroyed.');
 			return;
@@ -1391,7 +1393,7 @@ export default class Repository extends EventEmitter {
 	 * @param {function} filter - Filter function to search by
 	 * @return {Entity} First Entity found, or undefined
 	 */
-	getFirstBy = (filter) => {
+	getFirstBy(filter) {
 		if (this.isDestroyed) {
 			this.throwError('this.getFirstBy is no longer valid. Repository has been destroyed.');
 			return;
@@ -1404,7 +1406,7 @@ export default class Repository extends EventEmitter {
 	 * @param {array} entities - Array of entities to filter. Optional. Defaults to this.entities
 	 * @return {Entity[]} Array of phantom Entities, or []
 	 */
-	getPhantom = (entities = null) => {
+	getPhantom(entities = null) {
 		if (this.isDestroyed) {
 			this.throwError('this.getPhantom is no longer valid. Repository has been destroyed.');
 			return;
@@ -1420,7 +1422,7 @@ export default class Repository extends EventEmitter {
 	 * @param {array} entities - Array of entities to filter. Optional. Defaults to this.entities
 	 * @return {Entity[]} Array of dirty Entities, or []
 	 */
-	getNonPersisted = (entities = null) => {
+	getNonPersisted(entities = null) {
 		if (this.isDestroyed) {
 			this.throwError('this.getNonPersisted is no longer valid. Repository has been destroyed.');
 			return;
@@ -1436,7 +1438,7 @@ export default class Repository extends EventEmitter {
 	 * Can be overridden by subclasses.
 	 * @return {array} Entities that passed through filter
 	 */
-	getEntities = () => {
+	getEntities() {
 		if (this.isDestroyed) {
 			this.throwError('this.getEntities is no longer valid. Repository has been destroyed.');
 			return;
@@ -1451,7 +1453,7 @@ export default class Repository extends EventEmitter {
 	 * Subclasses may change this behavior.
 	 * @return {array} Entities
 	 */
-	getEntitiesOnPage = () => {
+	getEntitiesOnPage() {
 		if (this.isDestroyed) {
 			this.throwError('this.getPagedEntities is no longer valid. Repository has been destroyed.');
 			return;
@@ -1473,7 +1475,7 @@ export default class Repository extends EventEmitter {
 	 * @param {array} entities - Array of entities to filter. Optional. Defaults to this.entities
 	 * @return {Entity[]} Array of dirty Entities, or []
 	 */
-	getDirty = (entities = null) => {
+	getDirty(entities = null) {
 		if (this.isDestroyed) {
 			this.throwError('this.getDirty is no longer valid. Repository has been destroyed.');
 			return;
@@ -1489,7 +1491,7 @@ export default class Repository extends EventEmitter {
 	 * @param {array} entities - Array of entities to filter. Optional. Defaults to this.entities
 	 * @return {Entity[]} Array of deleted Entities, or []
 	 */
-	getDeleted = (entities = null) => {
+	getDeleted(entities = null) {
 		if (this.isDestroyed) {
 			this.throwError('this.getDeleted is no longer valid. Repository has been destroyed.');
 			return;
@@ -1505,7 +1507,7 @@ export default class Repository extends EventEmitter {
 	 * @param {array} entities - Array of entities to filter. Optional. Defaults to this.entities
 	 * @return {Entity[]} Array of deleted Entities, or []
 	 */
-	getStaged = (entities = null) => {
+	getStaged(entities = null) {
 		if (this.isDestroyed) {
 			this.throwError('this.getStaged is no longer valid. Repository has been destroyed.');
 			return;
@@ -1520,7 +1522,7 @@ export default class Repository extends EventEmitter {
 	 * Gets the Schema object
 	 * @return {Schema} schema
 	 */
-	getSchema = () => {
+	getSchema() {
 		if (this.isDestroyed) {
 			this.throwError('this.getSchema is no longer valid. Repository has been destroyed.');
 			return;
@@ -1532,7 +1534,7 @@ export default class Repository extends EventEmitter {
 	 * Gets the sort field, if only one sorter is applied.
 	 * @return {Schema} schema
 	 */
-	getSortField = () => {
+	getSortField() {
 		if (this.isDestroyed) {
 			this.throwError('this.getSortField is no longer valid. Repository has been destroyed.');
 			return;
@@ -1547,7 +1549,7 @@ export default class Repository extends EventEmitter {
 	 * Gets the sort direction, if only one sorter is applied.
 	 * @return {Schema} schema
 	 */
-	getSortDirection = () => {
+	getSortDirection() {
 		if (this.isDestroyed) {
 			this.throwError('this.getSortDirection is no longer valid. Repository has been destroyed.');
 			return;
@@ -1562,7 +1564,7 @@ export default class Repository extends EventEmitter {
 	 * Gets the sort function, if only one sorter is applied.
 	 * @return {Schema} schema
 	 */
-	getSortFn = () => {
+	getSortFn() {
 		if (this.isDestroyed) {
 			this.throwError('this.getSortDirection is no longer valid. Repository has been destroyed.');
 			return;
@@ -1578,7 +1580,7 @@ export default class Repository extends EventEmitter {
 	 * @param {string} repositoryName - Name of the Repository to retrieve
 	 * @return {boolean} hasProperty
 	 */
-	getAssociatedRepository = (repositoryName) => {
+	getAssociatedRepository(repositoryName) {
 		if (this.isDestroyed) {
 			this.throwError('this.getAssociatedRepository is no longer valid. Repository has been destroyed.');
 			return;
@@ -1644,14 +1646,14 @@ export default class Repository extends EventEmitter {
 	 * Alias for isInRepository
 	 * NOTE: It only searches in memory. Doesn't query server
 	 */
-	hasId = (id) => {
+	hasId(id) {
 		return this.isInRepository(id);
 	}
 
 	/**
 	 * Convenience function
 	 */
-	saveStaged = () => {
+	saveStaged() {
 		return this.save(null, true);
 	}
 
@@ -1665,7 +1667,7 @@ export default class Repository extends EventEmitter {
 	 * @param {object} entity - Optional single entity to save (instead of doing a batch operation on everything)
 	 * @param {boolean} useStaged - Save only the staged items, not all
 	 */
-	save = async (entity = null, useStaged = false) => {
+	async save(entity = null, useStaged = false) {
 		if (this.isDestroyed) {
 			this.throwError('this.save is no longer valid. Repository has been destroyed.');
 			return;
@@ -1900,7 +1902,7 @@ export default class Repository extends EventEmitter {
 	 * @return {Promise}
 	 * @private
 	 */
-	_finalizeSave = (results) => {
+	_finalizeSave(results) {
 		this.isSaving = false;
 		this.emit('save');
 		return results;
@@ -1913,7 +1915,7 @@ export default class Repository extends EventEmitter {
 	 * @param {bool} moveSubtreeUp - whether or not to move the subtree up (if this is a tree)
 	 * @fires delete
 	 */
-	delete = async (entities, moveSubtreeUp = false) => {
+	async delete(entities, moveSubtreeUp = false) {
 		if (this.isDestroyed) {
 			this.throwError('this.delete is no longer valid. Repository has been destroyed.');
 			return;
@@ -1931,13 +1933,14 @@ export default class Repository extends EventEmitter {
 		if (!entities.length) {
 			return false;
 		}
+		const oThis = this;
 		_.each(entities, (entity) => {
 			if (!entity) {
 				return;
 			}
 			if (entity.isPhantom && !entity.isRemotePhantomMode) {
 				// Just auto-remove it. Don't bother saving to storage medium.
-				this.removeEntity(entity);
+				oThis.removeEntity(entity);
 			} else {
 				entity.markDeleted(); // Entity is still there, it's just marked for deletion
 			}
@@ -1971,7 +1974,7 @@ export default class Repository extends EventEmitter {
 	 * @param {integer} ix - Index
 	 * @return {object} entity - Entity
 	 */
-	deleteByIx = async (ix) => {
+	async deleteByIx(ix) {
 		await this.delete(this.getByIx(ix));
 	}
 	
@@ -1982,7 +1985,7 @@ export default class Repository extends EventEmitter {
 	 * @param {integer} endIx - Index (inclusive)
 	 * @return {array} entities - Array of Entities
 	 */
-	deleteByRange = async (startIx, endIx) => {
+	async deleteByRange(startIx, endIx) {
 		await this.delete(this.getByRange(startIx, endIx));
 	}
 
@@ -1991,7 +1994,7 @@ export default class Repository extends EventEmitter {
 	 * @param {function} fn - Filter function to apply to all entities
 	 * @return {Entity[]} Entities that passed through filter
 	 */
-	deleteBy = async (filter) => {
+	async deleteBy(filter) {
 		await this.delete(this.getBy(filter));
 	}
 
@@ -2000,7 +2003,7 @@ export default class Repository extends EventEmitter {
 	 * @param {integer} id - id of record to retrieve
 	 * @return {Entity} The Entity with matching id
 	 */
-	deleteById = async (id) => {
+	async deleteById(id) {
 		await this.delete(this.getById(id));
 	}
 
@@ -2010,7 +2013,7 @@ export default class Repository extends EventEmitter {
 	 * 
 	 * @return {Entity[]} Array of dirty Entities
 	 */
-	deleteDirty = async () => {
+	async deleteDirty() {
 		await this.delete(this.getDirty());
 	}
 
@@ -2020,7 +2023,7 @@ export default class Repository extends EventEmitter {
 	 * 
 	 * @return {Entity[]} Array of phantom Entities
 	 */
-	deletePhantom = async () => {
+	async deletePhantom() {
 		await this.delete(this.getPhantom());
 	}
 
@@ -2029,7 +2032,7 @@ export default class Repository extends EventEmitter {
 	 * @param {integer} ix - Index
 	 * @return {object} entity - Entity
 	 */
-	undeleteByIx = async (ix) => {
+	async undeleteByIx(ix) {
 		await this.undelete(this.getByIx(ix));
 	}
 	
@@ -2040,7 +2043,7 @@ export default class Repository extends EventEmitter {
 	 * @param {integer} endIx - Index (inclusive)
 	 * @return {array} entities - Array of Entities
 	 */
-	undeleteByRange = async (startIx, endIx) => {
+	async undeleteByRange(startIx, endIx) {
 		await this.undelete(this.getByRange(startIx, endIx));
 	}
 
@@ -2049,7 +2052,7 @@ export default class Repository extends EventEmitter {
 	 * @param {function} fn - Filter function to apply to all entities
 	 * @return {Entity[]} Entities that passed through filter
 	 */
-	undeleteBy = async (filter) => {
+	async undeleteBy(filter) {
 		await this.undelete(this.getBy(filter));
 	}
 
@@ -2058,7 +2061,7 @@ export default class Repository extends EventEmitter {
 	 * @param {integer} id - id of record to retrieve
 	 * @return {Entity} The Entity with matching id
 	 */
-	undeleteById = async (id) => {
+	async undeleteById(id) {
 		await this.undelete(this.getById(id));
 	}
 
@@ -2066,7 +2069,7 @@ export default class Repository extends EventEmitter {
 	 * Undelete all deleted Entities
 	 * @return {Entity[]} Entities that passed through filter
 	 */
-	undeleteDeleted = async () => {
+	async undeleteDeleted() {
 		await this.undelete(this.getDeleted());
 	}
 
@@ -2081,7 +2084,7 @@ export default class Repository extends EventEmitter {
 	/**
 	 * Gets the root TreeNodes
 	 */
-	loadRootNodes = () => {
+	getRootNodes() {
 		this.ensureTree();
 		if (this.isDestroyed) {
 			this.throwError('this.loadRootNodes is no longer valid. Repository has been destroyed.');
@@ -2100,7 +2103,7 @@ export default class Repository extends EventEmitter {
 	/**
 	 * Populates the TreeNodes with .parent and .children references
 	 */
-	assembleTreeNodes = () => {
+	assembleTreeNodes() {
 		this.ensureTree();
 		if (this.isDestroyed) {
 			this.throwError('this.assembleTreeNodes is no longer valid. Repository has been destroyed.');
@@ -2116,8 +2119,9 @@ export default class Repository extends EventEmitter {
 		});
 
 		// Rebuild all parent/child relationships
+		const oThis = this;
 		_.each(treeNodes, (treeNode) => {
-			const parent = this.getById(treeNode.parentId);
+			const parent = oThis.getById(treeNode.parentId);
 			if (parent) {
 				treeNode.parent = parent;
 				parent.children.push(treeNode);
@@ -2129,14 +2133,15 @@ export default class Repository extends EventEmitter {
 	 * Removes the treeNode and all of its children from repository
 	 * without deleting anything on the server
 	 */
-	removeTreeNode = (treeNode) => {
+	removeTreeNode(treeNode) {
 		if (!_.isEmpty(treeNode.children)) {
 			const children = treeNode.children;
 			treeNode.parent = null;
 			treeNode.children = [];
-
+			
+			const oThis = this;
 			_.each(children, (child) => {
-				this.removeTreeNode(child);
+				oThis.removeTreeNode(child);
 			});
 		}
 
@@ -2147,7 +2152,7 @@ export default class Repository extends EventEmitter {
 	 * Helper to make sure this Repository is a tree
 	 * @private
 	 */
-	ensureTree = async () => {
+	async ensureTree() {
 		if (!this.isTree) {
 			this.throwError('This Repository is not a tree!');
 			return false;
@@ -2170,16 +2175,16 @@ export default class Repository extends EventEmitter {
 	 * @param {object} options - config options to set. 
 	 * Note: this will overwrite any existing properties on 'this', so *use with caution!*
 	 */
-	setOptions = (options) => {
+	setOptions(options) {
 		_.merge(this, options);
 	}
 
-	rehash = () => {
+	rehash() {
 		const hashes = _.map(this.entities, (entity) => entity.hash);
 		this.hash = hash(hashes);
 	}
 
-	unmapData = (mappedData) => {
+	unmapData(mappedData) {
 		const propertiesDef = this.schema?.model?.properties;
 		if (!propertiesDef) {
 			throw Error('No properties defined!');
@@ -2237,7 +2242,7 @@ export default class Repository extends EventEmitter {
 	 * Set error handler for this repository
 	 * @param {function} handler - the error handler
 	 */
-	setErrorHandler = (handler) => {
+	setErrorHandler(handler) {
 		this.errorHandler = handler;
 	}
 
@@ -2288,7 +2293,7 @@ export default class Repository extends EventEmitter {
 	 * Gets the className of this Repository type.
 	 * @return {string} className
 	 */
-	getClassName = () => {
+	getClassName() {
 		if (this.isDestroyed) {
 			this.throwError('this.getClassName is no longer valid. Repository has been destroyed.');
 			return;
@@ -2304,7 +2309,7 @@ export default class Repository extends EventEmitter {
 	 * Gets the type of this Repository.
 	 * @return {string} className
 	 */
-	getType = () => {
+	getType() {
 		if (this.isDestroyed) {
 			this.throwError('this.getClassName is no longer valid. Repository has been destroyed.');
 			return;
@@ -2316,7 +2321,7 @@ export default class Repository extends EventEmitter {
 		return this.getType();
 	}
 
-	toString = () => {
+	toString() {
 		if (this.isDestroyed) {
 			this.throwError('this.toString is no longer valid. Repository has been destroyed.');
 			return;

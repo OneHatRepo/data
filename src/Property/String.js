@@ -25,14 +25,14 @@ export default class StringProperty extends Property {
 	 * @param {any} value
 	 * @return {string} parsedValue
 	 */
-	parse = (value) => {
+	parse(value) {
 		if (this.isDestroyed) {
 			throw Error('this.parse is no longer valid. Property has been destroyed.');
 		}
 		return Parsers.ParseString(value);
 	}
 
-	newId = () => {
+	newId() {
 		let id,
 			hasId = false;
 

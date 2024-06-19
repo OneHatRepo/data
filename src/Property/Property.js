@@ -206,7 +206,7 @@ export default class Property extends EventEmitter {
 	 * Gets "raw" value
 	 * @return {any} rawValue
 	 */
-	getRawValue = () => {
+	getRawValue() {
 		if (this.isDestroyed) {
 			throw Error('this.getRawValue is no longer valid. Property has been destroyed.');
 		}
@@ -217,7 +217,7 @@ export default class Property extends EventEmitter {
 	 * Gets "raw" value in its parsed form
 	 * @return {any} rawValue
 	 */
-	getParsedRawValue = () => {
+	getParsedRawValue() {
 		if (this.isDestroyed) {
 			throw Error('this.getParsedRawValue is no longer valid. Property has been destroyed.');
 		}
@@ -228,7 +228,7 @@ export default class Property extends EventEmitter {
 	 * Gets "parsed" value, without any formatting applied
 	 * @return {any} parsedValue
 	 */
-	getParsedValue = () => {
+	getParsedValue() {
 		if (this.isDestroyed) {
 			throw Error('this.getParsedValue is no longer valid. Property has been destroyed.');
 		}
@@ -239,7 +239,7 @@ export default class Property extends EventEmitter {
 	 * Gets parsed value, formatted for submission to server
 	 * @return {any} parsedValue
 	 */
-	getSubmitValue = () => {
+	getSubmitValue() {
 		if (this.isDestroyed) {
 			throw Error('this.getSubmitValue is no longer valid. Property has been destroyed.');
 		}
@@ -264,7 +264,7 @@ export default class Property extends EventEmitter {
 	 * Gets parsed value, formatted for displaying to user
 	 * @return {any} _displayValue
 	 */
-	getDisplayValue = () => {
+	getDisplayValue() {
 		if (this.isDestroyed) {
 			throw Error('this.getDisplayValue is no longer valid. Property has been destroyed.');
 		}
@@ -373,7 +373,7 @@ export default class Property extends EventEmitter {
 	 * @param {any} rawValue - Value to parse
 	 * @return {boolean} isChanged - Whether or not the parsedValue was changed
 	 */
-	setValue = (rawValue) => {
+	setValue(rawValue) {
 		if (this.isDestroyed) {
 			throw Error('this.setValue is no longer valid. Property has been destroyed.');
 		}
@@ -408,7 +408,7 @@ export default class Property extends EventEmitter {
 	 * @param {any} value - Value to parse
 	 * @return {any} value - Parsed value. NOTE: for the Property base class, no parsing actually takes place!
 	 */
-	parse = (value) => {
+	parse(value) {
 		if (this.isDestroyed) {
 			throw Error('this.parse is no longer valid. Property has been destroyed.');
 		}
@@ -432,7 +432,7 @@ export default class Property extends EventEmitter {
 	 * Sets value of submitAsString
 	 * @param {boolean} bool - New value of submitAsString
 	 */
-	setSubmitAsString = (bool) => {
+	setSubmitAsString(bool) {
 		if (this.isDestroyed) {
 			throw Error('this.setSubmitAsString is no longer valid. Property has been destroyed.');
 		}
@@ -443,7 +443,7 @@ export default class Property extends EventEmitter {
 	 * Gets the Entity object
 	 * @return {object} _entity - Entity
 	 */
-	getEntity = () => {
+	getEntity() {
 		if (this.isDestroyed) {
 			throw Error('this.getEntity is no longer valid. Property has been destroyed.');
 		}
@@ -454,7 +454,7 @@ export default class Property extends EventEmitter {
 	 * Gets the className of this Property type.
 	 * @return {string} className
 	 */
-	getClassName = () => {
+	getClassName() {
 		if (this.isDestroyed) {
 			throw Error('this.getClassName is no longer valid. Property has been destroyed.');
 		}
@@ -465,7 +465,7 @@ export default class Property extends EventEmitter {
 	 * Gets the mapped name of this Property.
 	 * @return {string} name
 	 */
-	getMapping = () => {
+	getMapping() {
 		if (this.isDestroyed) {
 			throw Error('this.getMapping is no longer valid. Property has been destroyed.');
 		}
@@ -479,7 +479,7 @@ export default class Property extends EventEmitter {
 	 * - Removes event listeners
 	 * @fires destroy
 	 */
-	destroy = () => {
+	destroy() {
 		// parent objects
 		this._entity = null;
 
@@ -495,7 +495,7 @@ export default class Property extends EventEmitter {
 		this.removeAllListeners();
 	}
 
-	toString = () => {
+	toString() {
 		if (this.isDestroyed) {
 			throw Error('this.toString is no longer valid. Property has been destroyed.');
 		}

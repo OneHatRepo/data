@@ -32,7 +32,7 @@ export default class CurrencyProperty extends Property {
 		_.merge(this, defaults, config);
 	}
 
-	parse = (value) => {
+	parse(value) {
 		if (this.isDestroyed) {
 			throw Error('this.parse is no longer valid. Property has been destroyed.');
 		}
@@ -42,7 +42,7 @@ export default class CurrencyProperty extends Property {
 		return accounting.unformat(value);
 	}
 
-	getDisplayValue = () => {
+	getDisplayValue() {
 		if (this.isDestroyed) {
 			throw Error('this.getDisplayValue is no longer valid. Property has been destroyed.');
 		}
@@ -54,7 +54,7 @@ export default class CurrencyProperty extends Property {
 		return ret;
 	}
 
-	getSubmitValue = () => {
+	getSubmitValue() {
 		if (this.isDestroyed) {
 			throw Error('this.getSubmitValue is no longer valid. Property has been destroyed.');
 		}

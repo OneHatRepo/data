@@ -40,7 +40,7 @@ export default class JsonProperty extends Property {
 	/**
 	 * Validates a JSON string
 	 */
-	isValid = (value) => {
+	isValid(value) {
 		try {
 			JSON.parse(value);
 		} catch (e) {
@@ -49,7 +49,7 @@ export default class JsonProperty extends Property {
 		return true;
 	}
 
-	parse = (value) => {
+	parse(value) {
 		if (this.isDestroyed) {
 			throw Error('this.parse is no longer valid. Property has been destroyed.');
 		}
@@ -71,7 +71,7 @@ export default class JsonProperty extends Property {
 		return ret;
 	}
 
-	getDisplayValue = () => {
+	getDisplayValue() {
 		if (this.isDestroyed) {
 			throw Error('this.getDisplayValue is no longer valid. Property has been destroyed.');
 		}
@@ -88,7 +88,7 @@ export default class JsonProperty extends Property {
 		return this.parsedValue;
 	}
 
-	getSubmitValue = () => {
+	getSubmitValue() {
 		if (this.isDestroyed) {
 			throw Error('this.getSubmitValue is no longer valid. Property has been destroyed.');
 		}
@@ -107,7 +107,7 @@ export default class JsonProperty extends Property {
 	 * Utility function - gets the JSON string in a way that is safe to display in HTML.
 	 * i.e. It enables us to show a JSON string in HTML *without its contents being interpreted as HTML*
 	 */
-	getAsHtmlSafe = () => {
+	getAsHtmlSafe() {
 		const str = JSON.stringify(this.parsedValue);
 		return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 	}

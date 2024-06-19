@@ -20,7 +20,7 @@ class SecureStoreRepository extends OfflineRepository {
 		_.merge(this, config);
 	}
 
-	_storageGetValue = async (name) => {
+	async _storageGetValue(name) {
 		try {
 			
 			if (this.debugMode) {
@@ -72,7 +72,7 @@ class SecureStoreRepository extends OfflineRepository {
 		}
 	}
 
-	_storageSetValue = async (name, value) => {
+	async _storageSetValue(name, value) {
 		try {
 			if (!_.isString(value)) {
 				value = JSON.stringify(value);
@@ -123,7 +123,7 @@ class SecureStoreRepository extends OfflineRepository {
 		}
 	}
 
-	_storageDeleteValue = async (name) => {
+	async _storageDeleteValue(name) {
 		try {
 			if (this.debugMode) {
 				console.log(this.name, 'SecureStore.delete', name);
@@ -160,7 +160,7 @@ class SecureStoreRepository extends OfflineRepository {
 		}
 	}
 
-	clearAll = async () => {
+	async clearAll() {
 		await this.load([]);
 	}
 

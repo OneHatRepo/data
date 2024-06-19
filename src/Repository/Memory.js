@@ -89,7 +89,7 @@ class MemoryRepository extends Repository {
 	 * @param {array} data - Optional array of rawData or entities 
 	 * to load. If null, data will be loaded from storage medium.
 	 */
-	load = async (data = null) => {
+	async load(data = null) {
 		
 		if (this.isDestroyed) {
 			this.throwError('this.load is no longer valid. Repository has been destroyed.');
@@ -127,18 +127,19 @@ class MemoryRepository extends Repository {
 		const repository = this;
 		if (!_.isEmpty(data) && !(data[0] instanceof Entity)) {
 			entities = _.map(data, (dataRow) => {
-				const entity = Repository._createEntity(this.schema, dataRow, repository, true);
-				this._relayEntityEvents(entity);
+				const entity = Repository._createEntity(repository.schema, dataRow, repository, true);
+				repository._relayEntityEvents(entity);
 				return entity;
 			});
 		}
 		
 		// Add to internal store
+		const oThis = this;
 		_.each(entities, (entity) => {
 			if (entity.isPhantom) {
 				entity.createTempId();
 			}
-			this._keyedEntities[entity.id] = entity;
+			oThis._keyedEntities[entity.id] = entity;
 		});
 
 		if (isDirectLoad && this._saveToStorage) {
@@ -158,7 +159,7 @@ class MemoryRepository extends Repository {
 	 * This is mainly used for subclasses of MemoryRepository.
 	 * @return {array} data - Array of rawData objects
 	 */
-	_loadFromStorage = async () => {
+	async _loadFromStorage() {
 		return this.data || []; // this.data may have come from initial config of Repository
 	}
 
@@ -175,7 +176,7 @@ class MemoryRepository extends Repository {
 	 * Override base Repository, just return the entity from storage
 	 * @abstract
 	 */
-	reloadEntity = async (entity) => {
+	async reloadEntity(entity) {
 		const reloadedEntity = this.getById(entity.id);
 		reloadedEntity.emit('reload', reloadedEntity);
 
@@ -199,7 +200,7 @@ class MemoryRepository extends Repository {
 	 * Internally applies all sorters
 	 * @private
 	 */
-	_applySorters = () => {
+	_applySorters() {
 		if (this.isDestroyed) {
 			this.throwError('this._applySorters is no longer valid. Repository has been destroyed.');
 			return;
@@ -252,7 +253,7 @@ class MemoryRepository extends Repository {
 	 * @private
 	 * @static
 	 */
-	static _getNatSort = (sorter) => {
+	static _getNatSort(sorter) {
 		const
 			name = sorter.name,
 			direction = sorter.direction.toUpperCase();
@@ -276,7 +277,7 @@ class MemoryRepository extends Repository {
 	 * @private
 	 * @static
 	 */
-	static _getCompareFunction = (sorter) => {
+	static _getCompareFunction(sorter) {
 		const
 			name = sorter.name,
 			direction = sorter.direction.toUpperCase();
@@ -309,7 +310,7 @@ class MemoryRepository extends Repository {
 	 * @fires changeFilter
 	 * @private
 	 */
-	_applyFilters = () => {
+	_applyFilters() {
 		if (this.isDestroyed) {
 			this.throwError('this._applyFilters is no longer valid. Repository has been destroyed.');
 			return;
@@ -399,7 +400,7 @@ class MemoryRepository extends Repository {
 	 * @return {string} id
 	 * @private
 	 */
-	_generateUniqueId = () => {
+	_generateUniqueId() {
 		let isUnique = false,
 			id;
 		while(!isUnique) {
@@ -458,7 +459,7 @@ class MemoryRepository extends Repository {
 	/**
 	 * Deletes all entities in repository
 	 */
-	deleteAll = async () => {
+	async deleteAll() {
 		const entities = _.map(this._keyedEntities, entity => entity);
 		await this.delete(entities);
 	}
@@ -467,7 +468,7 @@ class MemoryRepository extends Repository {
 	 * Get an entity directly from its id.
 	 * @return {object} entity
 	 */
-	getById = (id) => {
+	getById(id) {
 		if (this.isDestroyed) {
 			this.throwError('this.getById is no longer valid. Repository has been destroyed.');
 			return;
@@ -481,7 +482,7 @@ class MemoryRepository extends Repository {
 	 * @param {integer} id - id of record to retrieve
 	 * @return {integer} The numerical index, or undefined
 	 */
-	getIxById = (id) => {
+	getIxById(id) {
 		if (this.isDestroyed) {
 			this.throwError('this.getIxById is no longer valid. Repository has been destroyed.');
 			return;
@@ -499,7 +500,7 @@ class MemoryRepository extends Repository {
 	 * all *active* Entities, with sorting and filtering applied.
 	 * @return {array} Entities that passed through filter
 	 */
-	getEntities = () => {
+	getEntities() {
 		if (this.isDestroyed) {
 			this.throwError('this.getEntities is no longer valid. Repository has been destroyed.');
 			return;
@@ -512,7 +513,7 @@ class MemoryRepository extends Repository {
 	 * Get an array of all Entities
 	 * @return {Entity[]} Entities that passed through filter
 	 * /
-	getAllData = () => {
+	getAllData() {
 		if (this.isDestroyed) {
 			this.throwError('this.getAllData is no longer valid. Repository has been destroyed.');
 			return;
@@ -550,7 +551,7 @@ class MemoryRepository extends Repository {
 	 * @return {array} entities - The slice of entities
 	 * @private
 	 */
-	_paginate = (entities) => {
+	_paginate(entities) {
 		if (this.isDestroyed) {
 			this.throwError('this._paginate is no longer valid. Repository has been destroyed.');
 			return;
@@ -575,7 +576,7 @@ class MemoryRepository extends Repository {
 	 * @fires changeData
 	 * @private
 	 */
-	_recalculate = () => {
+	_recalculate() {
 		if (this.isDestroyed) {
 			this.throwError('this._recalculate is no longer valid. Repository has been destroyed.');
 			return;
@@ -609,7 +610,7 @@ class MemoryRepository extends Repository {
 	}
 
 
-	_insertBefore = (newEntity, entity = null) => {
+	_insertBefore(newEntity, entity = null) {
 		throw Error('Not yet implemented');
 	}
 
@@ -618,7 +619,7 @@ class MemoryRepository extends Repository {
 	 * before any sorting or filtering is applied.
 	 * @return {integer} count - The total number of unsorted, unfiltered entities
 	 */
-	getGrandTotal = () => {
+	getGrandTotal() {
 		if (this.isDestroyed) {
 			this.throwError('this.getGrandTotal is no longer valid. Repository has been destroyed.');
 			return;
@@ -633,7 +634,7 @@ class MemoryRepository extends Repository {
 	 * Otherwise, this is equal to the 
 	 * @return {integer} count - The total number of unsorted, unfiltered entities
 	 */
-	_getActiveEntities = () => {
+	_getActiveEntities() {
 		if (this.isDestroyed) {
 			this.throwError('this._getActiveEntities is no longer valid. Repository has been destroyed.');
 			return;

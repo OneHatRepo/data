@@ -20,7 +20,7 @@ export default class PercentIntProperty extends FloatProperty {
 		_.merge(this, defaults, config);
 	}
 	
-	getDisplayValue = () => {
+	getDisplayValue() {
 		if (this.isDestroyed) {
 			throw Error('this.getDisplayValue is no longer valid. Property has been destroyed.');
 		}

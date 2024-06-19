@@ -23,7 +23,7 @@ export default class BooleanProperty extends Property {
 		_.merge(this, defaults, config);
 	}
 
-	parse = (value) => {
+	parse(value) {
 		if (this.isDestroyed) {
 			throw Error('this.parse is no longer valid. Property has been destroyed.');
 		}
@@ -33,14 +33,14 @@ export default class BooleanProperty extends Property {
 		return Parsers.ParseBool(value);
 	}
 
-	getDisplayValue = () => {
+	getDisplayValue() {
 		if (this.isDestroyed) {
 			throw Error('this.getDisplayValue is no longer valid. Property has been destroyed.');
 		}
 		return Formatters.FormatBoolAsYesNo(this.parsedValue);
 	}
 
-	getSubmitValue = () => {
+	getSubmitValue() {
 		if (this.isDestroyed) {
 			throw Error('this.getSubmitValue is no longer valid. Property has been destroyed.');
 		}
@@ -53,7 +53,7 @@ export default class BooleanProperty extends Property {
 		return Parsers.ParseBool(this.parsedValue); // Use a Parser instead of a Formatter to make sure we submit it as an actual boolean primitive value
 	}
 
-	toggle = () => {
+	toggle() {
 		if (this.isDestroyed) {
 			throw Error('this.toggle is no longer valid. Property has been destroyed.');
 		}

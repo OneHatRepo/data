@@ -11,7 +11,7 @@ import _ from 'lodash';
  */
 export default class PercentProperty extends PercentIntProperty {
 
-	parse = (value) => {
+	parse(value) {
 		if (this.isDestroyed) {
 			throw Error('this.parse is no longer valid. Property has been destroyed.');
 		}
@@ -29,7 +29,7 @@ export default class PercentProperty extends PercentIntProperty {
 		return parsed;
 	}
 	
-	getDisplayValue = () => {
+	getDisplayValue() {
 		if (this.isDestroyed) {
 			throw Error('this.getDisplayValue is no longer valid. Property has been destroyed.');
 		}

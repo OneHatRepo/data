@@ -23,7 +23,7 @@ export default class IntegerProperty extends Property {
 		_.merge(this, defaults, config);
 	}
 
-	parse = (value) => {
+	parse(value) {
 		if (this.isDestroyed) {
 			throw Error('this.parse is no longer valid. Property has been destroyed.');
 		}
@@ -37,7 +37,7 @@ export default class IntegerProperty extends Property {
 	 * Generates a new id
 	 * Mainly for temporary, in-memory usage
 	 */
-	newId = () => {
+	newId() {
 		let id,
 			hasId = false;
 

@@ -22,7 +22,7 @@ class SecureSessionStorageRepository extends SessionStorageRepository {
 		this.passphrase = config.passphrase;
 	}
 
-	_storageGetValue = (name) => {
+	_storageGetValue(name) {
 
 		// BEGIN MOD
 		let result = this._store.session(name);
@@ -41,7 +41,7 @@ class SecureSessionStorageRepository extends SessionStorageRepository {
 		return value;
 	}
 
-	_storageSetValue = (name, value) => {
+	_storageSetValue(name, value) {
 		if (!_.isString(value)) {
 			value = JSON.stringify(value);
 		}

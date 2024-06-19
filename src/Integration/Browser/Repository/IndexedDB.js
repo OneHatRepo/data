@@ -18,7 +18,7 @@ class IndexedDBRepository extends OfflineRepository {
 		_.merge(this, config);
 	}
 
-	_storageGetValue = (name) => {
+	_storageGetValue(name) {
 		const result = store.getItem(this._namespace(name));
 		let value;
 		try {
@@ -30,18 +30,18 @@ class IndexedDBRepository extends OfflineRepository {
 		return value;
 	}
 
-	_storageSetValue = (name, value) => {
+	_storageSetValue(name, value) {
 		if (!_.isString(value)) {
 			value = JSON.stringify(value);
 		}
 		return store.setItem(this._namespace(name), value);
 	}
 
-	_storageDeleteValue = (name) => {
+	_storageDeleteValue(name) {
 		return store.removeItem(this._namespace(name));
 	}
 
-	_clearAll = async () => {
+	async _clearAll() {
 		store.clear();
 		this._keyedEntities = {};
 		this.reload();

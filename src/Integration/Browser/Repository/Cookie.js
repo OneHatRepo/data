@@ -18,7 +18,7 @@ class CookieRepository extends OfflineRepository {
 		_.merge(this, config);
 	}
 
-	_storageGetValue = (name) => {
+	_storageGetValue(name) {
 		try {
 			
 			if (this.debugMode) {
@@ -69,7 +69,7 @@ class CookieRepository extends OfflineRepository {
 		}
 	}
 
-	_storageSetValue = (name, value) => {
+	_storageSetValue(name, value) {
 		try {
 			if (!_.isString(value)) {
 				value = JSON.stringify(value);
@@ -121,7 +121,7 @@ class CookieRepository extends OfflineRepository {
 		}
 	}
 
-	_storageDeleteValue = (name) => {
+	_storageDeleteValue(name) {
 		try {
 			if (this.debugMode) {
 				console.log(this.name, 'Cookie.delete', name);
@@ -157,7 +157,7 @@ class CookieRepository extends OfflineRepository {
 		}
 	}
 
-	clearAll = async () => {
+	async clearAll() {
 		await this.load([]);
 	}
 

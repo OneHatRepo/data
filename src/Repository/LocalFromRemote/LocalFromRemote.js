@@ -214,10 +214,11 @@ class LocalFromRemoteRepository extends EventEmitter {
 	/**
 	 * Registers multiple commands for when syncing in MODE_COMMAND_QUEUE mode.
 	 */
-	registerCommands = (commands) => {
+	registerCommands(commands) {
+		const oThis = this;
 		_.each(commands, (name) => {
-			if (!this.isRegisteredCommand(name)) {
-				this.commands[name] = new Command(name);
+			if (!oThis.isRegisteredCommand(name)) {
+				oThis.commands[name] = new Command(name);
 			}
 		});
 	}
@@ -227,7 +228,7 @@ class LocalFromRemoteRepository extends EventEmitter {
 	 * @param {string} name - The command name
 	 * @return {function} handler - The handler function
 	 */
-	registerCommandHandler = (name, handler) => {
+	registerCommandHandler(name, handler) {
 		const command = this.getCommand(name);
 		if (!command) {
 			return false;
@@ -242,7 +243,7 @@ class LocalFromRemoteRepository extends EventEmitter {
 	 * @param {string} name - The command name
 	 * @return {function} handler - The handler function
 	 */
-	unregisterCommandHandler = (name, handler) => {
+	unregisterCommandHandler(name, handler) {
 		const command = this.getCommand(name);
 		if (!command) {
 			return false;
@@ -256,7 +257,7 @@ class LocalFromRemoteRepository extends EventEmitter {
 	 * @param {string} name - The command name
 	 * @return {boolean} isRegisteredCommand
 	 */
-	isRegisteredCommand = (name) => {
+	isRegisteredCommand(name) {
 		return _.indexOf(this.commands, name) !== -1;
 	}
 
@@ -265,7 +266,7 @@ class LocalFromRemoteRepository extends EventEmitter {
 	 * @param {string} name - The command name
 	 * @return {boolean} isRegisteredCommand
 	 */
-	getCommand = (name) => {
+	getCommand(name) {
 		return this.commands[name] || null;
 	}
 
@@ -273,7 +274,7 @@ class LocalFromRemoteRepository extends EventEmitter {
 	 * Adds a hook into the normal Repository.add() method,
 	 * so we can sync immediately after add for MODE_COMMAND_QUEUE mode.
 	 */
-	add = async (data) => {
+	async add(data) {
 		// NORMAL PROCESS, basically call super()
 		// This adds to the local repository, so we can sync later,
 		// if needed.
@@ -289,7 +290,7 @@ class LocalFromRemoteRepository extends EventEmitter {
 	/**
 	 * Syncs local and remote repositories, based on operation mode.
 	 */
-	sync = async (entity, callback = null) => {
+	async sync(entity, callback = null) {
 
 		if (this.debugMode) {
 			console.log('sync');
@@ -433,7 +434,7 @@ class LocalFromRemoteRepository extends EventEmitter {
 	 * if isRetry, we are retrying to sync, due to being offline.
 	 * This will schedule the next sync based on nextRetryDate.
 	 */
-	_doAutoSync = async (isRetry = false) => {
+	async _doAutoSync(isRetry = false) {
 
 		const now = moment(),
 			nowMs = now.valueOf();
@@ -496,7 +497,7 @@ class LocalFromRemoteRepository extends EventEmitter {
 	 * Gets lastSync from private variable, 
 	 * or from local storage medium, if possible.
 	 */
-	getLastSync = async () => {
+	async getLastSync() {
 		if (!this.lastSync && this.local.getLastSync) {
 			const lastSync = await this.local.getLastSync();
 			// const lastSync = null;
@@ -511,7 +512,7 @@ class LocalFromRemoteRepository extends EventEmitter {
 	 * Sets lastSync to now and saves to local storage medium, if possible.
 	 * @private
 	 */
-	_setLastSync = async () => {
+	async _setLastSync() {
 		const now = moment();
 		this.lastSync = now;
 		if (this.local.setLastSync) {
@@ -519,7 +520,7 @@ class LocalFromRemoteRepository extends EventEmitter {
 		}
 	};
 
-	getNextRetry = () => {
+	getNextRetry() {
 		const date = moment().relativeTime(this.retryRate);
 		if (!isNaN(date) && date.isValid()) {
 			return date;
@@ -527,7 +528,7 @@ class LocalFromRemoteRepository extends EventEmitter {
 		return null;
 	}
 
-	getNextSync = () => {
+	getNextSync() {
 		const oneMinuteAgo = moment().relativeTime('-1 minute');
 		if (!this.lastSync) {
 			return oneMinuteAgo;
@@ -584,7 +585,7 @@ class LocalFromRemoteRepository extends EventEmitter {
 	/**
 	 * Sets autoSync. If autoSync is enabled, it immediately starts autosync process.
 	 */
-	setAutoSync = async (isAutoSync) => {
+	async setAutoSync(isAutoSync) {
 		let isChanged = false
 		if (this.isAutoSync !== isAutoSync) {
 			isChanged = true;
@@ -601,7 +602,7 @@ class LocalFromRemoteRepository extends EventEmitter {
 	/**
 	 * Sets options on the repositories.
 	 */
-	setOptions = (options) => {
+	setOptions(options) {
 		this.local.setOptions(options);
 		this.remote.setOptions(options);
 	}
@@ -609,7 +610,7 @@ class LocalFromRemoteRepository extends EventEmitter {
 	/**
 	 * Sets isOnline. If isOnline and autoSync is enabled, it immediately starts isAutosync process.
 	 */
-	setIsOnline = (isOnline) => {
+	setIsOnline(isOnline) {
 		this.isOnline = !!isOnline; // force convert type to boolean
 		if (isOnline && this.isAutoSync) {
 			this._doAutoSync();

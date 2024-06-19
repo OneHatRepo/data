@@ -22,11 +22,11 @@ const nonConditionFilters = [
 
 /**
  * This class contains overrides of specific functions in
- * AjaxRepository that are unique to OneBuild.
+ * AjaxRepository that are unique to OneBuild2.
  * 
  * @extends AjaxRepository
  */
-class OneBuildRepository extends AjaxRepository {
+class OneBuild2Repository extends AjaxRepository {
 	constructor(config = {}) {
 		super(...arguments);
 
@@ -36,13 +36,13 @@ class OneBuildRepository extends AjaxRepository {
 			isAutoSave: false,
 
 			api: {
-				get: this.name + '/get',
-				add: this.name + '/add',
-				edit: this.name + '/edit',
-				delete: this.name + '/delete',
-				batchAdd: this.name + '/batchAdd',
-				batchEdit: this.name + '/batchEdit',
-				batchDelete: this.name + '/batchDelete',
+				get: this.name + '/index',
+				add: this.name + '/store',
+				edit: this.name + '/update',
+				delete: this.name + '/destroy',
+				// batchAdd: this.name + '/batchAdd',
+				// batchEdit: this.name + '/batchEdit',
+				// batchDelete: this.name + '/batchDelete',
 			},
 
 			methods: {
@@ -93,7 +93,7 @@ class OneBuildRepository extends AjaxRepository {
 	 * Fires off axios request to server
 	 * @private
 	 */
-	_send(method, url, data) {
+	_send = (method, url, data) => {
 
 		if (!url) {
 			this.throwError('No url submitted');
@@ -161,7 +161,7 @@ class OneBuildRepository extends AjaxRepository {
 	 * OneBuild uses a single, multi-dimentional param for filtering.
 	 * Refreshes entities.
 	 */
-	_onChangeFilters() {
+	_onChangeFilters = () => {
 		// Clear existing "conditions" params
 		if (!_.isEmpty(this._params)) {
 			this._params = _.omitBy(this._params, (value, key) => {
@@ -192,7 +192,7 @@ class OneBuildRepository extends AjaxRepository {
 	 * OneBuild uses a single order param, rather than separate name & direction params.
 	 * Refreshes entities.
 	 */
-	_onChangeSorters() {
+	_onChangeSorters = () => {
 		let sorterStrings = [];
 		_.each(this.sorters, (sorter) => {
 			sorterStrings.push(sorter.name + ' ' + sorter.direction);
@@ -226,7 +226,7 @@ class OneBuildRepository extends AjaxRepository {
 	 * @fires error
 	 * @private
 	 */
-	_processServerResponse(result) {
+	_processServerResponse = (result) => {
 
 		if (result === false) { // e.g. 401 error
 			return {
@@ -268,7 +268,7 @@ class OneBuildRepository extends AjaxRepository {
 	 * @param {string} dropPosition - position in which it was dropped; could be 'before' or 'after'
 	 * @return {Promise}
 	 */
-	reorder(dragRecordOrIds, dropRecord, dropPosition) {
+	reorder = (dragRecordOrIds, dropRecord, dropPosition) => {
 
 		if (!this.isOnline) {
 			this.throwError('Offline');
@@ -317,7 +317,7 @@ class OneBuildRepository extends AjaxRepository {
 			});
 	}
 
-	async remoteDuplicate(entity) {
+	remoteDuplicate = async (entity) => {
 		
 		this.markLoading();
 
@@ -359,7 +359,7 @@ class OneBuildRepository extends AjaxRepository {
 		return duplicateEntity;
 	}
 
-	async loadOneAdditionalEntity(id) {
+	loadOneAdditionalEntity = async (id) => {
 		const entity = await this.getSingleEntityFromServer(id);
 		if (!entity) {
 			this.throwError('entity not found');
@@ -373,7 +373,7 @@ class OneBuildRepository extends AjaxRepository {
 		this.emit('changeData', this.entities);
 	}
 
-	async getSingleEntityFromServer(id) {
+	getSingleEntityFromServer = async (id) => {
 		if (this.isDestroyed) {
 			this.throwError('this.getSingleEntityFromServer is no longer valid. Repository has been destroyed.');
 			return;
@@ -439,7 +439,7 @@ class OneBuildRepository extends AjaxRepository {
 	 * - password,
 	 * @return {Promise}
 	 */
-	login(creds) {
+	login = (creds) => {
 
 		if (!this.isOnline) {
 			this.throwError('Offline');
@@ -478,7 +478,7 @@ class OneBuildRepository extends AjaxRepository {
 	 * Logout from OneBuild API
 	 * @return {Promise}
 	 */
-	logout() {
+	logout = () => {
 
 		if (!this.isOnline) {
 			this.throwError('Offline');
@@ -514,7 +514,7 @@ class OneBuildRepository extends AjaxRepository {
 			});
 	}
 
-	forgotPassword(email = null, username = null) {
+	forgotPassword = (email = null, username = null) => {
 
 		if (!this.isOnline) {
 			this.throwError('Offline');
@@ -561,7 +561,7 @@ class OneBuildRepository extends AjaxRepository {
 	/**
 	 * Loads the root nodes of this tree.
 	 */
-	loadRootNodes(depth) {
+	loadRootNodes = (depth) => {
 		this.ensureTree();
 		if (this.isDestroyed) {
 			this.throwError('this.setRootNode is no longer valid. Repository has been destroyed.');
@@ -641,7 +641,7 @@ class OneBuildRepository extends AjaxRepository {
 	/**
 	 * Loads (or reloads) the supplied treeNode
 	 */
-	loadNode(treeNode, depth = 1) {
+	loadNode = (treeNode, depth = 1) => {
 		this.ensureTree();
 		if (this.isDestroyed) {
 			this.throwError('this.loadNode is no longer valid. Repository has been destroyed.');
@@ -724,7 +724,7 @@ class OneBuildRepository extends AjaxRepository {
 	/**
 	 * Loads (or reloads) the children of the supplied treeNode
 	 */
-	loadChildNodes(treeNode, depth = 1) {
+	loadChildNodes = (treeNode, depth = 1) => {
 		this.ensureTree();
 		if (this.isDestroyed) {
 			this.throwError('this.loadChildNodes is no longer valid. Repository has been destroyed.');
@@ -807,7 +807,7 @@ class OneBuildRepository extends AjaxRepository {
 	/**
 	 * Override the AjaxRepository to we can reload a treeNode if needed
 	 */
-	reloadEntity(entity, callback = null) {
+	reloadEntity = (entity, callback = null) => {
 		if (!entity.isTree) {
 			return super.reloadEntity(entity, callback);
 		}
@@ -819,7 +819,7 @@ class OneBuildRepository extends AjaxRepository {
 	 * Searches all nodes for the supplied text.
 	 * This basically takes the search query and returns whatever the server sends
 	 */
-	searchNodes(q) {
+	searchNodes = (q) => {
 		this.ensureTree();
 		if (this.isDestroyed) {
 			this.throwError('this.searchNodes is no longer valid. Repository has been destroyed.');
@@ -870,7 +870,7 @@ class OneBuildRepository extends AjaxRepository {
 	/**
 	 * Alias for loadChildren
 	 */
-	reloadChildren(treeNode, depth) {
+	reloadChildren = (treeNode, depth) => {
 		return this.loadChildren(treeNode, depth);
 	}
 
@@ -878,76 +878,76 @@ class OneBuildRepository extends AjaxRepository {
 	 * Moves the supplied treeNode to a new position on the tree
 	 * @returns id of common ancestor node 
 	 */
-	moveTreeNode(treeNode, newParentId) {
-		this.ensureTree();
-		if (this.isDestroyed) {
-			this.throwError('this.moveTreeNode is no longer valid. Repository has been destroyed.');
-			return;
-		}
-		if (!this.isOnline) {
-			this.throwError('Offline');
-			return;
-		}
+	moveTreeNode = (treeNode, newParentId) => {
+		// this.ensureTree();
+		// if (this.isDestroyed) {
+		// 	this.throwError('this.moveTreeNode is no longer valid. Repository has been destroyed.');
+		// 	return;
+		// }
+		// if (!this.isOnline) {
+		// 	this.throwError('Offline');
+		// 	return;
+		// }
 
-		const oldParentId = treeNode.parent?.id;
+		// const oldParentId = treeNode.parent?.id;
 
-		const data = _.merge({ nodeId: treeNode.id, parentId: newParentId, }, this._baseParams, this._params);
+		// const data = _.merge({ nodeId: treeNode.id, parentId: newParentId, }, this._baseParams, this._params);
 		
-		if (this.debugMode) {
-			console.log('moveTreeNode', data);
-		}
+		// if (this.debugMode) {
+		// 	console.log('moveTreeNode', data);
+		// }
 
-		return this._send('POST', this.name + '/moveNode', data)
-			.then((result) => {
-				if (this.debugMode) {
-					console.log('Response for searchNodes', result);
-				}
+		// return this._send('POST', this.name + '/moveNode', data)
+		// 	.then((result) => {
+		// 		if (this.debugMode) {
+		// 			console.log('Response for searchNodes', result);
+		// 		}
 
-				if (this.isDestroyed) {
-					// If this repository gets destroyed before it has a chance
-					// to process the Ajax request, just ignore the response.
-					return;
-				}
+		// 		if (this.isDestroyed) {
+		// 			// If this repository gets destroyed before it has a chance
+		// 			// to process the Ajax request, just ignore the response.
+		// 			return;
+		// 		}
 
-				const {
-					root: {
-						commonAncestorId,
-						oldParent,
-						newParent,
-						node,
-					},
-					success,
-					total,
-					message
-				} = this._processServerResponse(result);
+		// 		const {
+		// 			root: {
+		// 				commonAncestorId,
+		// 				oldParent,
+		// 				newParent,
+		// 				node,
+		// 			},
+		// 			success,
+		// 			total,
+		// 			message
+		// 		} = this._processServerResponse(result);
 
-				if (!success) {
-					this.throwError(message);
-					return;
-				}
+		// 		if (!success) {
+		// 			this.throwError(message);
+		// 			return;
+		// 		}
 
-				// move it from oldParent.children to newParent.children
-				const
-					oldParentRecord = this.getById(oldParentId),
-					newParentRecord = this.getById(newParentId);
+		// 		// move it from oldParent.children to newParent.children
+		// 		const
+		// 			oldParentRecord = this.getById(oldParentId),
+		// 			newParentRecord = this.getById(newParentId);
 
-				oldParentRecord?.loadOriginalData(oldParent);
-				newParentRecord.loadOriginalData(newParent);
-				treeNode.loadOriginalData(node);
+		// 		oldParentRecord?.loadOriginalData(oldParent);
+		// 		newParentRecord.loadOriginalData(newParent);
+		// 		treeNode.loadOriginalData(node);
 
-				this.assembleTreeNodes();
+		// 		this.assembleTreeNodes();
 
-				return commonAncestorId;
-			})
-			.finally(() => {
-				this.markLoading(false);
-			});
+		// 		return commonAncestorId;
+		// 	})
+		// 	.finally(() => {
+		// 		this.markLoading(false);
+		// 	});
 	}
 
 }
 
 
-OneBuildRepository.className = 'OneBuild';
-OneBuildRepository.type = 'onebuild';
+OneBuildRepository.className = 'OneBuild2';
+OneBuildRepository.type = 'onebuild2';
 
-export default OneBuildRepository;
+export default OneBuild2Repository;

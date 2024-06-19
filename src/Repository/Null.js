@@ -41,7 +41,7 @@ class NullRepository extends Repository {
 	 * @param {object} data - Data to immediately load
 	 * @fires load
 	 */
-	load = (data = this.data) => {
+	load(data = this.data) {
 		if (this.isDestroyed) {
 			this.throwError('this.load is no longer valid. Repository has been destroyed.');
 			return;
@@ -54,8 +54,8 @@ class NullRepository extends Repository {
 			if (data[0] instanceof Entity === false) {
 				const repository = this;
 				entities = _.map(data, (item) => {
-					const entity = Repository._createEntity(this.schema, item, repository, true);
-					this._relayEntityEvents(entity);
+					const entity = Repository._createEntity(repository.schema, item, repository, true);
+					repository._relayEntityEvents(entity);
 					return entity;
 				});
 			}
@@ -75,7 +75,7 @@ class NullRepository extends Repository {
 	 * Helper for load().
 	 * @private
 	 */
-	_updateSize = () => {
+	_updateSize() {
 		this.total = _.size(this.entities);
 	}
 
@@ -118,7 +118,7 @@ class NullRepository extends Repository {
 		return true;
 	}
 
-	_doDeleteNonPersisted = (entity) => {
+	_doDeleteNonPersisted(entity) {
 		return this._doDelete(entity);
 	}
 
