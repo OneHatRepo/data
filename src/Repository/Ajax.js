@@ -385,8 +385,8 @@ class AjaxRepository extends Repository {
 	 * @fires beforeLoad,changeData,load,error
 	 */
 	load = async (params, callback = null) => {
-		if (this.isTree && this.getRootNodes) {
-			return this.getRootNodes();
+		if (this.isTree && this.loadRootNodes) {
+			return this.loadRootNodes();
 		}
 		if (this.isDestroyed) {
 			this.throwError('this.load is no longer valid. Repository has been destroyed.');

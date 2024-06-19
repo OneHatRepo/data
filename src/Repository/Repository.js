@@ -2081,10 +2081,10 @@ export default class Repository extends EventEmitter {
 	/**
 	 * Gets the root TreeNodes
 	 */
-	getRootNodes = () => {
+	loadRootNodes = () => {
 		this.ensureTree();
 		if (this.isDestroyed) {
-			this.throwError('this.getRootNodes is no longer valid. Repository has been destroyed.');
+			this.throwError('this.loadRootNodes is no longer valid. Repository has been destroyed.');
 			return;
 		}
 

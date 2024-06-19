@@ -179,7 +179,7 @@ class OneBuildRepository extends AjaxRepository {
 
 		if (this.isLoaded && !this.eventsPaused) {
 			if (this.isTree) {
-				return this.getRootNodes(1);
+				return this.loadRootNodes(1);
 			} else {
 				return this.reload();
 			}
@@ -204,7 +204,7 @@ class OneBuildRepository extends AjaxRepository {
 		if (!this.eventsPaused) {
 			if (this.isLoaded && this.isAutoLoad) {
 				if (this.isTree) {
-					return this.getRootNodes(1).then(() => {
+					return this.loadRootNodes(1).then(() => {
 						this.emit('changeSorters');
 					});
 				} else {
@@ -583,7 +583,7 @@ class OneBuildRepository extends AjaxRepository {
 		return this._send('POST', this.name + '/getNodes', data)
 			.then((result) => {
 				if (this.debugMode) {
-					console.log('Response for getRootNodes', result);
+					console.log('Response for loadRootNodes', result);
 				}
 
 				if (this.isDestroyed) {

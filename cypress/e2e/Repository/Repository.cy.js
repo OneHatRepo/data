@@ -1302,7 +1302,7 @@ describe('Repository Base', function() {
 			})();
 		});
 
-		it('getRootNodes', function() {
+		it('loadRootNodes', function() {
 			(async () => {
 				const repository = await creatRepository();
 				repository.assembleTreeNodes();
@@ -1310,7 +1310,7 @@ describe('Repository Base', function() {
 				const
 					id1 = repository.getById(1);
 
-				const rootNodes = repository.getRootNodes();
+				const rootNodes = repository.loadRootNodes();
 				expect(rootNodes).to.be.eql([id1]);
 				
 				destoryRepository(repository);
