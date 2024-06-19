@@ -30,19 +30,20 @@ class OneBuildRepository extends AjaxRepository {
 	constructor(config = {}) {
 		super(...arguments);
 
+		const model = this._getModel();
 		const defaults = {
 
 			isAutoLoad: false,
 			isAutoSave: false,
 
 			api: {
-				get: this.name + '/get',
-				add: this.name + '/add',
-				edit: this.name + '/edit',
-				delete: this.name + '/delete',
-				batchAdd: this.name + '/batchAdd',
-				batchEdit: this.name + '/batchEdit',
-				batchDelete: this.name + '/batchDelete',
+				get: model + '/get',
+				add: model + '/add',
+				edit: model + '/edit',
+				delete: model + '/delete',
+				batchAdd: model + '/batchAdd',
+				batchEdit: model + '/batchEdit',
+				batchDelete: model + '/batchDelete',
 			},
 
 			methods: {
@@ -81,6 +82,7 @@ class OneBuildRepository extends AjaxRepository {
 
 		this.registerEvents([
 			'logout',
+			'loadRootNodes',
 		]);
 
 		await super.initialize();
@@ -144,6 +146,13 @@ class OneBuildRepository extends AjaxRepository {
 						this.throwError(error);
 						return;
 					});
+	}
+
+	_getModel() {
+		if (!this.isUnique) {
+			return this.name;
+		}
+		return this.name.match(/^([^-]*)-(.*)/)[1]; // converts 'ModelName-22f9915c-79f5-4e86-a25b-9446c7b85b63' to 'ModelName'
 	}
 
 	/**
@@ -285,7 +294,7 @@ class OneBuildRepository extends AjaxRepository {
 		}
 
 		const data = {
-			url: this.name + '/reorder',
+			url: this._getModel() + '/reorder',
 			data: qs.stringify({
 				ids,
 				dropPosition,
@@ -581,7 +590,7 @@ class OneBuildRepository extends AjaxRepository {
 			console.log('loadRootNodes', data);
 		}
 
-		return this._send('POST', this.name + '/getNodes', data)
+		return this._send('POST', this._getModel() + '/getNodes', data)
 			.then((result) => {
 				if (this.debugMode) {
 					console.log('Response for loadRootNodes', result);
@@ -626,7 +635,7 @@ class OneBuildRepository extends AjaxRepository {
 				
 				// Don't emit events for root nodes...
 				this.rehash();
-				this.emit('load', this);
+				this.emit('loadRootNodes', this);
 				// this.emit('changeData', this.entities);
 
 				return this.getBy((entity) => {
@@ -672,7 +681,7 @@ class OneBuildRepository extends AjaxRepository {
 			console.log('loadNode', data);
 		}
 
-		return this._send('POST', this.name + '/getNodes', data)
+		return this._send('POST', this._getModel() + '/getNodes', data)
 			.then((result) => {
 				if (this.debugMode) {
 					console.log('Response for loadNode', result);
@@ -755,7 +764,7 @@ class OneBuildRepository extends AjaxRepository {
 			console.log('loadChildNodes', data);
 		}
 
-		return this._send('POST', this.name + '/getNodes', data)
+		return this._send('POST', this._getModel() + '/getNodes', data)
 			.then((result) => {
 				if (this.debugMode) {
 					console.log('Response for loadChildNodes', result);
@@ -836,7 +845,7 @@ class OneBuildRepository extends AjaxRepository {
 			console.log('searchNodes', data);
 		}
 
-		return this._send('POST', this.name + '/searchNodes', data)
+		return this._send('POST', this._getModel() + '/searchNodes', data)
 			.then((result) => {
 				if (this.debugMode) {
 					console.log('Response for searchNodes', result);
@@ -897,7 +906,7 @@ class OneBuildRepository extends AjaxRepository {
 			console.log('moveTreeNode', data);
 		}
 
-		return this._send('POST', this.name + '/moveNode', data)
+		return this._send('POST', this._getModel() + '/moveNode', data)
 			.then((result) => {
 				if (this.debugMode) {
 					console.log('Response for searchNodes', result);
