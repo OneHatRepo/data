@@ -11,16 +11,25 @@ import _ from 'lodash';
  */
 export default class DateProperty extends Property {
 	
-	constructor(config = {}) {
-		super(...arguments);
+	static defaults = {
+		readFormat: 'YYYY-MM-DD',
+		displayFormat: 'MMM DD, YYYY',
+		submitFormat: 'YYYY-MM-DD',
+	};
 
-		const defaults = {
-			readFormat: 'YYYY-MM-DD',
-			displayFormat: 'MMM DD, YYYY',
-			submitFormat: 'YYYY-MM-DD',
-		};
+	constructor(config = {}, entity) {
+		config = _.merge({}, DateProperty.defaults, config);
+		super(config, entity);
+	}
 
-		_.merge(this, defaults, config);
+	/**
+	 * Returns the default configuration for this PropertyType, going up the hierarchy.
+	 * @param {Object} defaults - The default configuration to merge with
+	 * @returns {Object} The default configuration
+	 */
+	static getStaticDefaults(defaults = {}) {
+		const superDefaults = super.getStaticDefaults();
+		return _.merge({}, superDefaults, DateProperty.defaults, defaults);
 	}
 
 	/**

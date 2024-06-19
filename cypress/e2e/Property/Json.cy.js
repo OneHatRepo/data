@@ -16,6 +16,35 @@ describe('JsonProperty', function() {
 		expect(className).to.be.eq('Json');
 	});
 
+	it('getStaticDefaults', function() {
+		const
+			PropertyType = PropertyTypes['json'],
+			defaults = PropertyType.getStaticDefaults(),
+			expected = {
+				allowNull: true,
+				defaultValue: null,
+				depends: null,
+				editorType: null,
+				fieldGroup: null,
+				filterType: null,
+				isEditingDisabled: false,
+				isFilteringDisabled: false,
+				isForeignModel: false,
+				isSortable: false, // mod
+				isTempId: false,
+				isVirtual: false,
+				mapping: null,
+				name: null,
+				submitAsString: true, // mod
+				title: null,
+				tooltip: null,
+				viewerType: null,
+			};
+		// console.log(defaults);
+		// console.log(expected);
+		expect(defaults).to.be.eql(expected);
+	});
+
 	describe('parse', function() {
 
 		it('good json data', function() {

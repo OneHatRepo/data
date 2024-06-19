@@ -17,6 +17,36 @@ describe('BooleanProperty', function() {
 			expect(className).to.be.eq('Boolean');
 		});
 
+		it('getStaticDefaults', function() {
+			const
+				PropertyType = PropertyTypes['bool'],
+				defaults = PropertyType.getStaticDefaults(),
+				expected = {
+					allowNull: true,
+					defaultValue: false, // mod
+					depends: null,
+					editorType: null,
+					fieldGroup: null,
+					filterType: null,
+					isEditingDisabled: false,
+					isFilteringDisabled: false,
+					isForeignModel: false,
+					isSortable: true,
+					isTempId: false,
+					isVirtual: false,
+					mapping: null,
+					name: null,
+					submitAsString: false,
+					submitAsInt: false, // new
+					title: null,
+					tooltip: null,
+					viewerType: null,
+				};
+			// console.log(defaults);
+			// console.log(expected);
+			expect(defaults).to.be.eql(expected);
+		});
+
 		it('default value', function() {
 			const property = this.property,
 				rawValue = property.getDefaultValue();

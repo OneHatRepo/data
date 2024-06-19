@@ -12,6 +12,133 @@ import _ from 'lodash';
  */
 export default class Property extends EventEmitter {
 
+	static defaults = {
+
+		/**
+		 * @member {string} name - Could be anything, but OneHat's convention is to use
+		 * the model name pluralized and underscored, followed by two underscores, 
+		 * followed by the field name singular and underscored (e.g. 'groups_users__id')
+		 * This convention allows us to have multiple models' data in a single Entity, all flattened
+		 */
+		name: null,
+
+		/**
+		 * @member {boolean} allowNull - Is the property required to have a value? 
+		 * Defaults to true.
+		 */
+		allowNull: true,
+
+		/**
+		 * @member {function} parse - Custom parse function that overrides 
+		 * Property.parse.
+		 * Takes one argument:
+		 * - rawValue {any} - The raw value to parse
+		 * 
+		 * Note: If you use standard function notation for the parse function,
+		 * then the Property and Entity (with all other parsed properties and original data)
+		 * are available inside the function as:
+		 * - Property: this
+		 * - Entity: this.getEntity()
+		 * - Original Data: this.getEntity().getOriginalData()
+		 * 
+		 * Returns 'parsedValue'
+		 * @private
+		 */
+		// parse: null,
+
+		/**
+		 * @member {(string|string[])} depends - Other properties this property 
+		 * depends upon for its custom "parse" function. 
+		 * @private
+		 */
+		depends: null,
+		
+		/**
+		 * @member {string} mapping - JS dot-notation path
+		 * (e.g. "user.username") for how to access the rawValue which will be 
+		 * given to parse(), based on an Entity's _originalData object.
+		 * @private
+		 * @readonly
+		 */
+		mapping: null,
+		
+		/**
+		 * @member {boolean} submitAsString - Whether to submit value as a string, rather than a primitive or complex type
+		 */
+		submitAsString: false,
+
+		/**
+		 * @member {boolean} isSortable - Whether this property type is sortable
+		 */
+		isSortable: true,
+		
+		/**
+		 * @member {boolean} isTempId - Whether this property's ID is temporary
+		 */
+		isTempId: false,
+
+		// ##################################################################
+		// #### These next properties are only for OneBuild repositories ####
+		// ##################################################################
+
+		/**
+		 * @member {boolean} isVirtual - Whether this property represents a virtual field on server
+		 */
+		isVirtual: false,
+		
+		/**
+		 * @member {string} title - The human-readable title for this property
+		 */
+		title: null,
+		
+		/**
+		 * @member {string} tooltip - The human-readable tooltip for this property
+		 */
+		tooltip: null,
+		
+		/**
+		 * @member {string} fieldGroup - The field group for this property
+		 */
+		fieldGroup: null,
+
+		/**
+		 * @member {boolean} isForeignModel - Whether this property belongs to a foreign model
+		 */
+		isForeignModel: false,
+		
+		/**
+		 * @member {object} filterType - The UI filter type of this property
+		 */
+		filterType: null,
+
+		/**
+		 * @member {boolean} isFilteringDisabled - Whether this property is disabled for UI filtering
+		 */
+		isFilteringDisabled: false,
+		
+		/**
+		 * @member {object} viewerType - The UI viewer type of this property
+		 */
+		viewerType: null,
+		
+		/**
+		 * @member {object} editorType - The UI editor type of this property
+		 */
+		editorType: null,
+
+		/**
+		 * @member {boolean} isEditingDisabled - Whether this property is disabled for UI editing
+		 */
+		isEditingDisabled: false,
+
+		/**
+		 * @member {any} defaultValue - Default value for this property if none is supplied
+		 * @private
+		 */
+		defaultValue: null,
+
+	};
+
 	/**
 	 * @constructor
 	 * @param {object} config - Object with key/value pairs that define this Property
@@ -19,133 +146,7 @@ export default class Property extends EventEmitter {
 	constructor(config = {}, entity) {
 		super(...arguments);
 		
-		const defaults = {
-			/**
-			 * @member {string} name - Could be anything, but OneHat's convention is to use
-			 * the model name pluralized and underscored, followed by two underscores, 
-			 * followed by the field name singular and underscored (e.g. 'groups_users__id')
-			 * This convention allows us to have multiple models' data in a single Entity, all flattened
-			 */
-			name: null,
-
-			/**
-			 * @member {boolean} allowNull - Is the property required to have a value? 
-			 * Defaults to true.
-			 */
-			allowNull: true,
-
-			/**
-			 * @member {function} parse - Custom parse function that overrides 
-			 * Property.parse.
-			 * Takes one argument:
-			 * - rawValue {any} - The raw value to parse
-			 * 
-			 * Note: If you use standard function notation for the parse function,
-			 * then the Property and Entity (with all other parsed properties and original data)
-			 * are available inside the function as:
-			 * - Property: this
-			 * - Entity: this.getEntity()
-			 * - Original Data: this.getEntity().getOriginalData()
-			 * 
-			 * Returns 'parsedValue'
-			 * @private
-			 */
-			// parse: null,
-
-			/**
-			 * @member {(string|string[])} depends - Other properties this property 
-			 * depends upon for its custom "parse" function. 
-			 * @private
-			 */
-			depends: null,
-			
-			/**
-			 * @member {string} mapping - JS dot-notation path
-			 * (e.g. "user.username") for how to access the rawValue which will be 
-			 * given to parse(), based on an Entity's _originalData object.
-			 * @private
-			 * @readonly
-			 */
-			mapping: null,
-			
-			/**
-			 * @member {any} defaultValue - Default value for this property if none is supplied
-			 * @private
-			 */
-			defaultValue: null,
-			
-			/**
-			 * @member {boolean} submitAsString - Whether to submit value as a string, rather than a primitive or complex type
-			 */
-			submitAsString: false,
-
-			/**
-			 * @member {boolean} isSortable - Whether this property type is sortable
-			 */
-			isSortable: true,
-			
-			/**
-			 * @member {boolean} isTempId - Whether this property's ID is temporary
-			 */
-			isTempId: false,
-
-			// ##################################################################
-			// #### These next properties are only for OneBuild repositories ####
-			// ##################################################################
-
-			/**
-			 * @member {boolean} isVirtual - Whether this property represents a virtual field on server
-			 */
-			isVirtual: false,
-			
-			/**
-			 * @member {string} title - The human-readable title for this property
-			 */
-			title: null,
-			
-			/**
-			 * @member {string} tooltip - The human-readable tooltip for this property
-			 */
-			tooltip: null,
-			
-			/**
-			 * @member {string} fieldGroup - The field group for this property
-			 */
-			fieldGroup: null,
-
-			/**
-			 * @member {boolean} isForeignModel - Whether this property belongs to a foreign model
-			 */
-			isForeignModel: false,
-			
-			/**
-			 * @member {object} filterType - The UI filter type of this property
-			 */
-			filterType: null,
-
-			/**
-			 * @member {boolean} isFilteringDisabled - Whether this property is disabled for UI filtering
-			 */
-			isFilteringDisabled: false,
-			
-			/**
-			 * @member {object} viewerType - The UI viewer type of this property
-			 */
-			viewerType: null,
-			
-			/**
-			 * @member {object} editorType - The UI editor type of this property
-			 */
-			editorType: null,
-
-			/**
-			 * @member {boolean} isEditingDisabled - Whether this property is disabled for UI editing
-			 */
-			isEditingDisabled: false,
-
-		};
-		
-		_.merge(this, defaults, config);
+		_.merge(this, Property.defaults, config);
 		this._originalConfig = config;
 
 		this.registerEvents([
@@ -185,6 +186,15 @@ export default class Property extends EventEmitter {
 	//  / / __/ _ \/ __/ __/ _ \/ ___/ ___/
 	// / /_/ /  __/ /_/ /_/  __/ /  (__  )
 	// \____/\___/\__/\__/\___/_/  /____/
+
+	/**
+	 * 
+	 * @param {object} defaults - Optional defaults to merge with Property.defaults
+	 * @returns {object} Merged defaults
+	 */
+	static getStaticDefaults(defaults = {}) {
+		return _.merge({}, Property.defaults, defaults);
+	}
 
 
 	/**

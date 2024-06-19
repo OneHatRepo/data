@@ -11,6 +11,7 @@ import IntegerProperty from './Integer.js';
 import JsonProperty, { TagProperty } from './Json.js';
 import PercentProperty from './Percent.js';
 import PercentIntProperty from './PercentInt.js';
+import Property from './Property.js';
 import StringProperty from './String.js';
 import TimeProperty from './Time.js';
 import UuidProperty from './Uuid.js';
@@ -27,6 +28,7 @@ const PropertyTypes = {
 	[JsonProperty.type]: JsonProperty,
 	[PercentProperty.type]: PercentProperty,
 	[PercentIntProperty.type]: PercentIntProperty,
+	[Property.type]: Property,
 	[StringProperty.type]: StringProperty,
 	[TagProperty.type]: TagProperty,
 	[TimeProperty.type]: TimeProperty,

@@ -274,6 +274,12 @@ export default class Schema extends EventEmitter {
 			return;
 		}
 
+		// In here, we're looking for default values for each property
+		// based entirely on the property definition or property type.
+		// The property has not been intantiatiated in either case, 
+		// so we don't have access to the entity's data.
+		// Unfortunately, defaults get applied at instantiation time...
+		
 		const found = {};
 		_.each(this.model.properties, (property) => {
 			let defaultValue = null;
@@ -282,14 +288,11 @@ export default class Schema extends EventEmitter {
 			} else {
 				// Look in the property types for a default value
 				let propertyType = PropertyTypes[property.type];
-				if (!_.isNil(propertyType)) {
-					defaultValue = propertyType.defaultValue;
-				} else {
+				if (!propertyType) {
 					propertyType = PropertyTypes['string'];
-					if (!_.isNil(propertyType.defaultValue)) {
-						defaultValue = propertyType.defaultValue;
-					}
 				}
+				const staticDefaults = propertyType.getStaticDefaults();
+				defaultValue = staticDefaults.defaultValue;
 			}
 			if (_.isFunction(defaultValue)) {
 				defaultValue = defaultValue();

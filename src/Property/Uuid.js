@@ -14,11 +14,6 @@ import _ from 'lodash';
  * @extends Property
  */
 export default class UuidProperty extends Property {
-	
-	constructor(config = {}) {
-		super(...arguments);
-		_.merge(this, config);
-	}
 
 	/**
 	 * Gets default value.

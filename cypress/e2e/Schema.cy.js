@@ -52,8 +52,8 @@ describe('Schema', function() {
 				users__last_login: null,
 			};
 
-		console.log('defaultValues', defaultValues);
-		console.log('expectedDefaultValues', expectedDefaultValues);
+		// console.log('defaultValues', defaultValues);
+		// console.log('expectedDefaultValues', expectedDefaultValues);
 
 		expect(defaultValues).to.be.eql(expectedDefaultValues);
 	});

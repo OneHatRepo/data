@@ -15,6 +15,39 @@ describe('DateProperty', function() {
 		expect(className).to.be.eq('Date');
 	});
 
+	it('getStaticDefaults', function() {
+		const
+			PropertyType = PropertyTypes['date'],
+			defaults = PropertyType.getStaticDefaults(),
+			expected = {
+				allowNull: true,
+				defaultValue: null,
+				depends: null,
+				editorType: null,
+				fieldGroup: null,
+				filterType: null,
+				isEditingDisabled: false,
+				isFilteringDisabled: false,
+				isForeignModel: false,
+				isSortable: true,
+				isTempId: false,
+				isVirtual: false,
+				mapping: null,
+				name: null,
+				submitAsString: false,
+				title: null,
+				tooltip: null,
+				viewerType: null,
+
+				readFormat: 'YYYY-MM-DD', // new
+				displayFormat: 'MMM DD, YYYY', // new
+				submitFormat: 'YYYY-MM-DD', // new
+			};
+		// console.log(defaults);
+		// console.log(expected);
+		expect(defaults).to.be.eql(expected);
+	});
+
 	it('overrides displayFormat', function() {
 		const definition = {
 				type: 'date',

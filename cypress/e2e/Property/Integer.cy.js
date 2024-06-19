@@ -19,6 +19,37 @@ describe('IntegerProperty', function() {
 			expect(className).to.be.eq('Integer');
 		});
 
+		it('getStaticDefaults', function() {
+			const
+				PropertyType = PropertyTypes['int'],
+				defaults = PropertyType.getStaticDefaults(),
+				expected = {
+					allowNull: true,
+					defaultValue: null,
+					depends: null,
+					editorType: null,
+					fieldGroup: null,
+					filterType: null,
+					isEditingDisabled: false,
+					isFilteringDisabled: false,
+					isForeignModel: false,
+					isSortable: true,
+					isTempId: false,
+					isVirtual: false,
+					mapping: null,
+					name: null,
+					submitAsString: false,
+					title: null,
+					tooltip: null,
+					viewerType: null,
+
+					idStartsAt: 100 * 1000 * 1000 * 1000, // new
+				};
+			// console.log(defaults);
+			// console.log(expected);
+			expect(defaults).to.be.eql(expected);
+		});
+
 		it('newId', function() {
 			const id1 = this.property.newId();
 			expect(id1.valueOf()).to.be.eq(this.property.idStartsAt);

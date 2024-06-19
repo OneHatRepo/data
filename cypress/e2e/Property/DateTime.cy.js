@@ -15,6 +15,39 @@ describe('DateTimeProperty', function() {
 		expect(className).to.be.eq('DateTime');
 	});
 
+	it('getStaticDefaults', function() {
+		const
+			PropertyType = PropertyTypes['datetime'],
+			defaults = PropertyType.getStaticDefaults(),
+			expected = {
+				allowNull: true,
+				defaultValue: null,
+				depends: null,
+				editorType: null,
+				fieldGroup: null,
+				filterType: null,
+				isEditingDisabled: false,
+				isFilteringDisabled: false,
+				isForeignModel: false,
+				isSortable: true,
+				isTempId: false,
+				isVirtual: false,
+				mapping: null,
+				name: null,
+				submitAsString: false,
+				title: null,
+				tooltip: null,
+				viewerType: null,
+
+				readFormat: 'YYYY-MM-DDTHH:mm:ss', // new
+				displayFormat: 'MMM DD, YYYY - HH:mm:ss', // new
+				submitFormat: 'YYYY-MM-DD HH:mm:ss', // new
+			};
+		// console.log(defaults);
+		// console.log(expected);
+		expect(defaults).to.be.eql(expected);
+	});
+
 	describe('parse', function() {
 
 		it('parse YYYY-MM-DD', function() {

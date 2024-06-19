@@ -18,6 +18,37 @@ describe('FloatProperty', function() {
 			expect(className).to.be.eq('Float');
 		});
 
+		it('getStaticDefaults', function() {
+			const
+				PropertyType = PropertyTypes['float'],
+				defaults = PropertyType.getStaticDefaults(),
+				expected = {
+					allowNull: true,
+					defaultValue: null,
+					depends: null,
+					editorType: null,
+					fieldGroup: null,
+					filterType: null,
+					isEditingDisabled: false,
+					isFilteringDisabled: false,
+					isForeignModel: false,
+					isSortable: true,
+					isTempId: false,
+					isVirtual: false,
+					mapping: null,
+					name: null,
+					submitAsString: false,
+					title: null,
+					tooltip: null,
+					viewerType: null,
+
+					precision: 2, // new
+				};
+			// console.log(defaults);
+			// console.log(expected);
+			expect(defaults).to.be.eql(expected);
+		});
+
 		// it('default value', function() {
 		// 	const property = this.property,
 		// 		rawValue = property.getDefaultValue();

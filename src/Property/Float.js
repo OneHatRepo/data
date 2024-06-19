@@ -10,15 +10,24 @@ import _ from 'lodash';
  */
 export default class FloatProperty extends Property {
 	
-	constructor(config = {}) {
-		super(...arguments);
+	static defaults = {
+		precision: 2,
+		// defaultValue: 0.00,
+	};
 
-		const defaults = {
-			precision: 2,
-			// defaultValue: 0.00,
-		};
+	constructor(config = {}, entity) {
+		config = _.merge({}, FloatProperty.defaults, config);
+		super(config, entity);
+	}
 
-		_.merge(this, defaults, config);
+	/**
+	 * Returns the default configuration for this PropertyType, going up the hierarchy.
+	 * @param {Object} defaults - The default configuration to merge with
+	 * @returns {Object} The default configuration
+	 */
+	static getStaticDefaults(defaults = {}) {
+		const superDefaults = super.getStaticDefaults();
+		return _.merge({}, superDefaults, FloatProperty.defaults, defaults);
 	}
 
 	setPrecision(precision) {

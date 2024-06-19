@@ -15,6 +15,39 @@ describe('TimeProperty', function() {
 		expect(className).to.be.eq('Time');
 	});
 
+	it('getStaticDefaults', function() {
+		const
+			PropertyType = PropertyTypes['time'],
+			defaults = PropertyType.getStaticDefaults(),
+			expected = {
+				allowNull: true,
+				defaultValue: null,
+				depends: null,
+				editorType: null,
+				fieldGroup: null,
+				filterType: null,
+				isEditingDisabled: false,
+				isFilteringDisabled: false,
+				isForeignModel: false,
+				isSortable: true,
+				isTempId: false,
+				isVirtual: false,
+				mapping: null,
+				name: null,
+				submitAsString: false,
+				title: null,
+				tooltip: null,
+				viewerType: null,
+
+				readFormat: 'HH:mm:ss', // new
+				displayFormat: 'HH:mm:ss', // new
+				submitFormat: 'HH:mm:ss', // new
+			};
+		// console.log(defaults);
+		// console.log(expected);
+		expect(defaults).to.be.eql(expected);
+	});
+
 	describe('parse', function() {
 
 		it('parse HH:mm:ss', function() {

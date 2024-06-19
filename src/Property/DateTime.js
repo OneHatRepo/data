@@ -9,18 +9,27 @@ import _ from 'lodash';
  */
 export default class DateTimeProperty extends DateProperty {
 
-	constructor(config = {}) {
-		super(...arguments);
+	static defaults = {
+		readFormat: 'YYYY-MM-DDTHH:mm:ss', // ISO 8601
+		displayFormat: 'MMM DD, YYYY - HH:mm:ss',
+		submitFormat: 'YYYY-MM-DD HH:mm:ss',
+	};
 
-		const defaults = {
-			readFormat: 'YYYY-MM-DDTHH:mm:ss', // ISO 8601
-			displayFormat: 'MMM DD, YYYY - HH:mm:ss',
-			submitFormat: 'YYYY-MM-DD HH:mm:ss',
-		};
-
-		_.merge(this, defaults, config);
+	constructor(config = {}, entity) {
+		config = _.merge({}, DateTimeProperty.defaults, config);
+		super(config, entity);
 	}
-	
+
+	/**
+	 * Returns the default configuration for this PropertyType, going up the hierarchy.
+	 * @param {Object} defaults - The default configuration to merge with
+	 * @returns {Object} The default configuration
+	 */
+	static getStaticDefaults(defaults = {}) {
+		const superDefaults = super.getStaticDefaults();
+		return _.merge({}, superDefaults, DateTimeProperty.defaults, defaults);
+	}
+
 };
 
 DateTimeProperty.className = 'DateTime';

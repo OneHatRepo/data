@@ -21,6 +21,35 @@ describe('Property', function() {
 			expect(this.property.getClassName()).to.be.eq('Integer');
 		});
 
+		it('getStaticDefaults', function() {
+			const
+				PropertyType = PropertyTypes['auto'],
+				defaults = PropertyType.getStaticDefaults(),
+				expected = {
+					allowNull: true,
+					defaultValue: null,
+					depends: null,
+					editorType: null,
+					fieldGroup: null,
+					filterType: null,
+					isEditingDisabled: false,
+					isFilteringDisabled: false,
+					isForeignModel: false,
+					isSortable: true,
+					isTempId: false,
+					isVirtual: false,
+					mapping: null,
+					name: null,
+					submitAsString: false,
+					title: null,
+					tooltip: null,
+					viewerType: null,
+				};
+			// console.log(defaults);
+			// console.log(expected);
+			expect(defaults).to.be.eql(expected);
+		});
+
 	});
 
 	describe('getters', function() {

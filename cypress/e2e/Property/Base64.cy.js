@@ -10,10 +10,44 @@ describe('Base64Property', function() {
 		this.property = new Property(definition);
 	});
 
-	it('className', function() {
-		const className = this.property.getClassName();
-		expect(className).to.be.eq('Base64');
+	describe('class', function() {
+
+		it('className', function() {
+			const className = this.property.getClassName();
+			expect(className).to.be.eq('Base64');
+		});
+
+		it('getStaticDefaults', function() {
+			const
+				PropertyType = PropertyTypes['base64'],
+				defaults = PropertyType.getStaticDefaults(),
+				expected = {
+					allowNull: true,
+					defaultValue: null,
+					depends: null,
+					editorType: null,
+					fieldGroup: null,
+					filterType: null,
+					isEditingDisabled: false,
+					isFilteringDisabled: false,
+					isForeignModel: false,
+					isSortable: false, // mod
+					isTempId: false,
+					isVirtual: false,
+					mapping: null,
+					name: null,
+					submitAsString: false,
+					title: null,
+					tooltip: null,
+					viewerType: null,
+				};
+			// console.log(defaults);
+			// console.log(expected);
+			expect(defaults).to.be.eql(expected);
+		});
+		
 	});
+
 
 	describe('custom functions', function() {
 

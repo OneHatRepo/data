@@ -17,6 +17,47 @@ describe('CurrencyProperty', function() {
 			expect(className).to.be.eq('Currency');
 		});
 
+		it('getStaticDefaults', function() {
+			const
+				PropertyType = PropertyTypes['currency'],
+				defaults = PropertyType.getStaticDefaults(),
+				expected = {
+					allowNull: true,
+					defaultValue: 0.00, // mod
+					depends: null,
+					editorType: null,
+					fieldGroup: null,
+					filterType: null,
+					isEditingDisabled: false,
+					isFilteringDisabled: false,
+					isForeignModel: false,
+					isSortable: true,
+					isTempId: false,
+					isVirtual: false,
+					mapping: null,
+					name: null,
+					submitAsString: true, // mod
+					title: null,
+					tooltip: null,
+					viewerType: null,
+
+					displayOptions: {
+						symbol: "$",
+						format: '%s%v',
+						decimal: '.' ,
+						thousand: ',',
+						precision: 2,
+						grouping: 3,
+						stripZeros: false,
+						fallback: 0,
+					},
+					omitZeros: false, // new
+				};
+			// console.log(defaults);
+			// console.log(expected);
+			expect(defaults).to.be.eql(expected);
+		});
+
 		it('default value', function() {
 			expect(this.property.submitValue).to.be.eq('0.00');
 

@@ -9,16 +9,25 @@ import _ from 'lodash';
  */
 export default class TimeProperty extends DateProperty {
 
-	constructor(config = {}) {
-		super(...arguments);
+	static defaults = {
+		readFormat: 'HH:mm:ss',
+		displayFormat: 'HH:mm:ss',
+		submitFormat: 'HH:mm:ss',
+	};
 
-		const defaults = {
-			readFormat: 'HH:mm:ss',
-			displayFormat: 'HH:mm:ss',
-			submitFormat: 'HH:mm:ss',
-		};
+	constructor(config = {}, entity) {
+		config = _.merge({}, TimeProperty.defaults, config);
+		super(config, entity);
+	}
 
-		_.merge(this, defaults, config);
+	/**
+	 * Returns the default configuration for this PropertyType, going up the hierarchy.
+	 * @param {Object} defaults - The default configuration to merge with
+	 * @returns {Object} The default configuration
+	 */
+	static getStaticDefaults(defaults = {}) {
+		const superDefaults = super.getStaticDefaults();
+		return _.merge({}, superDefaults, TimeProperty.defaults, defaults);
 	}
 	
 };

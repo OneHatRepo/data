@@ -8,10 +8,6 @@ import _ from 'lodash';
  * @extends Base64Property
  */
 export default class FileProperty extends Base64Property {
-	constructor(config = {}) {
-		super(...arguments);
-		_.merge(this, config);
-	}
  
 	get urlencoded() {
 		return encodeURIComponent(this.displayValue);

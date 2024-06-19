@@ -10,26 +10,35 @@ import _ from 'lodash';
  */
 export default class CurrencyProperty extends Property {
 	
-	constructor(config = {}) {
-		super(...arguments);
+	static defaults = {
+		displayOptions: {
+			symbol: "$",
+			format: '%s%v',
+			decimal: '.' ,
+			thousand: ',',
+			precision: 2,
+			grouping: 3,
+			stripZeros: false,
+			fallback: 0,
+		},
+		submitAsString: true, // NOTE, we want to use the accounting.toFixed() method by default
+		defaultValue: 0.00,
+		omitZeros: false, // Should we omit any .00 at the end?
+	};
 
-		const defaults = {
-			displayOptions: {
-				symbol: "$",
-				format: '%s%v',
-				decimal: '.' ,
-				thousand: ',',
-				precision: 2,
-				grouping: 3,
-				stripZeros: false,
-				fallback: 0,
-			},
-			submitAsString: true, // NOTE, we want to use the accounting.toFixed() method by default
-			defaultValue: 0.00,
-			omitZeros: false, // Should we omit any .00 at the end?
-		};
+	constructor(config = {}, entity) {
+		config = _.merge({}, CurrencyProperty.defaults, config);
+		super(config, entity);
+	}
 
-		_.merge(this, defaults, config);
+	/**
+	 * Returns the default configuration for this PropertyType, going up the hierarchy.
+	 * @param {Object} defaults - The default configuration to merge with
+	 * @returns {Object} The default configuration
+	 */
+	static getStaticDefaults(defaults = {}) {
+		const superDefaults = super.getStaticDefaults();
+		return _.merge({}, superDefaults, CurrencyProperty.defaults, defaults);
 	}
 
 	parse(value) {

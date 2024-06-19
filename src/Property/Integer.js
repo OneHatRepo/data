@@ -12,15 +12,24 @@ let lastId = 0;
  */
 export default class IntegerProperty extends Property {
 
-	constructor(config = {}) {
-		super(...arguments);
+	static defaults = {
+		// defaultValue: 0,
+		idStartsAt: 100 * 1000 * 1000 * 1000, // 100 billion
+	};
 
-		const defaults = {
-			// defaultValue: 0,
-			idStartsAt: 100 * 1000 * 1000 * 1000, // 100 billion
-		};
-		
-		_.merge(this, defaults, config);
+	constructor(config = {}, entity) {
+		config = _.merge({}, IntegerProperty.defaults, config);
+		super(config, entity);
+	}
+
+	/**
+	 * Returns the default configuration for this PropertyType, going up the hierarchy.
+	 * @param {Object} defaults - The default configuration to merge with
+	 * @returns {Object} The default configuration
+	 */
+	static getStaticDefaults(defaults = {}) {
+		const superDefaults = super.getStaticDefaults();
+		return _.merge({}, superDefaults, IntegerProperty.defaults, defaults);
 	}
 
 	parse(value) {

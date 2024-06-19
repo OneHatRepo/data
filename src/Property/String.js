@@ -12,11 +12,6 @@ const TEMP_PREFIX = 'TEMP-';
  */
 export default class StringProperty extends Property {
 
-	constructor(config = {}) {
-		super(...arguments);
-		_.merge(this, config);
-	}
-
 	/**
 	 * Parses value to string.
 	 * - Strings will pass through unaltered.

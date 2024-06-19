@@ -11,13 +11,23 @@ import _ from 'lodash';
  */
 export default class Base64Property extends Property {
 
-	constructor(config = {}) {
-		super(...arguments);
-		const defaults = {
-			isSortable: false,
-		};		
-		_.merge(this, defaults, config);
-		this._originalConfig = config;
+	static defaults = {
+		isSortable: false,
+	};
+
+	constructor(config = {}, entity) {
+		config = _.merge({}, Base64Property.defaults, config);
+		super(config, entity);
+	}
+
+	/**
+	 * Returns the default configuration for this PropertyType, going up the hierarchy.
+	 * @param {Object} defaults - The default configuration to merge with
+	 * @returns {Object} The default configuration
+	 */
+	static getStaticDefaults(defaults = {}) {
+		const superDefaults = super.getStaticDefaults();
+		return _.merge({}, superDefaults, Base64Property.defaults, defaults);
 	}
 
 	encode(value) {

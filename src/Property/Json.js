@@ -26,15 +26,24 @@ import _ from 'lodash';
  */
 export default class JsonProperty extends Property {
 	
-	constructor(config = {}) {
-		super(...arguments);
+	static defaults = {
+		submitAsString: true,
+		isSortable: false,
+	};
 
-		const defaults = {
-			submitAsString: true,
-			isSortable: false,
-		};
+	constructor(config = {}, entity) {
+		config = _.merge({}, JsonProperty.defaults, config);
+		super(config, entity);
+	}
 
-		_.merge(this, defaults, config);
+	/**
+	 * Returns the default configuration for this PropertyType, going up the hierarchy.
+	 * @param {Object} defaults - The default configuration to merge with
+	 * @returns {Object} The default configuration
+	 */
+	static getStaticDefaults(defaults = {}) {
+		const superDefaults = super.getStaticDefaults();
+		return _.merge({}, superDefaults, JsonProperty.defaults, defaults);
 	}
 
 	/**
