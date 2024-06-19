@@ -471,11 +471,11 @@ describe('Entity', function() {
 		});
 
 		it('hash', function() {
-			expect(this.entity.hash).to.be.eq(5365087438356619);
+			expect(this.entity.hash).to.be.eq('40aa53cc3f0cffef350ce784537eebeacf270b45');
 
 			// change a property & check again
 			this.entity.foo = 3;
-			expect(this.entity.hash).to.be.eq(358445507972157);
+			expect(this.entity.hash).to.be.eq('6b8d327b573da8133ec2ff39acc9e15efd152afb');
 		});
 
 	});

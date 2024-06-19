@@ -1,6 +1,6 @@
 /** @module Repository */
 
-import EventEmitter from '../EventEmitter.js';
+import EventEmitter from '@onehat/events';
 import Entity from '../Entity/Entity.js'
 import PropertyTypes from '../Property/index.js';
 import {
@@ -302,6 +302,9 @@ export default class Repository extends EventEmitter {
 			'reloadEntity',
 			'save',
 		]);
+
+		// create error listener to block Node from throwing the Error. https://nodejs.org/dist/v11.13.0/docs/api/events.html#events_emitter_emit_eventname_args:~:text=Error%20events-,%23,-When%20an%20error
+		this.on('error', () => {});
 	}
 
 	/**
@@ -2257,11 +2260,6 @@ export default class Repository extends EventEmitter {
 			this.errorHandler(obj, data);
 		} else {
 			this.emit('error', obj, data);
-			let message = obj;
-			if (data) {
-				message = JSON.stringify({ obj, data });
-			}
-			throw Error(message);
 		}
 	}
 

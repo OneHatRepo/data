@@ -231,29 +231,33 @@ describe('Repository Base', function() {
 			expect(didFireChangeSorters).to.be.true;
 		});
 
-		it.only('sort by non-existant field', function() {
+		it('sort by non-existant field', function() {
 			let failed = false,
 				message;
-			try {
-				this.repository.sort('foo');
-			} catch (e) {
+
+			this.repository.on('error', (msg) => {
 				failed = true;
-				message = e.message;
-			}
+				message = msg;
+			});
+			this.repository.sort('foo');
+
 			expect(failed).to.be.true;
-			debugger;
 			expect(message).to.be.match(/Sorting property does not exist/);
 		});
 
 		it('sort by non-sortable field', function() {
-			let didError = false;
-			try {
-				this.repository.sort('json');
-			} catch(err) {
-				expect(err).to.match(/Sorting property type is not sortable/);
-				didError = true;
-			}		
-			expect(didError).to.be.true;
+
+			let failed = false,
+				message;
+
+			this.repository.on('error', (msg) => {
+				failed = true;
+				message = msg;
+			});
+			this.repository.sort('json');
+
+			expect(failed).to.be.true;
+			expect(message).to.be.match(/Sorting property type is not sortable/);
 		});
 
 		it('getSortField', function() {
