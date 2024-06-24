@@ -1787,7 +1787,7 @@ class Entity extends EventEmitter {
 	 * Helper to make sure this Repository is a tree
 	 * @private
 	 */
-	ensureTree = async () => {
+	ensureTree = () => {
 		if (!this.isTree) {
 			this.throwError('This Entity is not a tree!');
 			return false;

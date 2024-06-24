@@ -1353,6 +1353,9 @@ export default class Repository extends EventEmitter {
 			this.throwError('this.getById is no longer valid. Repository has been destroyed.');
 			return;
 		}
+		if (_.isNil(id)) {
+			return null;
+		}
 		return this.getFirstBy(entity => entity.id === id);
 	}
 
@@ -1366,12 +1369,15 @@ export default class Repository extends EventEmitter {
 			this.throwError('this.getIxById is no longer valid. Repository has been destroyed.');
 			return;
 		}
+		if (_.isNil(id)) {
+			return null;
+		}
 
 		const ix = this.entities.findIndex((entity) => entity.id === id);
 		if (ix >= 0) {
 			return ix;
 		}
-		return undefined;
+		return null;
 	}
 
 	/**
