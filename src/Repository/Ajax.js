@@ -22,7 +22,7 @@ class AjaxRepository extends Repository {
 			isRemote: true,
 			isRemoteFilter: true,
 			isRemoteSort: true,
-			isPaginated: true,
+			isPaginated: !config.schema.model.isTree, // If it's a tree, don't paginate
 
 			/**
 			 * @member {object} api - List of relative URIs to API endpoints.
