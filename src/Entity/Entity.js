@@ -1761,9 +1761,9 @@ class Entity extends EventEmitter {
 			parentIds.push(parent.id);
 			parent = parent.parent;
 		}
-		if (parent.id !== this.id) {
+		// if (parent.id !== this.id) {
 			parentIds.push(parent.id); // add root id
-		}
+		// }
 
 		return parentIds.reverse().join('/');
 	}
