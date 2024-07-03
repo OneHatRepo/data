@@ -32,7 +32,7 @@ export default class Command extends EventEmitter {
 	}
 
 	useDefaultHandler() {
-		this.on('handleServerResponse', defaultHandler);
+		this.on('handleServerResponse', this.defaultHandler);
 	}
 
 	defaultHandler(entity) {
