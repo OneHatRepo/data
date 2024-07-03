@@ -31,6 +31,32 @@ export default class Command extends EventEmitter {
 		this.setCheckReturnValues();
 	}
 
+	useDefaultHandler() {
+		this.on('handleServerResponse', defaultHandler);
+	}
+
+	defaultHandler(entity) {
+		
+		const response = entity.prop.response.parsedValue;
+
+		if (!response || !response.status) {
+			entity.isError = true;
+			entity.errorMsg = 'No discernable response from server.';
+			entity.handled = true;
+			return;
+		}
+
+		if (response.status !== 'OK') {
+			entity.isError = true;
+			entity.errorMsg = 'Encountered server error(s): ' + response.message;
+			entity.handled = true;
+			return;
+		}
+			
+		// Success!
+		entity.handled = true;
+	}
+
 	/**
 	 * Register a handler for this command.
 	 * @param {function} handler - The event handler

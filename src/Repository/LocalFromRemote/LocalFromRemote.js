@@ -214,11 +214,15 @@ class LocalFromRemoteRepository extends EventEmitter {
 	/**
 	 * Registers multiple commands for when syncing in MODE_COMMAND_QUEUE mode.
 	 */
-	registerCommands(commands) {
+	registerCommands(commands, useDefaultHandler = true) {
 		const oThis = this;
 		_.each(commands, (name) => {
 			if (!oThis.isRegisteredCommand(name)) {
-				oThis.commands[name] = new Command(name);
+				const command = new Command(name);
+				if (useDefaultHandler) {
+					command.useDefaultHandler();
+				}
+				oThis.commands[name] = command;
 			}
 		});
 	}
