@@ -288,6 +288,17 @@ class AjaxRepository extends Repository {
 	}
 
 	/**
+	 * Returns current value of base query param
+	 * @param {string} name - Param name
+	 */
+	getBaseParam(name) {
+		if (!this.hasBaseParam(name)) {
+			return null;
+		}
+		return this._baseParams[name];
+	}
+
+	/**
 	 * Determines if query param exists
 	 * @param {string} name - Param name
 	 */
