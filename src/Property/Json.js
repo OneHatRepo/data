@@ -87,7 +87,7 @@ export default class JsonProperty extends Property {
 		if (_.isNil(this.parsedValue)) {
 			return null;
 		}
-		return this.parsedValue;
+		return JSON.stringify(this.parsedValue);
 	}
 
 	get json() {
