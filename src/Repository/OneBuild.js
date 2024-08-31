@@ -44,6 +44,7 @@ class OneBuildRepository extends AjaxRepository {
 				batchAdd: model + '/batchAdd',
 				batchEdit: model + '/batchEdit',
 				batchDelete: model + '/batchDelete',
+				getLastModifiedDate: model + '/getLastModifiedDate',
 			},
 
 			methods: {
@@ -435,6 +436,53 @@ class OneBuildRepository extends AjaxRepository {
 						entity.isPersisted = true;
 						entity.isRemotePhantom = false;
 						return entity;
+					})
+					.finally(() => {
+						this.markLoading(false);
+					});
+
+	}
+
+	async getLastModifiedDate() {
+		if (this.isDestroyed) {
+			this.throwError('this.getLastModifiedDate is no longer valid. Repository has been destroyed.');
+			return;
+		}
+		if (!this.api.getLastModifiedDate) {
+			this.throwError('No "getLastModifiedDate" api endpoint defined.');
+			return;
+		}
+
+		this.markLoading();
+
+		if (this.debugMode) {
+			console.log('getLastModifiedDate');
+		}
+
+		return this._send(this.methods.get, this.api.getLastModifiedDate, this._baseParams)
+					.then(result => {
+						if (this.debugMode) {
+							console.log('Response for getLastModifiedDate for ' + this.name, result);
+						}
+
+						if (this.isDestroyed) {
+							// If this repository gets destroyed before it has a chance
+							// to process the Ajax request, just ignore the response.
+							return;
+						}
+						
+						const {
+							root,
+							success,
+							total,
+							message
+						} = this._processServerResponse(result);
+
+						if (!success) {
+							this.throwError(message);
+							return;
+						}
+						return root;
 					})
 					.finally(() => {
 						this.markLoading(false);

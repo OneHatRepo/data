@@ -512,6 +512,10 @@ class LocalFromRemoteRepository extends EventEmitter {
 		return this.lastSync;
 	}
 
+	getLastModifiedDate() {
+		return this.remote.getLastModifiedDate();
+	}
+
 	/**
 	 * Sets lastSync to now and saves to local storage medium, if possible.
 	 * @private
