@@ -1480,6 +1480,18 @@ export default class Repository extends EventEmitter {
 	/* */
 
 	/**
+	 * Determines whether this repository is bound to the schema
+	 * @return {boolean}
+	 */
+	getIsBound() {
+		if (this.isDestroyed) {
+			this.throwError('this.getIsBound is no longer valid. Repository has been destroyed.');
+			return;
+		}
+		return this.schema.getBoundRepository() === this;
+	}
+
+	/**
 	 * Get all dirty (having unsaved changes) Entities
 	 * @param {array} entities - Array of entities to filter. Optional. Defaults to this.entities
 	 * @return {Entity[]} Array of dirty Entities, or []
@@ -1635,6 +1647,19 @@ export default class Repository extends EventEmitter {
 			return this.entities.indexOf(idOrEntity) !== -1;
 		}
 		return !_.isNil(this.getById(idOrEntity));
+	}
+
+	/**
+	 * Getter of isBound for this Repository.
+	 * Returns true if this repository is bound to the schema
+	 * @return {boolean} isBound
+	 */
+	get isBound() {
+		if (this.isDestroyed) {
+			this.throwError('this.isBound is no longer valid. Repository has been destroyed.');
+			return;
+		}
+		return this.getIsBound();
 	}
 
 	/**

@@ -811,6 +811,35 @@ describe('Repository Base', function() {
 			expect(result).to.be.true;
 		});
 
+		it('getIsBound', function() {
+
+			// try with bound schema
+			expect(this.repository.getIsBound()).to.be.true;
+
+			// try with unbound schema
+			const repository = new this.Repository({
+				id: 'foo',
+				schema: this.schema,
+			});
+			repository.initialize();
+			expect(repository.getIsBound()).to.be.false;
+			
+		});
+
+		it('isBound', function() {
+
+			// try with bound schema
+			expect(this.repository.isBound).to.be.true;
+
+			// try with unbound schema
+			const repository = new this.Repository({
+				id: 'foo',
+				schema: this.schema,
+			});
+			repository.initialize();
+			expect(repository.isBound).to.be.false;
+			
+		});
 	});
 
 	describe('updating', function() {
