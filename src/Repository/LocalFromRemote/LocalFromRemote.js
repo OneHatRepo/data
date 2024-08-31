@@ -517,6 +517,10 @@ class LocalFromRemoteRepository extends EventEmitter {
 	 * @private
 	 */
 	async _setLastSync() {
+		if (!this.local.entities.length) {
+			return; // don't set sync date if nothing was synced
+		}
+
 		const now = moment();
 		this.lastSync = now;
 		if (this.local.setLastSync) {
