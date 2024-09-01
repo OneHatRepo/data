@@ -729,7 +729,19 @@ export default class Repository extends EventEmitter {
 			}];
 		} else if (_.isArray(arg1)) {
 			newFilters = arg1;
-		} else if (_.isObject(arg1)) { // includes functions
+		} else if (_.isPlainObject(arg1)) {
+			if (arg1.name) {
+				// like { name: 'first_name', value: 'Steve' }
+				newFilters = [arg1];
+			} else {
+				// like { first_name: 'Steve' }
+				const name = Object.keys(arg1)[0];
+				newFilters = [{
+					name,
+					value: arg1[name],
+				}];
+			}
+		} else if (_.isFunction(arg1)) {
 			newFilters = [arg1];
 		}
 

@@ -325,14 +325,24 @@ describe('Repository Base', function() {
 			expect(filter.value).to.be.eq('1');
 		});
 	
-		it('filter - object', function() {
+		it.only('filter - object', function() {
+			// two possible ways to call filter with an object
+			// 1. filter({ name: 'key', value: '1' });
 			this.repository.filter({
 				name: 'key',
 				value: '1',
 			});
-			const filter = this.repository.filters[0];
-			expect(filter.name).to.be.eq('key');
-			expect(filter.value).to.be.eq('1');
+			const filter1 = this.repository.filters[0];
+			expect(filter1.name).to.be.eq('key');
+			expect(filter1.value).to.be.eq('1');
+
+			// 2. filter({ key: '1' });
+			this.repository.filter({
+				key: '1',
+			});
+			const filter2 = this.repository.filters[0];
+			expect(filter2.name).to.be.eq('key');
+			expect(filter2.value).to.be.eq('1');
 		});
 	
 		it('filter - array', function() {
