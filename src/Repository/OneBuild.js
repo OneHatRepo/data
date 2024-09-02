@@ -238,17 +238,26 @@ class OneBuildRepository extends AjaxRepository {
 	 */
 	_processServerResponse(result) {
 
+		const retNull = {
+			root: null,
+			success: false,
+			total: 0,
+			message: null,
+		};
+
 		if (result === false) { // e.g. 401 error
-			return {
-				root: null,
-				success: false,
-				total: 0,
-				message: null,
-			};
+			return retNull;
+		}
+
+		// use try/catch in case the response is not JSON
+		let response;
+		try {
+			response = _.isPlainObject(result.data) ? result.data : this.reader.read(result.data);
+		} catch(e) {
+			return retNull;
 		}
 
 		const
-			response = _.isPlainObject(result.data) ? result.data : this.reader.read(result.data),
 			root = response[this.rootProperty],
 			success = response[this.successProperty],
 			total = response[this.totalProperty],
@@ -543,22 +552,22 @@ class OneBuildRepository extends AjaxRepository {
 			return;
 		}
 
+		const data = {
+			url: 'Users/apiLogout',
+			method: 'POST',
+			baseURL: this.api.baseURL,
+			headers: _.merge({
+				'Content-Type': 'application/json',
+				Accept: 'application/json',
+			}, this.headers),
+			timeout: this.timeout,
+		};
+
 		if (this.debugMode) {
-			console.log('logout');
+			console.log('logout', data);
 		}
 
-		const headers = _.merge({
-							'Content-Type': 'application/json',
-							Accept: 'application/json',
-						}, this.headers);
-
-		return this.axios({
-				url: 'Users/apiLogout',
-				method: 'POST',
-				baseURL: this.api.baseURL,
-				headers,
-				timeout: this.timeout,
-			})
+		return this.axios(data)
 			.then((result) => {
 				if (this.debugMode) {
 					console.log('logout response', result);
