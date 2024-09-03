@@ -340,7 +340,9 @@ class LocalFromRemoteRepository extends EventEmitter {
 						let command = this.commands[localItem.command];
 
 						if (!command) {
-							this.throwError('Command ' + localItem.command + ' not registered');
+							if (localItem.command) {
+								this.throwError('Command ' + localItem.command + ' not registered');
+							}
 							return;
 						}
 						if (!command.hasHandlers()) {
