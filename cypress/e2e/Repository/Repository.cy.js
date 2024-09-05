@@ -147,6 +147,64 @@ describe('Repository Base', function() {
 			expect(this.repository.isAutoSave).to.be.false;
 		});
 
+		it('markLoaded', function() {
+
+			const repository = new this.Repository({
+				id: 'foo',
+				schema: this.schema,
+				isAutoLoad: false,
+				isAutoSave: true,
+				isPaginated: true,
+				data: [
+					{ key: 1, value: 'one', },
+					{ key: 2, value: 'two', },
+					{ key: 3, value: 'three', },
+					{ key: 4, value: 'four', },
+					{ key: 5, value: 'five', },
+				],
+			});
+			repository.initialize();
+
+			expect(repository.isLoading).to.be.false;
+			expect(repository.isLoaded).to.be.false;
+			expect(repository.lastLoaded).to.be.null;
+
+			repository.markLoaded();
+			
+			expect(repository.isLoading).to.be.false;
+			expect(repository.isLoaded).to.be.true;
+			expect(repository.lastLoaded).to.be.not.null;
+		});
+
+		it('markUnloaded', function() {
+
+			const repository = new this.Repository({
+				id: 'foo',
+				schema: this.schema,
+				isAutoLoad: false,
+				isAutoSave: true,
+				isPaginated: true,
+				data: [
+					{ key: 1, value: 'one', },
+					{ key: 2, value: 'two', },
+					{ key: 3, value: 'three', },
+					{ key: 4, value: 'four', },
+					{ key: 5, value: 'five', },
+				],
+			});
+			repository.initialize();
+
+			repository.isLoading = true;
+			repository.isLoaded = true;
+			repository.lastLoaded = true;
+
+			repository.markUnloaded();
+			
+			expect(repository.isLoading).to.be.false;
+			expect(repository.isLoaded).to.be.false;
+			expect(repository.lastLoaded).to.be.null;
+		});
+
 	});
 
 	describe('sorting', function() {
@@ -325,7 +383,7 @@ describe('Repository Base', function() {
 			expect(filter.value).to.be.eq('1');
 		});
 	
-		it.only('filter - object', function() {
+		it('filter - object', function() {
 			// two possible ways to call filter with an object
 			// 1. filter({ name: 'key', value: '1' });
 			this.repository.filter({

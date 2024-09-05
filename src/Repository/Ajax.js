@@ -1097,6 +1097,18 @@ class AjaxRepository extends Repository {
 						}));
 	}
 
+	/**
+	 * Clears all state and storage of entities, as though nothing was ever loaded.
+	 */
+	clearAll() {
+		this._destroyEntities();
+		this.entities = [];
+		this.total = 0;
+		this._setPaginationVars();
+		this.markUnloaded();
+		this.emit('changeData', this.entities);
+	}
+
 	setIsOnline(isOnline) {
 		this.isOnline = !!isOnline; // force convert type to boolean
 	}

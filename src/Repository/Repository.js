@@ -432,6 +432,15 @@ export default class Repository extends EventEmitter {
 	}
 
 	/**
+	 * Marks this repository as unloaded
+	 */
+	markUnloaded() {
+		this.markLoading(false);
+		this.isLoaded = false;
+		this.lastLoaded = null;
+	}
+
+	/**
 	 * Marks this repository as loaded
 	 */
 	markLoaded() {
