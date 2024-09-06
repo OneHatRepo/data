@@ -842,9 +842,7 @@ export default class Repository extends EventEmitter {
 			this.throwError('this._setFilters is no longer valid. Repository has been destroyed.');
 			return;
 		}
-		let isChanged = false;
 		if (!_.isEqual(this.filters, filters)) {
-			isChanged = true;
 			this.filters = filters;
 			this.resetPagination();
 			let ret;
@@ -854,7 +852,7 @@ export default class Repository extends EventEmitter {
 			this.emit('changeFilters');
 			return ret;
 		}
-		return isChanged;
+		return false; // no filters changed
 	}
 
 

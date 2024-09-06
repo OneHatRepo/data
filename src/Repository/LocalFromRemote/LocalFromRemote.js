@@ -21,12 +21,14 @@ export const MODE_REMOTE_WITH_OFFLINE = 'MODE_REMOTE_WITH_OFFLINE';
  * an AjaxRepository.
  * 
  * Note: This is not a true subclass of Repository. Instead, its properties
- * and methods are Proxy'd from the "ActiveRepository", either the local or remote,
+ * and methods are Proxied from the "ActiveRepository", either the local or remote,
  * depending upon operating mode.
  * 
  * Multiple operating modes:
- * - MODE_LOCAL_MIRROR
- * 	- This mode is for keeping local copies of data that doesn't change very often.
+ * - MODE_LOCAL_MIRROR (default mode)
+ * 	- This mode is for keeping local copies of data that don't change very often.
+ * 	- It's often used in apps for offline functionality--the app reads from this repository,
+ * and saves its commands to a CommandQueue repository.
  * 	- *Add/Edit/Delete operations are disabled.*
  * 	- First time in use, it loads its data from remote.
  * 	- From then on, it primarily depends upon local.
@@ -54,7 +56,7 @@ export const MODE_REMOTE_WITH_OFFLINE = 'MODE_REMOTE_WITH_OFFLINE';
  * Repository's remote repository type to be a CommandRepository.
  * 
  * 
- * - MODE_REMOTE_WITH_OFFLINE
+ * - MODE_REMOTE_WITH_OFFLINE (not currently implemented)
  * 	- This mode provides an offline backup to the normal operation of remote.
  * 	- Normally uses remote, but automatically switches to local if necessary (i.e. if offline).
  * 	- Any changes made while offline will be saved to a queue, and then replayed to remote
@@ -66,6 +68,8 @@ class LocalFromRemoteRepository extends EventEmitter {
 
 	constructor(config = {}) {
 		super(...arguments);
+
+		// OneHatData._createRepository has already created the local and remote repositories
 
 		if (!config.local || !(config.local instanceof Repository)) {
 			this.throwError('No local repository defined.');
@@ -138,7 +142,6 @@ class LocalFromRemoteRepository extends EventEmitter {
 
 		};
 		_.merge(this, defaults, config);
-
 		
 		if (this.mode !== MODE_LOCAL_MIRROR && 
 			this.mode !== MODE_REMOTE_WITH_OFFLINE && 
@@ -166,9 +169,9 @@ class LocalFromRemoteRepository extends EventEmitter {
 		 */
 		this.lastSync = null;
 
-
-		// This ES6 Proxy allows us to create magic getters for all properties and methods
-		// of the active Repository (local or remote)
+		// This ES6 Proxy allows us to create magic getters and setters for all properties and methods
+		// of the active Repository (local or remote). If they exist on the LocalFromRemote, those are used.
+		// Otherwise, the Proxy will pass the getter or setter to the active Repository.
 		const oThis = this;
 		this._proxy = new Proxy(this, {
 			get (target, name, receiver) {
@@ -181,6 +184,14 @@ class LocalFromRemoteRepository extends EventEmitter {
 				}
 				return Reflect.get(target, name, receiver);
 			},
+			set(target, name, value, receiver) {
+				if (Reflect.has(target, name)) {
+					return Reflect.set(target, name, value, receiver);
+				} else {
+					const activeRepo = oThis._getActiveRepository();
+					return Reflect.set(activeRepo, name, value);
+				}
+			},
 		});
 
 		return this._proxy; // Return the Proxy, not 'this'
@@ -191,12 +202,14 @@ class LocalFromRemoteRepository extends EventEmitter {
 	 * - Relays all events from sub-repositories
 	 */
 	async initialize() {
-		this.relayEventsFrom(this.remote, this.remote.getRegisteredEvents(), 'remote_');
-		this.relayEventsFrom(this.local, this.local.getRegisteredEvents(), 'local_');
 
-		// Relay events from activeRepository directly, without prefix
-		const activeRepository = this._getActiveRepository();
-		this.relayEventsFrom(activeRepository, activeRepository.getRegisteredEvents());
+		// // This is going to relay the events, but add a prefix to each
+		// this.relayEventsFrom(this.remote, this.remote.getRegisteredEvents(), 'remote_');
+		// this.relayEventsFrom(this.local, this.local.getRegisteredEvents(), 'local_');
+
+		// // Relay events from activeRepository directly, without prefix
+		// const activeRepository = this._getActiveRepository();
+		// this.relayEventsFrom(activeRepository, activeRepository.getRegisteredEvents());
 
 		// Set up and initialize commands
 		if (this.mode === MODE_COMMAND_QUEUE) {
@@ -210,6 +223,96 @@ class LocalFromRemoteRepository extends EventEmitter {
 			this._doAutoSync();
 		}
 	}
+
+	//    ____                  __                __    
+	//   / __ \_   _____  _____/ /___  ____ _____/ /____
+	//  / / / / | / / _ \/ ___/ / __ \/ __ `/ __  / ___/
+	// / /_/ /| |/ /  __/ /  / / /_/ / /_/ / /_/ (__  ) 
+	// \____/ |___/\___/_/  /_/\____/\__,_/\__,_/____/
+
+	// The following methods are all overloads of EventEmitter methods.
+	// They determine whether the events they pertain to are registered on this 
+	// LocalFromRemote class, or if they should be relayed to the active repository.
+
+	emit(name) { // NOTE: Purposefully do not use an arrow-function, so we have access to arguments
+		if (_.indexOf(this._registeredEvents, name) === -1) {
+			return this._getActiveRepository().emit(...arguments);
+		}
+		return super.emit(...arguments);
+	}
+	_emitAlt(name) {
+		if (_.indexOf(this._registeredEvents, name) === -1) {
+			return this._getActiveRepository()._emitAlt(...arguments);
+		}
+		return super._emitAlt(...arguments);
+	}
+	addListeners(names) {
+		const
+			registeredEvents = this._registeredEvents,
+			activeRepository = this._getActiveRepository();
+		_.each(names, (name) => {
+			if (_.indexOf(registeredEvents, name) === -1) {
+				activeRepository.on(...arguments);
+			} else {
+				super.on(...arguments);
+			}
+		});
+	}
+	addListener(name) {
+		if (_.indexOf(this._registeredEvents, name) === -1) {
+			return this._getActiveRepository().addListener(...arguments);
+		}
+		return super.addListener(...arguments);
+	}
+	on(name) {
+		if (_.indexOf(this._registeredEvents, name) === -1) {
+			return this._getActiveRepository().on(...arguments);
+		}
+		return super.on(...arguments);
+	}
+	once(name) {
+		if (_.indexOf(this._registeredEvents, name) === -1) {
+			return this._getActiveRepository().once(...arguments);
+		}
+		return super.once(...arguments);
+	}
+	removeListener(name) {
+		if (_.indexOf(this._registeredEvents, name) === -1) {
+			return this._getActiveRepository().removeListener(...arguments);
+		}
+		return super.removeListener(...arguments);
+	}
+	off(name) {
+		if (_.indexOf(this._registeredEvents, name) === -1) {
+			return this._getActiveRepository().off(...arguments);
+		}
+		return super.off(...arguments);
+	}
+	removeListeners(names) {
+		const
+			registeredEvents = this._registeredEvents,
+			activeRepository = this._getActiveRepository();
+		_.each(names, (name) => {
+			if (_.indexOf(registeredEvents, name) === -1) {
+				activeRepository.off(...arguments);
+			} else {
+				super.off(...arguments);
+			}
+		});
+	}
+	isRegisteredEvent(name) {
+		if (_.indexOf(this._registeredEvents, name) === -1) {
+			return this._getActiveRepository().isRegisteredEvent(...arguments);
+		}
+		return super.isRegisteredEvent(...arguments);
+	}
+
+
+	//    ________                   __  ___     __  __              __    
+	//   / ____/ /___ ___________   /  |/  /__  / /_/ /_  ____  ____/ /____
+	//  / /   / / __ `/ ___/ ___/  / /|_/ / _ \/ __/ __ \/ __ \/ __  / ___/
+	// / /___/ / /_/ (__  |__  )  / /  / /  __/ /_/ / / / /_/ / /_/ (__  ) 
+	// \____/_/\__,_/____/____/  /_/  /_/\___/\__/_/ /_/\____/\__,_/____/
 
 	/**
 	 * Registers multiple commands for when syncing in MODE_COMMAND_QUEUE mode.
@@ -279,9 +382,8 @@ class LocalFromRemoteRepository extends EventEmitter {
 	 * so we can sync immediately after add for MODE_COMMAND_QUEUE mode.
 	 */
 	async add(data) {
-		// NORMAL PROCESS, basically call super()
-		// This adds to the local repository, so we can sync later,
-		// if needed.
+		// NORMAL PROCESS
+		// This adds to the local repository, so we can sync later, if needed.
 		const normalAdd = await this._getActiveRepository().add(data);
 		if (this.mode !== MODE_COMMAND_QUEUE || !this.isOnline) {
 			return normalAdd;
