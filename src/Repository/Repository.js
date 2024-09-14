@@ -1523,7 +1523,7 @@ export default class Repository extends EventEmitter {
 		if (!entities) {
 			entities = this.entities;
 		}
-		return _.filter(entities, entity => entity.isDirty && !entity.isSaving);
+		return _.filter(entities, entity => !entity.isSaving && (entity.isDestroyed || entity.isDirty));
 	}
 
 	/**
@@ -1539,7 +1539,7 @@ export default class Repository extends EventEmitter {
 		if (!entities) {
 			entities = this.entities;
 		}
-		return _.filter(entities, entity => entity.isDeleted);
+		return _.filter(entities, entity => entity.isDestroyed || entity.isDeleted);
 	}
 
 	/**

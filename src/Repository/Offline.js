@@ -214,6 +214,10 @@ class OfflineRepository extends MemoryRepository {
 		}
 
 		// Get a clone, in case we need to revert back to it later
+		if (entity.isDestroyed) {
+			return await this._storageDeleteValue(entity.id);
+		}
+
 		const clone = entity.clone();
 
 		// Attempt to edit
@@ -242,7 +246,7 @@ class OfflineRepository extends MemoryRepository {
 		}
 		
 		// Get a clone, in case we need to revert back to it later
-		const clone = entity.clone();
+		const clone = entity.isDestroyed ? null : entity.clone();
 
 		// Attempt to delete
 		super._doDelete(entity);
@@ -253,8 +257,12 @@ class OfflineRepository extends MemoryRepository {
 			storageResult = await this._storageDeleteValue(entity.id);
 			await this._deleteFromIndex(entity.id);
 		} catch (e) {
-			// Revert to clone
-			this._keyedEntities[clone.id] = clone;
+			// try to revert to clone
+			if (clone) {
+				this._keyedEntities[clone.id] = clone;
+			} else {
+				delete this._keyedEntities[entity.id];
+			}
 		}
 
 		return storageResult;

@@ -449,10 +449,11 @@ class MemoryRepository extends Repository {
 			return;
 		}
 		
-		delete this._keyedEntities[entity.id];
+		if (!entity.isDestroyed) {
+			delete this._keyedEntities[entity.id];
+			entity.destroy();
+		}
 		this.entities = _.filter(this.entities, (x) => x.id !== entity.id);
-
-		entity.destroy();
 		return entity;
 	}
 
@@ -600,8 +601,9 @@ class MemoryRepository extends Repository {
 
 		this._setPaginationVars();
 
-		const nextEntities = this._paginate(entities),
-			nextValues = _.map(nextEntities, (entity) => entity.getSubmitValues());
+		const
+			nextEntities = this._paginate(entities),
+			nextValues = _.map(nextEntities, (entity) => entity.isDestroyed ? null : entity.getSubmitValues());
 		if (!_.isEqual(this._previousValues, nextValues)) {
 			this.entities = nextEntities;
 			this._previousValues = nextValues;
