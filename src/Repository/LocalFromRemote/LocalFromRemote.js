@@ -459,7 +459,7 @@ class LocalFromRemoteRepository extends EventEmitter {
 						}
 	
 						// local <-- remote
-						await localItem.loadOriginalData(remoteItem.getOriginalData());
+						localItem.response = remoteItem.response;
 						this.remote.clear();
 
 						// Handle the server's response
