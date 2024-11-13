@@ -2,6 +2,7 @@ import { OneHatData } from '../../../src/OneHatData.js';
 import UsersDefinition from '../../fixtures/Definitions/Users.js';
 import GroupsDefinition from '../../fixtures/Definitions/Groups.js';
 import UserData from '../../fixtures/Data/User.js';
+import _ from 'lodash';
 
 const baseURL = Cypress.env('baseURL'),
 	creds = {
@@ -61,6 +62,22 @@ describe('OneBuildRepository', function() {
 		
 		expect(p.conditions.key1).to.be.eq('1');
 		expect(p.conditions.key2).to.be.eq('2');
+	});
+
+	it('merge from lodash', function() {
+		const
+			a = {
+				test: true,
+			},
+			b = {
+				foo: true,
+			};
+		let c;
+		const bar = _.merge({}, a, b, c);
+
+		expect(_.isEqual(a, { test: true })).to.be.true;
+		expect(_.isEqual(b, { foo: true })).to.be.true;
+		expect(_.isEqual(bar, { test: true, foo: true })).to.be.true;
 	});
 
 	it.skip('401', function() {

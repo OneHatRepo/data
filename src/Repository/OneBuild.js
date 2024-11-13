@@ -96,7 +96,7 @@ class OneBuildRepository extends AjaxRepository {
 	 * Fires off axios request to server
 	 * @private
 	 */
-	_send(method, url, data) {
+	_send(method, url, data, headers) {
 
 		if (!url) {
 			this.throwError('No url submitted');
@@ -108,17 +108,17 @@ class OneBuildRepository extends AjaxRepository {
 			return;
 		}
 
-		const headers = _.merge({
+		const mergedHeaders = _.merge({
 							// 'Content-Type': 'application/json', // Stops axios from using 'application/x-www-form-urlencoded'
 							Accept: 'application/json',
-						}, this.headers);
+						}, this.headers, headers);
 
 		const options = {
 				url,
 				method,
 				baseURL: this.api.baseURL,
 				transformResponse: null,
-				headers,
+				headers: mergedHeaders,
 				params: method === 'GET' ? data : null,
 				data: method !== 'GET' ? qs.stringify(data) : null,
 				timeout: this.timeout,
