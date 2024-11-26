@@ -1619,7 +1619,7 @@ class Entity extends EventEmitter {
 		}
 
 		const children = await this.getChildren();
-		return  _.includes(children, treeNode);
+		return _.includes(children, treeNode);
 	}
 
 	/**

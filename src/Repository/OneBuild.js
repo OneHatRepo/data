@@ -805,13 +805,10 @@ class OneBuildRepository extends AjaxRepository {
 		// If children already exist, remove them from the repository
 		// This way, we can reload just a portion of the tree
 		if (!_.isEmpty(treeNode.children)) {
-			const children = treeNode.children;
-			treeNode.children = [];
-
-			const oThis = this;
-			_.each(children, (child) => {
-				oThis.removeEntity(child);
+			_.each(treeNode.children, (child) => {
+				treeNode.repository.removeTreeNode(child);
 			});
+			treeNode.children = [];
 		}
 		
 		this.markLoading();
