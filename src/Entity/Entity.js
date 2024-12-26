@@ -1625,16 +1625,16 @@ class Entity extends EventEmitter {
 	/**
 	 * Loads the children of this TreeNode from repository.
 	 */
-	loadChildren = async (depth) => {
+	loadChildren = async (depth = 1) => {
 		this.ensureTree();
 		if (this.isDestroyed) {
 			throw Error('this.loadChildren is no longer valid. TreeNode has been destroyed.');
 		}
-		if (!this.repository?.loadChildNodes) {
-			throw Error('repository.loadChildNodes is not defined.');	
+		if (!this.repository?.loadNode) {
+			throw Error('repository.loadNode is not defined.');	
 		}
 
-		const children = await this.repository.loadChildNodes(this, depth);
+		const children = await this.repository.loadNode(this, depth);
 		this.areChildrenLoaded = true;
 		return children;
 	}
@@ -1642,8 +1642,8 @@ class Entity extends EventEmitter {
 	/**
 	 * Alias for loadChildren
 	 */
-	reloadChildren = () => { // alias
-		return this.loadChildren();
+	reloadChildren = (depth = 1) => { // alias
+		return this.loadChildren(depth);
 	}
 
 	/**

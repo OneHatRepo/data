@@ -1,6 +1,5 @@
 /** @module Repository */
 
-import Repository from './Repository.js';
 import AjaxRepository from './Ajax.js';
 import qs from 'qs';
 import _ from 'lodash';
@@ -11,9 +10,11 @@ const nonConditionFilters = [
 	'fields',
 	'distinct',
 	'leftJoinWith',
+	'innerJoin',
 	'join',
 	'where',
 	'matching',
+	'groupBy',
 	'contain',
 	'order',
 	'limit',
@@ -30,21 +31,22 @@ class OneBuildRepository extends AjaxRepository {
 	constructor(config = {}) {
 		super(...arguments);
 
-		const model = this._getModel();
 		const defaults = {
 
 			isAutoLoad: false,
 			isAutoSave: false,
 
 			api: {
-				get: model + '/get',
-				add: model + '/add',
-				edit: model + '/edit',
-				delete: model + '/delete',
-				batchAdd: model + '/batchAdd',
-				batchEdit: model + '/batchEdit',
-				batchDelete: model + '/batchDelete',
-				getLastModifiedDate: model + '/getLastModifiedDate',
+				get: 'get',
+				add: 'add',
+				edit: 'edit',
+				delete: 'delete',
+				batchAdd: 'batchAdd',
+				batchEdit: 'batchEdit',
+				batchDelete: 'batchDelete',
+				reorder: 'reorder',
+				duplicate: 'duplicate',
+				getLastModifiedDate: 'getLastModifiedDate',
 			},
 
 			methods: {
@@ -83,7 +85,6 @@ class OneBuildRepository extends AjaxRepository {
 
 		this.registerEvents([
 			'logout',
-			'loadRootNodes',
 		]);
 
 		await super.initialize();
@@ -147,13 +148,6 @@ class OneBuildRepository extends AjaxRepository {
 						this.throwError(error);
 						return;
 					});
-	}
-
-	_getModel() {
-		if (!this.isUnique) {
-			return this.name;
-		}
-		return this.name.match(/^([^-]*)-(.*)/)[1]; // converts 'ModelName-22f9915c-79f5-4e86-a25b-9446c7b85b63' to 'ModelName'
 	}
 
 	/**
@@ -304,7 +298,7 @@ class OneBuildRepository extends AjaxRepository {
 		}
 
 		const data = {
-			url: this._getModel() + '/reorder',
+			url: this._getModel() + '/' + this.api.reorder,
 			data: qs.stringify({
 				ids,
 				dropPosition,
@@ -341,9 +335,9 @@ class OneBuildRepository extends AjaxRepository {
 		this.markLoading();
 
 		const
-			Model = this.getSchema().name,
+			url = this._getModel() + '/' + this.api.duplicate,
 			id = entity.id,
-			result = await this._send('POST', Model + '/duplicate', { id });
+			result = await this._send('POST', url, { id });
 		
 		if (!result) {
 			this.markLoading(false);
@@ -412,13 +406,15 @@ class OneBuildRepository extends AjaxRepository {
 		const params = {};
 		params['conditions[' + idPropertyName + ']'] = id;
 
-		const data = _.merge(params, this._baseParams);
+		const
+			url = this._getModel() + '/' + this.api.get,
+			data = _.merge(params, this._baseParams);
 
 		if (this.debugMode) {
 			console.log('getSingleEntityFromServer', data);
 		}
 
-		return this._send(this.methods.get, this.api.get, data)
+		return this._send(this.methods.get, url, data)
 					.then(result => {
 						if (this.debugMode) {
 							console.log('Response for getSingleEntityFromServer for ' + this.name, result);
@@ -468,7 +464,9 @@ class OneBuildRepository extends AjaxRepository {
 			console.log('getLastModifiedDate');
 		}
 
-		return this._send(this.methods.get, this.api.getLastModifiedDate, this._baseParams)
+		const url = this._getModel() + '/' + this.api.getLastModifiedDate;
+
+		return this._send(this.methods.get, url, this._baseParams)
 					.then(result => {
 						if (this.debugMode) {
 							console.log('Response for getLastModifiedDate for ' + this.name, result);
@@ -615,396 +613,6 @@ class OneBuildRepository extends AjaxRepository {
 				}
 
 				return response;
-			});
-	}
-
-
-	//   ______
-	//  /_  __/_______  ___  _____
-	//   / / / ___/ _ \/ _ \/ ___/
-	//  / / / /  /  __/  __(__  )
-	// /_/ /_/   \___/\___/____/
-
-	/**
-	 * Loads the root nodes of this tree.
-	 */
-	loadRootNodes(depth) {
-		this.ensureTree();
-		if (this.isDestroyed) {
-			this.throwError('this.setRootNode is no longer valid. Repository has been destroyed.');
-			return;
-		}
-		if (!this.isOnline) {
-			this.throwError('Offline');
-			return;
-		}
-
-		this.emit('beforeLoad'); // TODO: canceling beforeLoad will cancel the load operation
-		this.markLoading();
-
-		const data = _.merge({ depth }, this._baseParams, this._params);
-
-		if (this.debugMode) {
-			console.log('loadRootNodes', data);
-		}
-
-		return this._send('POST', this._getModel() + '/getNodes', data)
-			.then((result) => {
-				if (this.debugMode) {
-					console.log('Response for loadRootNodes', result);
-				}
-
-				if (this.isDestroyed) {
-					// If this repository gets destroyed before it has a chance
-					// to process the Ajax request, just ignore the response.
-					return;
-				}
-
-				const {
-					root,
-					success,
-					total,
-					message
-				} = this._processServerResponse(result);
-
-				if (!success) {
-					this.throwError(message);
-					return;
-				}
-
-				this._destroyEntities();
-
-				// Set the current entities
-				const oThis = this;
-				this.entities = _.map(root, (data) => {
-					const entity = Repository._createEntity(oThis.schema, data, this, true);
-					oThis._relayEntityEvents(entity);
-					return entity;
-				});
-
-				this.assembleTreeNodes();
-				
-				// Set the total records that pass filter
-				this.total = total;
-				this._setPaginationVars();
-
-				this.areRootNodesLoaded = true;
-
-				
-				// Don't emit events for root nodes...
-				this.rehash();
-				this.emit('loadRootNodes', this);
-				// this.emit('changeData', this.entities);
-
-				return this.getBy((entity) => {
-					return entity.isRoot;
-				});
-			})
-			.finally(() => {
-				this.markLoading(false);
-			});
-	}
-
-	/**
-	 * Loads (or reloads) the supplied treeNode
-	 */
-	loadNode(treeNode, depth = 1) {
-		this.ensureTree();
-		if (this.isDestroyed) {
-			this.throwError('this.loadNode is no longer valid. Repository has been destroyed.');
-			return;
-		}
-		if (!this.isOnline) {
-			this.throwError('Offline');
-			return;
-		}
-
-		// If children already exist, remove them from the repository
-		// This way, we can reload just a portion of the tree
-		if (!_.isEmpty(treeNode.children)) {
-			const children = treeNode.children;
-			treeNode.children = [];
-
-			const oThis = this;
-			_.each(children, (child) => {
-				oThis.removeEntity(child);
-			});
-		}
-		
-		this.markLoading();
-
-		const data = _.merge({ depth, nodeId: treeNode.id, }, this._baseParams, this._params);
-
-		if (this.debugMode) {
-			console.log('loadNode', data);
-		}
-
-		return this._send('POST', this._getModel() + '/getNodes', data)
-			.then((result) => {
-				if (this.debugMode) {
-					console.log('Response for loadNode', result);
-				}
-
-				if (this.isDestroyed) {
-					// If this repository gets destroyed before it has a chance
-					// to process the Ajax request, just ignore the response.
-					return;
-				}
-
-				const {
-					root,
-					success,
-					total,
-					message
-				} = this._processServerResponse(result);
-
-				if (!success) {
-					this.throwError(message);
-					return;
-				}
-				
-				// Set the current entities
-				const oThis = this;
-				const children = _.map(root, (data) => {
-					const entity = Repository._createEntity(oThis.schema, data, this, true);
-					oThis._relayEntityEvents(entity);
-					return entity;
-				});
-
-				this.entities = this.entities.concat(children);
-
-				this.assembleTreeNodes();
-				
-				this._setPaginationVars();
-
-				this.rehash();
-				// this.emit('changeData', this.entities);
-				this.emit('load', this);
-
-				return children;
-			})
-			.finally(() => {
-				this.markLoading(false);
-			});
-	}
-
-	/**
-	 * Loads (or reloads) the children of the supplied treeNode
-	 */
-	loadChildNodes(treeNode, depth = 1) {
-		this.ensureTree();
-		if (this.isDestroyed) {
-			this.throwError('this.loadChildNodes is no longer valid. Repository has been destroyed.');
-			return;
-		}
-		if (!this.isOnline) {
-			this.throwError('Offline');
-			return;
-		}
-
-		// If children already exist, remove them from the repository
-		// This way, we can reload just a portion of the tree
-		if (!_.isEmpty(treeNode.children)) {
-			_.each(treeNode.children, (child) => {
-				treeNode.repository.removeTreeNode(child);
-			});
-			treeNode.children = [];
-		}
-		
-		this.markLoading();
-
-		const data = _.merge({ depth, parentId: treeNode.id, }, this._baseParams, this._params);
-
-		if (this.debugMode) {
-			console.log('loadChildNodes', data);
-		}
-
-		return this._send('POST', this._getModel() + '/getNodes', data)
-			.then((result) => {
-				if (this.debugMode) {
-					console.log('Response for loadChildNodes', result);
-				}
-
-				if (this.isDestroyed) {
-					// If this repository gets destroyed before it has a chance
-					// to process the Ajax request, just ignore the response.
-					return;
-				}
-
-				const {
-					root,
-					success,
-					total,
-					message
-				} = this._processServerResponse(result);
-
-				if (!success) {
-					this.throwError(message);
-					return;
-				}
-				
-				// Set the current entities
-				const oThis = this;
-				const children = _.map(root, (data) => {
-					const entity = Repository._createEntity(oThis.schema, data, this, true);
-					oThis._relayEntityEvents(entity);
-					return entity;
-				});
-
-				this.entities = this.entities.concat(children);
-
-				this.assembleTreeNodes();
-				
-				this._setPaginationVars();
-
-				this.rehash();
-				// this.emit('changeData', this.entities);
-				this.emit('load', this);
-
-				return children;
-			})
-			.finally(() => {
-				this.markLoading(false);
-			});
-	}
-
-	/**
-	 * Override the AjaxRepository to we can reload a treeNode if needed
-	 */
-	reloadEntity(entity, callback = null) {
-		if (!entity.isTree) {
-			return super.reloadEntity(entity, callback);
-		}
-
-		return this.loadNode(entity, 1);
-	}
-
-	/**
-	 * Searches all nodes for the supplied text.
-	 * This basically takes the search query and returns whatever the server sends
-	 */
-	searchNodes(q) {
-		this.ensureTree();
-		if (this.isDestroyed) {
-			this.throwError('this.searchNodes is no longer valid. Repository has been destroyed.');
-			return;
-		}
-		if (!this.isOnline) {
-			this.throwError('Offline');
-			return;
-		}
-
-		const data = _.merge({ q, }, this._baseParams, this._params);
-
-		if (this.debugMode) {
-			console.log('searchNodes', data);
-		}
-
-		return this._send('POST', this._getModel() + '/searchNodes', data)
-			.then((result) => {
-				if (this.debugMode) {
-					console.log('Response for searchNodes', result);
-				}
-
-				if (this.isDestroyed) {
-					// If this repository gets destroyed before it has a chance
-					// to process the Ajax request, just ignore the response.
-					return;
-				}
-
-				const {
-					root,
-					success,
-					total,
-					message
-				} = this._processServerResponse(result);
-
-				if (!success) {
-					this.throwError(message);
-					return;
-				}
-
-				return root;
-			})
-			.finally(() => {
-				this.markLoading(false);
-			});
-	}
-
-	/**
-	 * Alias for loadChildren
-	 */
-	reloadChildren(treeNode, depth) {
-		return this.loadChildren(treeNode, depth);
-	}
-
-	/**
-	 * Moves the supplied treeNode to a new position on the tree
-	 * @returns id of common ancestor node 
-	 */
-	moveTreeNode(treeNode, newParentId) {
-		this.ensureTree();
-		if (this.isDestroyed) {
-			this.throwError('this.moveTreeNode is no longer valid. Repository has been destroyed.');
-			return;
-		}
-		if (!this.isOnline) {
-			this.throwError('Offline');
-			return;
-		}
-
-		const oldParentId = treeNode.parent?.id;
-
-		const data = _.merge({ nodeId: treeNode.id, parentId: newParentId, }, this._baseParams, this._params);
-		
-		if (this.debugMode) {
-			console.log('moveTreeNode', data);
-		}
-
-		return this._send('POST', this._getModel() + '/moveNode', data)
-			.then((result) => {
-				if (this.debugMode) {
-					console.log('Response for searchNodes', result);
-				}
-
-				if (this.isDestroyed) {
-					// If this repository gets destroyed before it has a chance
-					// to process the Ajax request, just ignore the response.
-					return;
-				}
-
-				const {
-					root: {
-						commonAncestorId,
-						oldParent,
-						newParent,
-						node,
-					},
-					success,
-					total,
-					message
-				} = this._processServerResponse(result);
-
-				if (!success) {
-					this.throwError(message);
-					return;
-				}
-
-				// move it from oldParent.children to newParent.children
-				const
-					oldParentRecord = this.getById(oldParentId),
-					newParentRecord = this.getById(newParentId);
-
-				oldParentRecord?.loadOriginalData(oldParent);
-				newParentRecord.loadOriginalData(newParent);
-				treeNode.loadOriginalData(node);
-
-				this.assembleTreeNodes();
-
-				return commonAncestorId;
-			})
-			.finally(() => {
-				this.markLoading(false);
 			});
 	}
 
