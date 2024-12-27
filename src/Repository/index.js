@@ -7,6 +7,7 @@ import MemoryRepository from './Memory.js';
 import NullRepository from './Null.js';
 import OneBuildRepository from './OneBuild.js';
 import RestRepository from './Rest.js';
+import TreeRepository from './Tree.js';
 
 const CoreRepositoryTypes = {
 	[AjaxRepository.type]: AjaxRepository,
@@ -16,6 +17,7 @@ const CoreRepositoryTypes = {
 	[NullRepository.type]: NullRepository,
 	[OneBuildRepository.type]: OneBuildRepository,
 	[RestRepository.type]: RestRepository,
+	[TreeRepository.type]: TreeRepository,
 };
 
 export default CoreRepositoryTypes;
