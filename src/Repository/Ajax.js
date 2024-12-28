@@ -1,6 +1,6 @@
 /** @module Repository */
 
-import Repository from './Repository.js';
+import Repository from './Repository.js'; // so we can use static methods
 import ReaderTypes from '../Reader/index.js';
 import WriterTypes from '../Writer/index.js';
 import axios from 'axios';
@@ -200,13 +200,6 @@ class AjaxRepository extends Repository {
 			}
 			this._onChangeSorters();
 		}
-	}
-
-	_getModel(entity) {
-		if (!this.isUnique) {
-			return this.name;
-		}
-		return this.name.match(/^([^-]*)-(.*)/)[1]; // converts 'ModelName-22f9915c-79f5-4e86-a25b-9446c7b85b63' to 'ModelName'
 	}
 	
 
@@ -438,7 +431,7 @@ class AjaxRepository extends Repository {
 
 		const
 			repository = this,
-			url = this._getModel() + '/' + this.api.get,
+			url = this.getModel() + '/' + this.api.get,
 			data = _.merge({}, this._baseParams, this._params);
 		
 		return this._send(this.methods.get, url, data)
@@ -529,7 +522,7 @@ class AjaxRepository extends Repository {
 			console.log('reloadEntity ' + entity.id, params);
 		}
 
-		const url = this._getModel() + '/' + this.api.get;
+		const url = entity.getModel() + '/' + this.api.get;
 		
 		return this._send(this.methods.get, url, params)
 					.then(result => {
@@ -615,7 +608,7 @@ class AjaxRepository extends Repository {
 
 		const
 			method = this.methods.add,
-			url = this._getModel() + '/' + this.api.add,
+			url = entity.getModel() + '/' + this.api.add,
 			data = entity.getSubmitValues();
 
 		return this._send(method, url, data)
@@ -669,7 +662,7 @@ class AjaxRepository extends Repository {
 
 		const
 			method = this.methods.add,
-			url = this._getModel() + '/' + this.api.batchAdd,
+			url = this.getModel() + '/' + this.api.batchAdd,
 			data = {
 				entities: _.map(entities, entity => {
 					const values = entity.submitValues;
@@ -734,7 +727,7 @@ class AjaxRepository extends Repository {
 
 		const
 			method = this.methods.edit,
-			url = this._getModel() + '/' + this.api.edit,
+			url = entity.getModel() + '/' + this.api.edit,
 			data = entity.getSubmitValues();
 
 		return this._send(method, url, data)
@@ -788,7 +781,7 @@ class AjaxRepository extends Repository {
 
 		const
 			method = this.methods.edit,
-			url = this._getModel() + '/' + this.api.batchEdit,
+			url = this.getModel() + '/' + this.api.batchEdit,
 			data = {
 				entities: _.map(entities, entity => {
 					const values = entity.submitValues;
@@ -857,7 +850,7 @@ class AjaxRepository extends Repository {
 
 		const
 			method = this.methods.delete,
-			url = this._getModel() + '/' + this.api.delete,
+			url = entity.getModel() + '/' + this.api.delete,
 			data = {
 				id: entity.id,
 			};
@@ -917,7 +910,7 @@ class AjaxRepository extends Repository {
 
 		const
 			method = this.methods.delete,
-			url = this._getModel() + '/' + this.api.batchDelete,
+			url = this.getModel() + '/' + this.api.batchDelete,
 			ids = _.map(entities, (entity) => {
 				entity.isSaving = true;
 				return entity.id;

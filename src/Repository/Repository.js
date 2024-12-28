@@ -396,6 +396,12 @@ export default class Repository extends EventEmitter {
 		}
 	}
 
+	getModel() {
+		if (!this.isUnique) {
+			return this.name;
+		}
+		return this.name.match(/^([^-]*)-(.*)/)[1]; // converts 'ModelName-22f9915c-79f5-4e86-a25b-9446c7b85b63' to 'ModelName'
+	}
 
 	//     __                    __
 	//    / /   ____  ____ _____/ /

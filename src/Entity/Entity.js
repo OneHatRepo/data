@@ -113,7 +113,7 @@ class Entity extends EventEmitter {
 		/**
 		 * @member {boolean} isTree - Whether this Entity is a TreeNode
 		 */
-		this.isTree = schema.model.isTree || false;
+		this.isTree = schema.repository.type === 'tree' || false;
 
 		if (this.isTree && !schema.model.parentIdProperty) {
 			throw new Error('parentIdProperty cannot be empty for a TreeNode');
@@ -1769,6 +1769,18 @@ class Entity extends EventEmitter {
 	}
 
 	/**
+	 * Gets the model that this entity uses
+	 * @return {string} model
+	 */
+	getModel = () => {
+		if (this.isTree && this.nodeType) {
+			// Trees can have entities of different models
+			return this.nodeType;
+		}
+		return this.repository.getModel();
+	}
+
+	/**
 	 * Moves this TreeNode to another parentId.
 	 */
 	moveTreeNode = (newParentId) => {
@@ -1777,7 +1789,7 @@ class Entity extends EventEmitter {
 			throw Error('this.moveTreeNode is no longer valid. TreeNode has been destroyed.');
 		}
 		if (!this.repository?.moveTreeNode) {
-			throw Error('repository.moveTreeNode is not defined.');	
+			throw Error('repository.moveTreeNode is not defined.');
 		}
 
 		return this.repository.moveTreeNode(this, newParentId);
@@ -1789,7 +1801,7 @@ class Entity extends EventEmitter {
 	 */
 	ensureTree = () => {
 		if (!this.isTree) {
-			this.throwError('This Entity is not a tree!');
+			throw Error('This Entity is not a tree!');
 			return false;
 		}
 		return true;

@@ -1,5 +1,6 @@
 /** @module Repository */
 
+import Repository from './Repository.js'; // so we can use static methods
 import OneBuildRepository from './OneBuild.js';
 import _ from 'lodash';
 
@@ -17,7 +18,7 @@ class TreeRepository extends OneBuildRepository {
 		const defaults = {
 
 			isTree: true,
-			rootNodeType: this._getModel(), // e.g. 'Fleets'
+			rootNodeType: this.getModel(), // e.g. 'Fleets'
 
 			api: {
 				getNodes: 'getNodes',
@@ -25,9 +26,9 @@ class TreeRepository extends OneBuildRepository {
 				searchNodes: 'searchNodes',
 			},
 
-			// TODO: modify all tree methods to handle multiple node types
-			// SOME are updated, but many are not.
-			// I'll need to modify all generated models to use TreeRepository instead of OneBuild with isTree: true.
+			editableNodeTypes: [
+				this.getModel(),
+			],
 
 		};
 		_.merge(this, defaults, config);
@@ -156,7 +157,7 @@ class TreeRepository extends OneBuildRepository {
 
 		const
 			data = _.merge({ depth, nodeId: treeNode.id, }, this._baseParams, this._params),
-			url = this.getModelFromTreeNode(treeNode) + '/' + this.api.getNodes;
+			url = treeNode.getModel() + '/' + this.api.getNodes;
 
 		if (this.debugMode) {
 			console.log('loadNode', data);

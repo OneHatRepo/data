@@ -298,7 +298,7 @@ class OneBuildRepository extends AjaxRepository {
 		}
 
 		const data = {
-			url: this._getModel() + '/' + this.api.reorder,
+			url: this.getModel() + '/' + this.api.reorder,
 			data: qs.stringify({
 				ids,
 				dropPosition,
@@ -335,7 +335,7 @@ class OneBuildRepository extends AjaxRepository {
 		this.markLoading();
 
 		const
-			url = this._getModel() + '/' + this.api.duplicate,
+			url = entity.getModel() + '/' + this.api.duplicate,
 			id = entity.id,
 			result = await this._send('POST', url, { id });
 		
@@ -407,7 +407,7 @@ class OneBuildRepository extends AjaxRepository {
 		params['conditions[' + idPropertyName + ']'] = id;
 
 		const
-			url = this._getModel() + '/' + this.api.get,
+			url = this.getModel() + '/' + this.api.get,
 			data = _.merge(params, this._baseParams);
 
 		if (this.debugMode) {
@@ -464,7 +464,7 @@ class OneBuildRepository extends AjaxRepository {
 			console.log('getLastModifiedDate');
 		}
 
-		const url = this._getModel() + '/' + this.api.getLastModifiedDate;
+		const url = this.getModel() + '/' + this.api.getLastModifiedDate;
 
 		return this._send(this.methods.get, url, this._baseParams)
 					.then(result => {

@@ -90,11 +90,6 @@ export default class Schema extends EventEmitter {
 				hasChildrenProperty: null,
 
 				/**
-				 * @member {boolean} isTree - Whether this model has hierarchical tree data
-				 */
-				isTree: false,
-
-				/**
 				 * @member {boolean} isAdjacencyList - Whether this tree is an Adjacency List
 				 */
 				isAdjacencyList: false,
