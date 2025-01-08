@@ -216,18 +216,23 @@ class AjaxRepository extends Repository {
 	 * @param {boolean} isBaseParam - Whether param is a base param (to be sent on every request).
 	 */
 	setParam(name, value, isBaseParam = false) {
-		const re = /^([^\[]+)\[([^\]]+)\](.*)$/,
+		const
+			re = /^([^\[]+)\[([^\]]+)\](.*)$/,
 			matches = name.match(re),
 			paramsToChange = isBaseParam ? this._baseParams : this._params;
 		
 		if (matches) { // name has array notation like 'conditions[username]'
-			const first = matches[1],
+			const
+				first = matches[1],
 				second = matches[2];
 			if (paramsToChange && !paramsToChange.hasOwnProperty(first)) {
 				paramsToChange[first] = {};
 			}
 			if (_.isNil(value) && paramsToChange[first] && paramsToChange[first].hasOwnProperty(second)) {
 				delete paramsToChange[first][second];
+				if (_.isEmpty(paramsToChange[first])) {
+					delete paramsToChange[first];
+				}
 				return;
 			}
 			paramsToChange[first][second] = value;
@@ -247,7 +252,8 @@ class AjaxRepository extends Repository {
 	 * @param {boolean} isBaseParam - Whether param is a base param (to be sent on every request).
 	 */
 	setValuelessParam(name, isBaseParam = false) {
-		const re = /^([^\[]+)\[([^\]]+)\](.*)$/,
+		const
+			re = /^([^\[]+)\[([^\]]+)\](.*)$/,
 			matches = name.match(re),
 			paramsToChange = isBaseParam ? this._baseParams : this._params;
 		
@@ -284,7 +290,22 @@ class AjaxRepository extends Repository {
 	 * @param {string} name - Param name
 	 */
 	hasBaseParam(name) {
-		return this._baseParams.hasOwnProperty(name);
+		if (this._baseParams.hasOwnProperty(name)) {
+			return true;
+		}
+
+		// Check for array notation
+		const keys = name.split(/[\[\].]+/).filter(Boolean);
+		let current = this._baseParams,
+			key;
+
+		for(key of keys) {
+			if (!current || !current.hasOwnProperty(key)) {
+				return false;
+			}
+			current = current[key];
+		}
+		return true;
 	}
 
 	/**
