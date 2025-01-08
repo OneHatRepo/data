@@ -397,6 +397,9 @@ export default class Repository extends EventEmitter {
 	}
 
 	getModel() {
+		if (this.model) {
+			return this.model;
+		}
 		if (!this.isUnique) {
 			return this.name;
 		}
