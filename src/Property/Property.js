@@ -1,6 +1,7 @@
 /** @module Property */
 
 import EventEmitter from '@onehat/events';
+import Formatters from '../Util/Formatters.js';
 import _ from 'lodash';
 
 /**
@@ -136,6 +137,12 @@ export default class Property extends EventEmitter {
 		 * @private
 		 */
 		defaultValue: null,
+
+		/**
+		 * @member {string} formatter - The name of the formatter to use for this property
+		 * @private
+		 */
+		formatter: null,
 
 	};
 
@@ -277,6 +284,9 @@ export default class Property extends EventEmitter {
 	getDisplayValue() {
 		if (this.isDestroyed) {
 			throw Error('this.getDisplayValue is no longer valid. Property has been destroyed.');
+		}
+		if (this.formatter) {
+			return Formatters[this.formatter](this.parsedValue);
 		}
 		return this.parsedValue;
 	}
@@ -426,6 +436,17 @@ export default class Property extends EventEmitter {
 			return null;
 		}
 		return value;
+	}
+
+	/**
+	 * Sets the formatter for this Property.
+	 * @param {*} formatter 
+	 */
+	setFormatter(formatter) {
+		if (this.isDestroyed) {
+			throw Error('this.setFormatter is no longer valid. Property has been destroyed.');
+		}
+		this.formatter = formatter;
 	}
 
 

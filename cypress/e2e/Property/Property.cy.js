@@ -44,6 +44,7 @@ describe('Property', function() {
 					title: null,
 					tooltip: null,
 					viewerType: null,
+					formatter: null,
 				};
 			// console.log(defaults);
 			// console.log(expected);
@@ -81,9 +82,14 @@ describe('Property', function() {
 	
 		it('getDisplayValue & displayValue', function() {
 			this.property.setValue('12');
-			const value = this.property.getDisplayValue();
+			let value = this.property.getDisplayValue();
 			expect(value).to.be.eq(12);
 			expect(value).to.be.eq(this.property.displayValue);
+
+			this.property.setFormatter('FormatInt');
+			this.property.setValue('12345');
+			value = this.property.getDisplayValue();
+			expect(value).to.be.eq('12,345');
 		});
 	
 		it('hasMapping', function() {
