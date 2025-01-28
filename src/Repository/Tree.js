@@ -186,26 +186,31 @@ class TreeRepository extends OneBuildRepository {
 					this.throwError(message);
 					return;
 				}
+
 				
 				// Set the current entities
-				const oThis = this;
-				const children = _.map(root, (data) => {
-					const entity = Repository._createEntity(oThis.schema, data, this, true);
-					oThis._relayEntityEvents(entity);
-					return entity;
+				const children = [];
+				_.each(root, (data) => {
+					if (data.id === treeNode.id) {
+						// This is the node we're loading, so update it directly
+						treeNode.loadOriginalData(data);
+						return null;
+					}
+					const entity = Repository._createEntity(this.schema, data, this, true);
+					this._relayEntityEvents(entity);
+					children.push(entity);
 				});
-
-				this.entities = this.entities.concat(children);
-
-				this.assembleTreeNodes();
-				
-				this._setPaginationVars();
+				if (children.length) {
+					this.entities = this.entities.concat(children);
+					this.assembleTreeNodes();
+					this._setPaginationVars();
+				}
 
 				this.rehash();
 				// this.emit('changeData', this.entities);
 				this.emit('load', this);
 
-				return children;
+				return treeNode;
 			})
 			.finally(() => {
 				this.markLoading(false);
