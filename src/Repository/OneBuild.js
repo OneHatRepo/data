@@ -354,7 +354,8 @@ class OneBuildRepository extends AjaxRepository {
 
 		if (!success) {
 			this.markLoading(false);
-			throw Error(message);
+			this.throwError(message);
+			return;
 		}
 
 		// Click duplicateId. The new row appears directly above the one that was duplicated
