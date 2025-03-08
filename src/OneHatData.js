@@ -56,10 +56,10 @@ export class OneHatData extends EventEmitter {
 		this.repositories = {};
 
 		/**
-		 * @member {Object} uniqueRepositoriesMap - Object map of all unique Repositories, with signature of { mapName: id }
+		 * @member {Object} uniqueRepositoryIdsMap - Object map of all unique Repositories, with signature of { mapName: id }
 		 * @private
 		 */
-		this.uniqueRepositoriesMap = {};
+		this.uniqueRepositoryIdsMap = {};
 		
 		/**
 		 * @member {boolean} isDestroyed - Whether this object has been destroyed
@@ -495,8 +495,8 @@ export class OneHatData extends EventEmitter {
 
 	/**
 	 * Gets or creates a unique repository with the supplied schemaName and name
-	 * @param {string} schemaName - Name of Schema
 	 * @param {string} mapName - Name of unique repository (will be internally mapped to an id)
+	 * @param {string} schemaName - Name of Schema
 	 * @return {Repository} repository
 	 */
 	getOrCreateUniqueRepository = async (mapName, schemaName) => {
@@ -505,7 +505,7 @@ export class OneHatData extends EventEmitter {
 		}
 		
 		// Try to get it
-		const id = this.uniqueRepositoriesMap[mapName];
+		let id = this.uniqueRepositoryIdsMap[mapName];
 		if (id) {
 			return this.getRepositoryById(id);
 		}
@@ -517,8 +517,10 @@ export class OneHatData extends EventEmitter {
 		}
 
 		const repository = await this.createRepository(schemaName);
-		this.uniqueRepositoriesMap[mapName] = repository.id;
+		id = repository.id;
+		repository.name += '-' + id;
 		repository.isUnique = true;
+		this.uniqueRepositoryIdsMap[mapName] = repository.id;
 		return repository;
 	}
 
