@@ -1,10 +1,10 @@
 /** @module Writer */
 
 import JsonWriter from './JsonWriter.js';
-import XmlWriter from './XmlWriter.js';
+// import XmlWriter from './XmlWriter.js';
 
 const WriterTypes = {
 	[JsonWriter.type]: JsonWriter,
-	[XmlWriter.type]: XmlWriter,
+	// [XmlWriter.type]: XmlWriter,
 };
 export default WriterTypes;
