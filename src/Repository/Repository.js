@@ -349,6 +349,7 @@ export default class Repository extends EventEmitter {
 
 		this._createMethods();
 		this._createStatics();
+		this._createListeners();
 
 		const init = this.schema.repository.init || this.originalConfig.init; // The latter is mainly for lfr repositories
 		if (init) {
@@ -392,6 +393,28 @@ export default class Repository extends EventEmitter {
 			const oThis = this;
 			_.each(staticsDefinitions, (value, key) => {
 				oThis[key] = value;
+			});
+		}
+	}
+
+	/**
+	 * Creates the initial listeners for this Repository, based on originalConfig.
+	 * @private
+	 */
+	_createListeners() {
+		if (this.isDestroyed) {
+			this.throwError('this._createListeners is no longer valid. Repository has been destroyed.');
+			return;
+		}
+		const listeners = this.originalConfig.listeners;
+		if (!_.isEmpty(listeners)) {
+			const oThis = this;
+			_.each(listeners, ({ event, handler }) => {
+				if (!event || !handler) {
+					oThis.throwError('Invalid listener definition. Must have event and handler.');
+					return;
+				}
+				oThis.on(event, handler);
 			});
 		}
 	}
