@@ -1832,7 +1832,7 @@ class Entity extends EventEmitter {
 	 * @fires destroy
 	 */
 	destroy = () => {
-		if (this.isFrozen) {
+		if (this.isFrozen || this.isDestroyed) {
 			return;
 		}
 
