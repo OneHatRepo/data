@@ -1,7 +1,7 @@
 /** @module Property */
 
 import Property from './Property.js';
-import { unformat, formatMoney, toFixed } from 'accounting-js';
+import * as accounting from 'accounting-js';
 import _ from 'lodash';
 
 /**
@@ -48,7 +48,7 @@ export default class CurrencyProperty extends Property {
 		if (_.isNil(value)) {
 			return null;
 		}
-		return unformat(value);
+		return accounting.unformat(value);
 	}
 
 	getDisplayValue() {
@@ -56,7 +56,7 @@ export default class CurrencyProperty extends Property {
 			throw Error('this.getDisplayValue is no longer valid. Property has been destroyed.');
 		}
 
-		let ret = formatMoney(this.parsedValue, this.displayOptions)
+		let ret = accounting.formatMoney(this.parsedValue, this.displayOptions)
 		if (this.omitZeros && ret.match(/\.00$/)) {
 			ret = ret.replace(/\.00$/, '');
 		}
@@ -68,7 +68,7 @@ export default class CurrencyProperty extends Property {
 			throw Error('this.getSubmitValue is no longer valid. Property has been destroyed.');
 		}
 		if (this.submitAsString) {
-			return toFixed(this.parsedValue, 2);
+			return accounting.toFixed(this.parsedValue, 2);
 		}
 		return this.parsedValue;
 	}
