@@ -1,6 +1,6 @@
 {
 	"name": "@onehat/data",
-	"version": "1.22.12",
+	"version": "1.22.13",
 	"description": "JS data modeling package with adapters for many storage mediums.",
 	"main": "src/index.js",
 	"type": "module",
@@ -37,20 +37,20 @@
 	"homepage": "https://github.com/OneHatRepo/data#readme",
 	"dependencies": {
 		"@onehat/events": "^1.6.6",
-		"accounting-js": "^1.1.1",
-		"async-wait-until": "^2.0.12",
-		"axios": "^1.6.2",
-		"chrono-node": "^2.7.3",
+		"accounting-js": "^2.0.3",
+		"async-wait-until": "^2.0.27",
+		"axios": "^1.11.0",
+		"chrono-node": "^2.8.3",
 		"he": "^1.2.0",
-		"js-base64": "^3.7.5",
+		"js-base64": "^3.7.7",
 		"lodash": "^4.17.21",
-		"moment": "^2.29.4",
+		"moment": "^2.30.1",
 		"natsort": "^2.0.3",
 		"numeral": "^2.0.6",
 		"object-hash": "^3.0.0",
-		"qs": "^6.11.2",
+		"qs": "^6.14.0",
 		"relative-time-parser": "^1.0.15",
-		"uuid": "^9.0.1"
+		"uuid": "^11.1.0"
 	},
 	"peerDependencies": {
 		"fast-xml-parser": "^4.4.1",
