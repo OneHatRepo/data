@@ -316,7 +316,23 @@ class AjaxRepository extends Repository {
 		if (!this.hasBaseParam(name)) {
 			return null;
 		}
-		return this._baseParams[name];
+
+		// Handle simple property access
+		if (this._baseParams.hasOwnProperty(name)) {
+			return this._baseParams[name];
+		}
+
+		// Handle array notation like "conditions[fleets__enterprise_id]"
+		const keys = name.split(/[\[\].]+/).filter(Boolean);
+		let current = this._baseParams;
+
+		for(const key of keys) {
+			if (!current || !current.hasOwnProperty(key)) {
+				return null;
+			}
+			current = current[key];
+		}
+		return current;
 	}
 
 	/**
@@ -332,7 +348,22 @@ class AjaxRepository extends Repository {
 	 * @param {string} name - Param name
 	 */
 	hasParam(name) {
-		return this._params.hasOwnProperty(name);
+		if (this._params.hasOwnProperty(name)) {
+			return true;
+		}
+
+		// Check for array notation
+		const keys = name.split(/[\[\].]+/).filter(Boolean);
+		let current = this._params,
+			key;
+
+		for(key of keys) {
+			if (!current || !current.hasOwnProperty(key)) {
+				return false;
+			}
+			current = current[key];
+		}
+		return true;
 	}
 
 	/**
