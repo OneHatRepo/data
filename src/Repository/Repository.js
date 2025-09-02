@@ -216,6 +216,7 @@ export default class Repository extends EventEmitter {
 
 		/**
 		 * @member {number} total - Total number of entities in remote storage that pass filters
+		 * Example: "Showing 21-30 of 45" This would be 45
 		 */
 		this.total = 0;
 

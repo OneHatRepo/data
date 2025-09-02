@@ -97,7 +97,7 @@ class OneBuildRepository extends AjaxRepository {
 	 * Fires off axios request to server
 	 * @private
 	 */
-	_send(method, url, data, headers) {
+	_send(method, url, data, options = {}) {
 
 		if (!url) {
 			this.throwError('No url submitted');
@@ -109,12 +109,20 @@ class OneBuildRepository extends AjaxRepository {
 			return;
 		}
 
+		// Create AbortController for this request
+		const controller = new AbortController();
+		const { signal } = controller;
+
+		if (options.isLoadRequest && !this.disableLimitToOnlyOneLoadRequest && !this.isUnique && options.requestKey) {
+			this._activeLoadRequests.set(options.requestKey, { controller });
+		}
+
 		const mergedHeaders = _.merge({
 							// 'Content-Type': 'application/json', // Stops axios from using 'application/x-www-form-urlencoded'
 							Accept: 'application/json',
-						}, this.headers, headers);
+						}, this.headers, options.headers);
 
-		const options = {
+		const axiosOptions = {
 				url,
 				method,
 				baseURL: this.api.baseURL,
@@ -123,16 +131,22 @@ class OneBuildRepository extends AjaxRepository {
 				params: method === 'GET' ? data : null,
 				data: method !== 'GET' ? qs.stringify(data) : null,
 				timeout: this.timeout,
+				signal,
 			};
 		
 		if (this.debugMode) {
-			console.log('Sending ' + url, options);
+			console.log('Sending ' + url, axiosOptions);
 		}
 		
-		this.lastSendOptions = options;
+		this.lastSendOptions = axiosOptions;
 		
-		return this.axios(options)
+		return this.axios(axiosOptions)
 					.catch(error => {
+						// Don't log or throw error if request was aborted
+						if (error.name === 'AbortError' || error.code === 'ERR_CANCELED') {
+							return Promise.reject(new Error('Request cancelled'));
+						}
+						
 						if (this.debugMode) {
 							console.log(url + ' error', error);
 							console.log('response:', error.response);
@@ -147,6 +161,11 @@ class OneBuildRepository extends AjaxRepository {
 						
 						this.throwError(error);
 						return;
+					})
+					.finally(() => {
+						if (options.isLoadRequest && !this.disableLimitToOnlyOneLoadRequest && !this.isUnique && options.requestKey) {
+							this._activeLoadRequests.delete(options.requestKey);
+						}
 					});
 	}
 

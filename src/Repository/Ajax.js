@@ -100,6 +100,11 @@ class AjaxRepository extends Repository {
 			 * @private
 			 */
 			isOnline: true,
+
+			/**
+			 * @member {boolean} disableLimitToOnlyOneLoadRequest - If true, disables automatic cancellation of duplicate load requests
+			 */
+			disableLimitToOnlyOneLoadRequest: false,
 			
 		};
 		_.merge(this, defaults, config);
@@ -119,6 +124,12 @@ class AjaxRepository extends Repository {
 		 * @private
 		 */
 		this._params = {};
+
+		/**
+		 * @member {Map} _activeLoadRequests - Map of active requests keyed by URL
+		 * @private
+		 */
+		this._activeLoadRequests = new Map();
 		
 		this._operations = {
 			add: false,
@@ -470,6 +481,30 @@ class AjaxRepository extends Repository {
 			this.throwError('No "get" api endpoint defined.');
 			return;
 		}
+
+
+
+		if (!_.isNil(params) && _.isObject(params)) {
+			this.setParams(params);
+		}
+		const
+			url = this.getModel() + '/' + this.api.get,
+			data = _.merge({}, this._baseParams, this._params),
+			requestKey = this._generateRequestKey(url, data);
+
+		if (!this.disableLimitToOnlyOneLoadRequest && !this.isUnique) {
+			if (this._activeLoadRequests.has(requestKey)) {
+				// Identical request already in progress, ignore this one
+				if (this.debugMode) {
+					console.log('Ignoring duplicate load request for', url, data);
+				}
+				return;
+			}
+
+			// Cancel any existing request for the same URL but different params
+			this._cancelExistingRequestsForUrl(url, requestKey);
+		}
+
 		this.emit('beforeLoad'); // TODO: canceling beforeLoad will cancel the load operation
 		this.markLoading();
 
@@ -485,16 +520,9 @@ class AjaxRepository extends Repository {
 			this.resumeEvents();
 		}
 
-		if (!_.isNil(params) && _.isObject(params)) {
-			this.setParams(params);
-		}
-
-		const
-			repository = this,
-			url = this.getModel() + '/' + this.api.get,
-			data = _.merge({}, this._baseParams, this._params);
+		const repository = this;
 		
-		return this._send(this.methods.get, url, data)
+    return this._send(this.methods.get, url, data, { isLoadRequest: true, requestKey, })
 					.then(result => {
 						if (this.debugMode) {
 							console.log('Response for ' + this.name, result);
@@ -550,7 +578,67 @@ class AjaxRepository extends Repository {
 					})
 					.finally(() => {
 						this.markLoading(false);
+						if (!this.disableLimitToOnlyOneLoadRequest && !this.isUnique && requestKey) {
+							this._activeLoadRequests.delete(requestKey);
+						}
 					});
+	}
+
+	/**
+	 * Generates a unique key for a request based on URL and parameters
+	 * @param {string} url - The request URL
+	 * @param {object} data - The request parameters
+	 * @return {string} requestKey - Unique key for this URL+params combination
+	 * @private
+	 */
+	_generateRequestKey(url, data) {
+		const sortedData = this._sortObjectDeep(data);
+		return url + '::' + JSON.stringify(sortedData);
+	}
+
+	/**
+	 * Deep sorts an object by keys to ensure consistent hashing
+	 * @param {object} obj - Object to sort
+	 * @return {object} sortedObj - Object with keys sorted recursively
+	 * @private
+	 */
+	_sortObjectDeep(obj) {
+		if (_.isArray(obj)) {
+			return obj.map(item => this._sortObjectDeep(item));
+		} else if (_.isPlainObject(obj)) {
+			const sortedObj = {};
+			const sortedKeys = Object.keys(obj).sort();
+			for (const key of sortedKeys) {
+				sortedObj[key] = this._sortObjectDeep(obj[key]);
+			}
+			return sortedObj;
+		}
+		return obj;
+	}
+
+	/**
+	 * Cancels any existing requests for the same URL but different params
+	 * @param {string} url - The request URL
+	 * @param {string} currentRequestKey - The current request key to exclude from cancellation
+	 * @private
+	 */
+	_cancelExistingRequestsForUrl(url, currentRequestKey) {
+		const keysToCancel = [];
+		
+		// Find all requests for the same URL but different params
+		for (const [requestKey, requestInfo] of this._activeLoadRequests.entries()) {
+			if (requestKey !== currentRequestKey && requestKey.startsWith(url + '::')) {
+				keysToCancel.push(requestKey);
+				if (requestInfo.controller) {
+					requestInfo.controller.abort();
+				}
+			}
+		}
+		
+		// Remove cancelled requests from tracking
+		keysToCancel.forEach(key => {
+			this._activeLoadRequests.delete(key);
+		});
 	}
 
 	showMore(params = {}, callback) {
@@ -1040,7 +1128,7 @@ class AjaxRepository extends Repository {
 	 * Fires off axios request to server
 	 * @private
 	 */
-	_send(method, url, data) {
+	_send(method, url, data, options = {}) {
 
 		if (!url) {
 			this.throwError('No url submitted');
@@ -1052,12 +1140,19 @@ class AjaxRepository extends Repository {
 			return;
 		}
 
+		const controller = new AbortController();
+		const { signal } = controller;
+
+		if (options.isLoadRequest && !this.disableLimitToOnlyOneLoadRequest && !this.isUnique && options.requestKey) {
+			this._activeLoadRequests.set(options.requestKey, { controller });
+		}
+
 		const headers = _.merge({
 							'Content-Type': 'application/json',
 							'Accept': 'application/json',
-						}, this.headers);
+						}, this.headers, options.headers);
 
-		const options = {
+		const axiosOptions = {
 				url,
 				method,
 				baseURL: this.api.baseURL,
@@ -1066,22 +1161,34 @@ class AjaxRepository extends Repository {
 				params: method === 'GET' ? data : null,
 				data: method !== 'GET' ? qs.stringify(data) : null,
 				timeout: this.timeout,
+				signal,
 			};
 		
 		if (this.debugMode) {
-			console.log(url, options);
+			console.log(url, axiosOptions);
 		}
 		
-		this.lastSendOptions = options;
+		this.lastSendOptions = axiosOptions;
 		
-		return this.axios(options)
+		return this.axios(axiosOptions)
 					.catch(error => {
+						// Don't log or throw error if request was aborted
+						if (error.name === 'AbortError' || error.code === 'ERR_CANCELED') {
+							return Promise.reject(new Error('Request cancelled'));
+						}
+
 						if (this.debugMode) {
 							console.log(url + ' error', error);
 							console.log('response:', error.response);
 						}
 						this.throwError(error);
 						return;
+					})
+					.finally(() => {
+						// Clean up tracking for GET requests
+						if (options.isLoadRequest && !this.disableLimitToOnlyOneLoadRequest && !this.isUnique && options.requestKey) {
+							this._activeLoadRequests.delete(options.requestKey);
+						}
 					});
 	}
 
