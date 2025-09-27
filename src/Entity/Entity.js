@@ -115,16 +115,6 @@ class Entity extends EventEmitter {
 		 */
 		this.isTree = schema.repository.type === 'tree' || false;
 
-		if (this.isTree && !schema.model.parentIdProperty) {
-			throw new Error('parentIdProperty cannot be empty for a TreeNode');
-		}
-		if (this.isTree && this.repository?.isClosureTable && !schema.model.depthProperty) {
-			throw new Error('depthProperty cannot be empty for a Closure Table TreeNode');
-		}
-		if (this.isTree && !schema.model.hasChildrenProperty) {
-			throw new Error('hasChildrenProperty cannot be empty for a TreeNode');
-		}
-
 		/**
 		 * @member {TreeNode} parent - The parent TreeNode for this TreeNode
 		 * @public
@@ -346,7 +336,16 @@ class Entity extends EventEmitter {
 		if (this.isDestroyed) {
 			throw Error('this._createProperties is no longer valid. Entity has been destroyed.');
 		}
-		const propertyDefinitions = this.schema.model.properties;
+		let propertyDefinitions = this.schema.model.properties;
+		if (this.isTree) {
+			const treePropertyDefinitions = [
+				// defaults
+				{ name: 'parentId', mapping: 'parentId', type: 'int', isEditingDisabled: true, isFilteringDisabled: true, },
+				{ name: 'hasChildren', mapping: 'hasChildren', type: 'bool', isEditingDisabled: true, isFilteringDisabled: true, },
+				{ name: 'depth', mapping: 'depth', type: 'int', isEditingDisabled: true, isFilteringDisabled: true, },
+			];
+			propertyDefinitions = _.unionBy(propertyDefinitions, treePropertyDefinitions, 'name'); // propertyDefinitions will override treePropertyDefinitions
+		}
 		let properties = {};
 		_.each(propertyDefinitions, (definition) => {
 			if (!definition.name) {
