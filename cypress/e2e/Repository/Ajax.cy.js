@@ -38,6 +38,21 @@ describe('OneBuildRepository', function() {
 			expect(r._params.test).to.be.eq(1);
 		});
 
+		it('getBaseParamConditions', function() {
+			const
+				r = this.repository,
+				newConditions = {
+					'conditions[Model.model]': 'test1',
+					'conditions[Model.modelid]': 'test2',
+				};
+
+			r.setBaseParams(newConditions);
+
+			const conditions = r.getBaseParamConditions();
+
+			expect(conditions).to.eql(newConditions);
+		});
+
 		it('hasParam', function() {
 			const r = this.repository;
 			r.setParam('test', 1);
