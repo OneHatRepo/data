@@ -114,7 +114,6 @@ class TreeRepository extends OneBuildRepository {
 				this._setPaginationVars();
 
 				this.markLoaded();
-				this.areRootNodesLoaded = true;
 
 				
 				// Don't emit events for root nodes...
@@ -206,6 +205,8 @@ class TreeRepository extends OneBuildRepository {
 					this.assembleTreeNodes();
 					this._setPaginationVars();
 				}
+
+				this.markLoaded();
 
 				this.rehash();
 				// this.emit('changeData', this.entities);

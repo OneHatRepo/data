@@ -257,11 +257,6 @@ export default class Repository extends EventEmitter {
 		this.lastLoaded = null;
 
 		/**
-		 * @member {boolean} areRootNodesLoaded - State: whether or not root nodes have been loaded at least once
-		 */
-		this.areRootNodesLoaded = false;
-
-		/**
 		 * @member {boolean} isSaving - State: whether or not entities are currently being saved
 		 */
 		this.isSaving = false;
