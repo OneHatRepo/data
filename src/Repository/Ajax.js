@@ -535,7 +535,7 @@ class AjaxRepository extends Repository {
 
 		const repository = this;
 		
-    return this._send(this.methods.get, url, data, { isLoadRequest: true, requestKey, })
+		return this._send(this.methods.get, url, data, { isLoadRequest: true, requestKey, })
 					.then(result => {
 						if (this.debugMode) {
 							console.log('Response for ' + this.name, result);

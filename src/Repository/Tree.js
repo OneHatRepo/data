@@ -113,6 +113,7 @@ class TreeRepository extends OneBuildRepository {
 				this.total = total;
 				this._setPaginationVars();
 
+				this.markLoaded();
 				this.areRootNodesLoaded = true;
 
 				
