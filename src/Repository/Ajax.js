@@ -368,6 +368,19 @@ class AjaxRepository extends Repository {
 	}
 
 	/**
+	 * Returns current value of any param query conditions
+	 */
+	getParamConditions() {
+		const
+			existingConditions = this._params.conditions || {},
+			convertedConditions = {};
+		_.each(existingConditions, (value, key) => {
+			convertedConditions['conditions[' + key + ']'] = value;
+		});
+		return convertedConditions;
+	}
+
+	/**
 	 * Determines if query param exists
 	 * @param {string} name - Param name
 	 */
