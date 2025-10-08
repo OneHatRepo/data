@@ -201,7 +201,7 @@ class OneBuildRepository extends AjaxRepository {
 			}
 		});
 
-		if (this.isAutoLoad && this.isLoaded && !this.eventsPaused) {
+		if ((this.isAutoLoad || this.isTree) && this.isLoaded && !this.eventsPaused) {
 			if (this.isTree) {
 				return this.loadRootNodes(1);
 			} else {
