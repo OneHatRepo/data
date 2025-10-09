@@ -434,7 +434,11 @@ class AjaxRepository extends Repository {
 			this._baseParams = {};
 		}
 		if (reload && this.isLoaded && !this.eventsPaused) {
-			return this.reload();
+			if (this.isTree) {
+				return this.loadRootNodes();
+			} else {
+				return this.reload();
+			}
 		}
 	}
 
@@ -449,7 +453,11 @@ class AjaxRepository extends Repository {
 		this.setBaseParam(this.paramDirection, sorter.direction);
 		
 		if (this.isLoaded && !this.eventsPaused) {
-			return this.reload();
+			if (this.isTree) {
+				return this.loadRootNodes();
+			} else {
+				return this.reload();
+			}
 		}
 	}
 
@@ -464,7 +472,11 @@ class AjaxRepository extends Repository {
 		});
 
 		if (this.isLoaded && !this.eventsPaused) {
-			return this.reload();
+			if (this.isTree) {
+				return this.loadRootNodes();
+			} else {
+				return this.reload();
+			}
 		}
 	}
 
@@ -477,7 +489,27 @@ class AjaxRepository extends Repository {
 		this.setBaseParam(this.paramPageSize, this.isPaginated ? this.pageSize : null);
 
 		if (this.isLoaded && !this.eventsPaused) {
-			return this.reload();
+			const
+				currentEntityCount = this.entities.length,
+				newPageSize = this.pageSize;
+			if (this.page === 1 && currentEntityCount >= newPageSize && this.isPaginated) {
+				// Optimization: if we're on page 1 and already have enough entities
+				// for the new page size, just truncate the existing data instead of reloading
+				const entitiesToRemove = this.entities.splice(newPageSize);
+				entitiesToRemove.forEach(entity => entity.destroy());
+				this._setPaginationVars();
+				this.emit('changeData', this.entities);
+				if (this.debugMode) {
+					console.log(`Truncated entities from ${currentEntityCount} to ${newPageSize}`);
+				}
+			} else {
+				// We need more data or we're not on page 1, so reload
+				if (this.isTree) {
+					return this.loadRootNodes();
+				} else {
+					return this.reload();
+				}
+			}
 		}
 	}
 	
@@ -496,7 +528,7 @@ class AjaxRepository extends Repository {
 	 * @fires beforeLoad,changeData,load,error
 	 */
 	async load(params, callback = null) {
-		if (this.isTree && this.loadRootNodes) {
+		if (this.isTree) {
 			return this.loadRootNodes();
 		}
 		if (this.isDestroyed) {
