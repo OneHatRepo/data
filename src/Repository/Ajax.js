@@ -434,11 +434,7 @@ class AjaxRepository extends Repository {
 			this._baseParams = {};
 		}
 		if (reload && this.isLoaded && !this.eventsPaused) {
-			if (this.isTree) {
-				return this.loadRootNodes();
-			} else {
-				return this.reload();
-			}
+			return this.reload();
 		}
 	}
 
@@ -453,11 +449,7 @@ class AjaxRepository extends Repository {
 		this.setBaseParam(this.paramDirection, sorter.direction);
 		
 		if (this.isLoaded && !this.eventsPaused) {
-			if (this.isTree) {
-				return this.loadRootNodes();
-			} else {
-				return this.reload();
-			}
+			return this.reload();
 		}
 	}
 
@@ -472,11 +464,7 @@ class AjaxRepository extends Repository {
 		});
 
 		if (this.isLoaded && !this.eventsPaused) {
-			if (this.isTree) {
-				return this.loadRootNodes();
-			} else {
-				return this.reload();
-			}
+			return this.reload();
 		}
 	}
 
@@ -504,11 +492,7 @@ class AjaxRepository extends Repository {
 				}
 			} else {
 				// We need more data or we're not on page 1, so reload
-				if (this.isTree) {
-					return this.loadRootNodes();
-				} else {
-					return this.reload();
-				}
+				return this.reload();
 			}
 		}
 	}
