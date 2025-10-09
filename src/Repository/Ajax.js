@@ -59,7 +59,7 @@ class AjaxRepository extends Repository {
 			writer: 'json',
 
 			/**
-			 * @member {string} paramPageNum - Parameter name for current page number
+			 * @member {string} paramPageNum - Parameter name for currentl page number
 			 */
 			paramPageNum: 'page',
 
@@ -105,11 +105,6 @@ class AjaxRepository extends Repository {
 			 * @member {boolean} disableLimitToOnlyOneLoadRequest - If true, disables automatic cancellation of duplicate load requests
 			 */
 			disableLimitToOnlyOneLoadRequest: false,
-
-			/**
-			 * @member {integer} maxIncrementalLoadSize - Maximum number of additional items to fetch incrementally
-			 */
-			maxIncrementalLoadSize: 5,
 			
 		};
 		_.merge(this, defaults, config);
@@ -481,46 +476,9 @@ class AjaxRepository extends Repository {
 		this.setBaseParam(this.paramPageNum, this.isPaginated ? this.page : null);
 		this.setBaseParam(this.paramPageSize, this.isPaginated ? this.pageSize : null);
 
-		// if (this.isLoaded && !this.eventsPaused) {
-		// 	// try to optimize reload if page size changed
-		// 	const
-		// 		currentEntityCount = this.entities.length,
-		// 		newPageSize = this.pageSize,
-		// 		previousPageSize = this._previousPageSize || currentEntityCount;
-			
-		// 	this._previousPageSize = newPageSize;
-		// 	if (this.page === 1 && this.isPaginated) {
-		// 		// Case 1: Page size decreased - truncate existing data
-		// 		if (currentEntityCount >= newPageSize) {
-		// 			const entitiesToRemove = this.entities.splice(newPageSize);
-		// 			entitiesToRemove.forEach(entity => entity.destroy());
-		// 			this._setPaginationVars();
-		// 			this.emit('changeData', this.entities);
-					
-		// 			if (this.debugMode) {
-		// 				console.log(`Truncated entities from ${currentEntityCount} to ${newPageSize}`);
-		// 			}
-		// 			return;
-		// 		}
-				
-		// 		// Case 2: Small page size increase - fetch only additional records
-		// 		const
-		// 			itemsNeeded = newPageSize - currentEntityCount,
-		// 			maxIncrementalLoad = this.maxIncrementalLoadSize || 5;
-		// 		if (itemsNeeded > 0 && itemsNeeded <= maxIncrementalLoad && currentEntityCount > 0) {
-		// 			return this._loadAdditionalEntities(itemsNeeded)
-		// 						.catch((error) => {
-		// 							// If incremental load fails, fall back to full reload
-		// 							if (this.debugMode) {
-		// 								console.log('Incremental load failed, falling back to full reload:', error.message);
-		// 							}
-		// 							return this._performFullReload();
-		// 						});
-		// 		}
-		// 	}
-		// 	// default case: full reload
-		// }
-		// return this._performFullReload();
+		if (this.isLoaded && !this.eventsPaused) {
+			return this.reload();
+		}
 	}
 	
 
@@ -650,74 +608,6 @@ class AjaxRepository extends Repository {
 							this._activeLoadRequests.delete(requestKey);
 						}
 					});
-	}
-
-	/**
-	 * Loads additional entities for incremental pagination
-	 * @param {number} itemsNeeded - Number of additional items to fetch
-	 * @private
-	 */
-	async _loadAdditionalEntities(itemsNeeded) {
-		// Calculate which "page" contains the records we need
-		// If we have 25 records and need 3 more, we want records 26-28
-		// With limit=3, that would be page 9 (since 25/3 = 8.33, so page 9 starts at record 25)
-		const
-			offset = this.entities.length,
-			requestPage = Math.floor(offset / itemsNeeded) + 1;
-		
-		// Build request data with temporary pagination params
-		const requestData = _.merge({}, this._baseParams, this._params);
-		requestData[this.paramPageNum] = requestPage;
-		requestData[this.paramPageSize] = itemsNeeded;
-		
-		const url = this.getModel() + '/' + this.api.get;
-		
-		if (this.debugMode) {
-			console.log(`Loading ${itemsNeeded} additional entities: page ${requestPage}, limit ${itemsNeeded}, offset ${offset}`);
-		}
-		
-		const result = await this._send(this.methods.get, url, requestData);
-		
-		const {
-			root,
-			success,
-			message
-		} = this._processServerResponse(result);
-		
-		if (!success) {
-			throw new Error(message || 'Failed to load additional entities');
-		}
-		
-		// Handle case where fewer (or zero) records are returned than requested
-		// This is normal and not an error - just means we hit the end of the data
-		const newEntities = (root || []).map(data => {
-			const entity = Repository._createEntity(this.schema, data, this, true);
-			this._relayEntityEvents(entity);
-			return entity;
-		});
-		
-		// Add the new entities to our collection
-		this.entities = this.entities.concat(newEntities);
-		this._setPaginationVars();
-		this.emit('changeData', this.entities);
-		
-		if (this.debugMode) {
-			console.log(`Successfully loaded ${newEntities.length} additional entities (requested ${itemsNeeded})`);
-		}
-		
-		return newEntities;
-	}
-
-	/**
-	 * Performs a full reload (the original behavior)
-	 * @private
-	 */
-	_performFullReload() {
-		if (this.isTree && this.loadRootNodes) {
-			return this.loadRootNodes();
-		} else {
-			return this.reload();
-		}
 	}
 
 	/**
