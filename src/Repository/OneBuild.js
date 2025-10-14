@@ -144,7 +144,7 @@ class OneBuildRepository extends AjaxRepository {
 					.catch(error => {
 						// Don't log or throw error if request was aborted
 						if (error.name === 'AbortError' || error.code === 'ERR_CANCELED') {
-							return Promise.reject(new Error('Request cancelled'));
+							return Promise.reject('Request cancelled');
 						}
 						
 						if (this.debugMode) {
