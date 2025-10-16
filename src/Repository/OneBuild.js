@@ -544,20 +544,30 @@ class OneBuildRepository extends AjaxRepository {
 		}
 
 		return this.axios(data)
-			.then((result) => {
-				if (this.debugMode) {
-					console.log('login response', result);
-				}
+					.catch((error) => {
 
-				const response = result.data;
-				if (!response.success) {
-					this.throwError(response.data); // TODO: Fix back-end, so OneBuild submits the error message on response.message, not response.data
-					return false;
-				}
+						if (this.debugMode) {
+							console.log(data.url + ' error', error);
+							console.log('response:', error.response);
+						}
+						
+						this.throwError(error);
+						return;
+					})
+					.then((result) => {
+						if (this.debugMode) {
+							console.log('login response', result);
+						}
 
-				const userData = response.data;
-				return userData;
-			});
+						const response = result.data;
+						if (!response.success) {
+							this.throwError(response.data); // TODO: Fix back-end, so OneBuild submits the error message on response.message, not response.data
+							return false;
+						}
+
+						const userData = response.data;
+						return userData;
+					});
 	}
 
 	/**
