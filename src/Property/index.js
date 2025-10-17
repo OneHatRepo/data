@@ -9,6 +9,7 @@ import FileProperty from './File.js';
 import FloatProperty from './Float.js';
 import IntegerProperty from './Integer.js';
 import JsonProperty, { TagProperty } from './Json.js';
+import MixedProperty from './Mixed.js';
 import PercentProperty from './Percent.js';
 import PercentIntProperty from './PercentInt.js';
 import Property from './Property.js';
@@ -26,6 +27,7 @@ const PropertyTypes = {
 	[FloatProperty.type]: FloatProperty,
 	[IntegerProperty.type]: IntegerProperty,
 	[JsonProperty.type]: JsonProperty,
+	[MixedProperty.type]: MixedProperty,
 	[PercentProperty.type]: PercentProperty,
 	[PercentIntProperty.type]: PercentIntProperty,
 	[Property.type]: Property,
