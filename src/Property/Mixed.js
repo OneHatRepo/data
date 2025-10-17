@@ -21,6 +21,10 @@ import _ from 'lodash';
  * Class represents a Property that can store values of multiple types.
  * The actual type is determined dynamically based on the value being set.
  * 
+ * Usage: { name: 'date', title: 'Date', types: ['date', 'string'], },
+ * This is primarily used to allow a field that's normally one PropertyType
+ * to also accept string values (e.g. values like '2025-01-01' or 'N/A').
+ * 
  * @extends Property
  */
 export default class MixedProperty extends EventEmitter {
