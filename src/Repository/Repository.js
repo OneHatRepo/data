@@ -191,6 +191,11 @@ export default class Repository extends EventEmitter {
 		this.page = 1;
 
 		/**
+		 * @member {number} previousPage - State: Previous page number in pagination
+		 */
+		this.previousPage = null;
+
+		/**
 		 * Getter for 
 		 * @member {number} pageTotal - State: Total number of entities on the current page
 		 * Example: "Showing 21-25 of 25" This would be 5
@@ -940,6 +945,8 @@ export default class Repository extends EventEmitter {
 			return false;
 		}
 
+		this.previousPage = this.page;
+
 		// Reset to page 1 (don't use setPage(), so we can skip _onChangePagination, which we'll do later)
 		this.page = 1;
 		this.emit('changePage');
@@ -975,6 +982,7 @@ export default class Repository extends EventEmitter {
 			return false;
 		}
 
+		this.previousPage = this.page;
 		this.page = page;
 		this.emit('changePage');
 		if (this._onChangePagination) {

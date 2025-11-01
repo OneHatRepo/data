@@ -480,7 +480,7 @@ class AjaxRepository extends Repository {
 			const
 				currentEntityCount = this.entities.length,
 				newPageSize = this.pageSize;
-			if (this.page === 1 && currentEntityCount >= newPageSize && this.isPaginated) {
+			if (this.previousPage === 1 && this.page === 1 && currentEntityCount >= newPageSize && this.isPaginated) {
 				// Optimization: if we're on page 1 and already have enough entities
 				// for the new page size, just truncate the existing data instead of reloading
 				const entitiesToRemove = this.entities.splice(newPageSize);
@@ -491,7 +491,7 @@ class AjaxRepository extends Repository {
 					console.log(`Truncated entities from ${currentEntityCount} to ${newPageSize}`);
 				}
 			} else {
-				// We need more data or we're not on page 1, so reload
+				// We need more data or weren't already on page 1, so reload
 				return this.reload();
 			}
 		}
