@@ -21,7 +21,7 @@ import _ from 'lodash';
  * Class represents a Property that can store values of multiple types.
  * The actual type is determined dynamically based on the value being set.
  * 
- * Usage: { name: 'date', title: 'Date', types: ['date', 'string'], },
+ * Usage: { name: 'date', title: 'Date', type: 'mixed', types: ['date', 'string'], },
  * This is primarily used to allow a field that's normally one PropertyType
  * to also accept string values (e.g. values like '2025-01-01' or 'N/A').
  * 
@@ -401,6 +401,56 @@ export default class MixedProperty extends EventEmitter {
 
 		this.internalProperties.forEach((property) => property.destroy());
 		this.internalProperties.clear();
+	}
+
+	/**
+	 * Returns the default configuration for this PropertyType.
+	 * For MixedProperty, this delegates to the first configured type's defaults.
+	 * @param {Object} defaults - The default configuration to merge with (should include 'types' array)
+	 * @returns {Object} The default configuration
+	 */
+	static getStaticDefaults(defaults = {}) {
+		const mixedPropertyDefaults = {
+			name: null,
+			allowNull: true,
+			depends: null,
+			mapping: null,
+			submitAsString: false,
+			isSortable: true,
+			isTempId: false,
+			isVirtual: false,
+			title: null,
+			tooltip: null,
+			fieldGroup: null,
+			isForeignModel: false,
+			filterType: null,
+			isFilteringDisabled: false,
+			viewerType: null,
+			editorType: null,
+			isEditingDisabled: false,
+			defaultValue: null,
+			formatter: null,
+		};
+		
+		// If types are configured, use the first type's default value
+		if (defaults.types && Array.isArray(defaults.types) && defaults.types.length > 0) {
+			const
+				firstTypeConfig = defaults.types[0],
+				firstTypeName = typeof firstTypeConfig === 'string' ? firstTypeConfig : firstTypeConfig.type;
+			if (firstTypeName) {
+				try {
+					const PropertyClass = MixedProperty.prototype._getPropertyClass(firstTypeName);
+					const typeDefaults = PropertyClass.getStaticDefaults ? PropertyClass.getStaticDefaults() : {};
+					if (typeDefaults.defaultValue !== undefined) {
+						mixedPropertyDefaults.defaultValue = typeDefaults.defaultValue;
+					}
+				} catch (e) {
+					// If we can't get the property class, just use null default
+				}
+			}
+		}
+		
+		return _.merge({}, mixedPropertyDefaults, defaults);
 	}
 }
 

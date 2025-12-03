@@ -286,7 +286,9 @@ export default class Schema extends EventEmitter {
 				if (!propertyType) {
 					propertyType = PropertyTypes['string'];
 				}
-				const staticDefaults = propertyType.getStaticDefaults();
+				// Pass the property definition to getStaticDefaults for types like 'mixed'
+				// that need access to the configuration (e.g., the types array)
+				const staticDefaults = propertyType.getStaticDefaults(property);
 				defaultValue = staticDefaults.defaultValue;
 			}
 			if (_.isFunction(defaultValue)) {
