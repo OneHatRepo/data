@@ -38,11 +38,20 @@ export default class MixedProperty extends EventEmitter {
 
 		super(config, entity);
 
+		// Apply config to this instance (similar to how Property does it)
+		_.merge(this, config);
+		this._originalConfig = config;
+		this._entity = entity;
+
 		this.registerEvents([
 			'change',
 			'changeValidity',
 			'destroy',
 		]);
+
+		this.rawValue = null;
+		this.parsedValue = null;
+		this.isDestroyed = false;
 
 		this.types = config.types;
 		this.currentType = this.types[0].type || this.types[0];
