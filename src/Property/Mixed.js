@@ -38,20 +38,11 @@ export default class MixedProperty extends EventEmitter {
 
 		super(config, entity);
 
-		// Apply config to this instance (similar to how Property does it)
-		_.merge(this, config);
-		this._originalConfig = config;
-		this._entity = entity;
-
 		this.registerEvents([
 			'change',
 			'changeValidity',
 			'destroy',
 		]);
-
-		this.rawValue = null;
-		this.parsedValue = null;
-		this.isDestroyed = false;
 
 		this.types = config.types;
 		this.currentType = this.types[0].type || this.types[0];
@@ -440,7 +431,7 @@ export default class MixedProperty extends EventEmitter {
 			defaultValue: null,
 			formatter: null,
 		};
-		
+
 		// If types are configured, use the first type's default value
 		if (defaults.types && Array.isArray(defaults.types) && defaults.types.length > 0) {
 			const
@@ -459,7 +450,7 @@ export default class MixedProperty extends EventEmitter {
 			}
 		}
 		
-		return _.merge({}, mixedPropertyDefaults, defaults);
+		return _.merge({}, defaults);
 	}
 }
 
