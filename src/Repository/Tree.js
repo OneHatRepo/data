@@ -371,7 +371,7 @@ class TreeRepository extends OneBuildRepository {
 	getRootNodes() {
 		this.ensureTree();
 		if (this.isDestroyed) {
-			this.throwError('this.loadRootNodes is no longer valid. Repository has been destroyed.');
+			this.throwError('this.getRootNodes is no longer valid. Repository has been destroyed.');
 			return;
 		}
 
