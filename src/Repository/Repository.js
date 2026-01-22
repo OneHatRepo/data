@@ -1138,9 +1138,15 @@ export default class Repository extends EventEmitter {
 			entity = Repository._createEntity(this.schema, data, this, isPersisted, isDelayedSave, this.isRemotePhantomMode);
 		}
 		this._relayEntityEvents(entity);
-		if (this.isTree && data.parentId) {
-			// Trees need new node to be added as first child of parent
-			const ix = this.getIxById(data.parentId) +1;
+		if (this.isTree) {
+			let ix = 1; // default to beginning
+			if (data.previousSiblingId) {
+				// new node to be added as next sibling of previousSiblingId
+				ix = this.getIxById(data.previousSiblingId) +1;
+			} else if (data.parentId) {
+				// new node to be added as first child of parent
+				ix = this.getIxById(data.parentId) +1;
+			}
 			this.entities = [
 				...this.entities.slice(0, ix),
 				entity,
