@@ -519,6 +519,21 @@ class OneBuildRepository extends AjaxRepository {
 	}
 
 	/**
+	 * Get all Entities on current page.
+	 * OneBuild repositories load a single page from the server, so
+	 * this.entities already represents the current page.
+	 * This is an override of the parent method.
+	 * @return {array} Entities
+	 */
+	getEntitiesOnPage() {
+		if (this.isDestroyed) {
+			this.throwError('this.getEntitiesOnPage is no longer valid. Repository has been destroyed.');
+			return;
+		}
+		return this.getEntities();
+	}
+
+	/**
 	 * Login to OneBuild API
 	 * @param {object} creds - object with two properties:
 	 * - username,
