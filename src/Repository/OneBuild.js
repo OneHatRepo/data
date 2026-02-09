@@ -325,6 +325,10 @@ class OneBuildRepository extends AjaxRepository {
 			}),
 			method: 'POST',
 			baseURL: this.api.baseURL,
+			headers: _.merge({
+				Accept: 'application/json',
+			}, this.headers),
+			timeout: this.timeout,
 		};
 
 		if (this.debugMode) {
