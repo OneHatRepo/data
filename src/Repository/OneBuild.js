@@ -399,8 +399,7 @@ class OneBuildRepository extends AjaxRepository {
 	async loadOneAdditionalEntity(id) {
 		const entity = await this.getSingleEntityFromServer(id);
 		if (!entity) {
-			this.throwError('entity not found');
-			return;
+			return null;
 		}
 
 		this._relayEntityEvents(entity);
