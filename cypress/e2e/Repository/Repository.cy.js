@@ -1214,6 +1214,56 @@ describe('Repository Base', function() {
 			expect(unmapped).to.be.eql(data);
 		});
 
+		it('unmapData with scalar vs nested mapping conflict', function() {
+			// Test for the WorkOrders issue:
+			// work_orders__meter_reading (scalar) maps to 'meter_reading'
+			// meter_readings__id, meter_readings__date, etc. (nested) map to 'meter_reading.id', 'meter_reading.date', etc.
+			// The scalar mapping should take precedence, and nested properties should be skipped
+			const
+				schema = new Schema({
+					name: 'conflict_test',
+					model: {
+						idProperty: 'id',
+						displayProperty: 'name',
+						properties: [
+							{ name: 'id', type: 'int' },
+							{ name: 'name' },
+							{ name: 'meter_reading_scalar', mapping: 'meter_reading', type: 'int', defaultValue: null }, // scalar
+							{ name: 'meter_readings__id', mapping: 'meter_reading.id', type: 'int', defaultValue: null }, // nested (conflict!)
+							{ name: 'meter_readings__date', mapping: 'meter_reading.date', type: 'date', defaultValue: null }, // nested (conflict!)
+							{ name: 'meter_readings__value', mapping: 'meter_reading.value', type: 'int', defaultValue: null }, // nested (conflict!)
+						],
+					},
+				});
+			this.repository.schema = schema;
+
+			// Test unmapping: scalar value should be preserved, nested properties should be skipped
+			const mapped = {
+				id: 1,
+				name: 'test',
+				meter_reading_scalar: 42, // The scalar value that should be preserved
+				meter_readings__id: 999, // Should be skipped due to conflict
+				meter_readings__date: '2025-01-01', // Should be skipped due to conflict
+				meter_readings__value: 888, // Should be skipped due to conflict
+			};
+
+			const unmapped = this.repository.unmapData(mapped);
+			
+			// The scalar value should be preserved
+			expect(unmapped.meter_reading).to.equal(42);
+			
+			// The nested properties should NOT have created an object structure
+			// because they were skipped due to the conflict
+			if (typeof unmapped.meter_reading === 'number') {
+				// Correct: scalar value is intact and is a number
+				expect(unmapped.meter_reading).to.equal(42);
+			} else {
+				// If unmapped.meter_reading is an object, check that it wasn't corrupted by merge operations
+				// The test will show if there's a problem
+				expect(unmapped.meter_reading).to.be.a('number');
+			}
+		});
+
 		it('toString', function() {
 			const str = this.repository.toString();
 			expect(str).to.be.eq('NullRepository {bar} - foo');

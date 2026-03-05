@@ -1,6 +1,6 @@
 import numeral from 'numeral';
 import moment from 'moment';
-import accounting from 'accounting-js';
+import * as accounting from 'accounting-js';
 import _ from 'lodash';
 
 class Formatters {

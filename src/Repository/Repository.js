@@ -2196,12 +2196,20 @@ export default class Repository extends EventEmitter {
 			throw Error('No properties defined!');
 		}
 
-		// Simply the definitions
+		// Build property maps for conflict detection
 		const
 			UNMAPPED = 'UNMAPPED',
-			properties = {};
+			properties = {},
+			scalarRoots = new Set(); // Tracks root paths that are bound to scalar properties
+		
 		_.each(propertiesDef, (def) => {
-			properties[def.name] = def.mapping || UNMAPPED;
+			const mapping = def.mapping || UNMAPPED;
+			properties[def.name] = mapping;
+			
+			// Track scalar mappings (single-level) to detect conflicts with nested properties
+			if (mapping !== UNMAPPED && !mapping.includes('.')) {
+				scalarRoots.add(mapping);
+			}
 		});
 
 		// Build the unmapped data
@@ -2213,10 +2221,18 @@ export default class Repository extends EventEmitter {
 				unmappedData[field] = value;
 			} else {
 				// This is the more complicated one. Need to build up the hierarchy of unmapped data
+				const mapStack = mapping.split('.');
+				
+				// CONFLICT DETECTION:
+				// If this property has a nested mapping (a.b.c) and a scalar property already
+				// maps to the root (a), skip this property to avoid overwriting the scalar value.
+				// This prevents: work_orders__meter_reading (scalar, maps to 'meter_reading')
+				// from being overwritten by meter_readings__id (nested, maps to 'meter_reading.id')
+				if (mapStack.length > 1 && scalarRoots.has(mapStack[0])) {
+					return; // Skip this nested property to preserve the scalar value
+				}
 
-				const
-					mapStack = mapping.split('.'),
-					rawValue = value;
+				const rawValue = value;
 		
 				// Build up the hierarchy
 				let thisValue = {},

@@ -173,6 +173,7 @@ export default class Schema extends EventEmitter {
 		this.isDestroyed = false;
 
 		this.normalizeRepositoryConfig();
+		this._validatePropertyMappings();
 		
 		this.registerEvents([
 			'destroy',
@@ -187,6 +188,62 @@ export default class Schema extends EventEmitter {
 		if (_.isString(this.repository)) {
 			this.repository = { type: this.repository };
 		}
+	}
+
+	/**
+	 * Validates property mappings to detect conflicts between scalar and nested properties.
+	 * Warns if a scalar property maps to a path that is also used as a root path by nested properties.
+	 * Example conflict:
+	 * - work_orders__meter_reading maps to 'meter_reading' (scalar)
+	 * - meter_readings__id maps to 'meter_reading.id' (nested, uses 'meter_reading' as root)
+	 * This conflict can cause the scalar value to be overwritten by an object.
+	 * @private
+	 */
+	_validatePropertyMappings = () => {
+		if (!this.model || !this.model.properties || this.model.properties.length === 0) {
+			return;
+		}
+
+		const mappings = {};
+		const scalarRoots = new Set();
+
+		// First pass: collect all mappings and identify scalar roots
+		_.each(this.model.properties, (property) => {
+			if (!property.mapping) {
+				return;
+			}
+			const mapping = property.mapping;
+			if (!mappings[mapping]) {
+				mappings[mapping] = [];
+			}
+			mappings[mapping].push(property.name);
+
+			// If this is a scalar mapping (no dots), track the root
+			if (!mapping.includes('.')) {
+				scalarRoots.add(mapping);
+			}
+		});
+
+		// Second pass: detect conflicts
+		_.each(this.model.properties, (property) => {
+			if (!property.mapping) {
+				return;
+			}
+			const mapping = property.mapping;
+			const mapStack = mapping.split('.');
+
+			// Check if this is a nested property (has dots) and conflicts with a scalar root
+			if (mapStack.length > 1 && scalarRoots.has(mapStack[0])) {
+				console.warn(
+					`[OneHatData Schema Warning] Scalar-vs-nested property mapping conflict in schema "${this.name}": ` +
+					`Property "${property.name}" (mapping: "${mapping}") has a nested path, ` +
+					`but another property maps to the scalar root "${mapStack[0]}". ` +
+					`This can cause data conflicts during unmapping. ` +
+					`Consider renaming one of the properties or adjusting their mappings. ` +
+					`The unmapData() method will skip this nested property to preserve the scalar value.`
+				);
+			}
+		});
 	}
 
 	/**
