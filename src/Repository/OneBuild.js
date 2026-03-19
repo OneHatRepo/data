@@ -175,7 +175,7 @@ class OneBuildRepository extends AjaxRepository {
 	 */
 	_getReloadEntityParams(entity) {
 		const params = { conditions: {}, };
-		params.conditions[entity.schema.name + '.id'] = entity.id;
+		params.conditions[entity.getModel() + '.id'] = entity.id;
 		return params;
 	}
 
