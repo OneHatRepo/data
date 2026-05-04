@@ -69,7 +69,9 @@ class SecureLocalStorageRepository extends LocalStorageRepository {
 
 			value = AES.encrypt(value, this.passphrase).toString(); // MOD
 
-			return this._store(name, value);
+			const result = this._store(name, value);
+			this._broadcastStorageChange(name, 'set');
+			return result;
 
 		} catch (error) {
 			if (this.debugMode) {

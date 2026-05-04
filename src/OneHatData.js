@@ -16,6 +16,7 @@ import {
 	v4 as uuid,
 } from 'uuid';
 import _ from 'lodash';
+import { CROSS_TAB_EVENT_NAME } from './Integration/Browser/Repository/crossTabConstants.js';
 
 /**
  * OneHatData represents a collection of Repositories.
@@ -257,6 +258,9 @@ export class OneHatData extends EventEmitter {
 		}
 		if (repository.isRegisteredEvent('logout')) { // OneBuild repository emits this
 			this.relayEventsFrom(repository, ['logout']);
+		}
+		if (repository.isRegisteredEvent(CROSS_TAB_EVENT_NAME)) {
+			this.relayEventsFrom(repository, [CROSS_TAB_EVENT_NAME]);
 		}
 
 		this.emit('createRepository', repository);

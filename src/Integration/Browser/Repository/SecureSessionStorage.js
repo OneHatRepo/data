@@ -47,8 +47,10 @@ class SecureSessionStorageRepository extends SessionStorageRepository {
 		}
 
 		value = AES.encrypt(value, this.passphrase).toString(); // MOD
-		
-		return this._store.session(name, value);
+
+		const result = this._store.session(name, value);
+		this._broadcastStorageChange(name, 'set');
+		return result;
 	}
 
 };
