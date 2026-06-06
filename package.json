@@ -1,6 +1,6 @@
 {
 	"name": "@onehat/data",
-	"version": "1.22.39",
+	"version": "1.22.40",
 	"description": "JS data modeling package with adapters for many storage mediums.",
 	"main": "src/index.js",
 	"type": "module",
@@ -39,36 +39,36 @@
 		"@onehat/events": "^1.6.6",
 		"accounting-js": "^2.0.3",
 		"async-wait-until": "^2.0.31",
-		"axios": "^1.13.0",
-		"chrono-node": "^2.9.0",
+		"axios": "^1.17.0",
+		"chrono-node": "^2.9.1",
 		"he": "^1.2.0",
 		"js-base64": "^3.7.8",
-		"lodash": "^4.17.21",
+		"lodash": "^4.18.1",
 		"moment": "^2.30.1",
 		"natsort": "^2.0.3",
 		"numeral": "^2.0.6",
 		"object-hash": "^3.0.0",
-		"qs": "^6.14.0",
-		"relative-time-parser": "^1.0.15",
-		"uuid": "^13.0.0"
+		"qs": "^6.15.2",
+		"relative-time-parser": "^1.1.5",
+		"uuid": "^14.0.0"
 	},
 	"peerDependencies": {
-		"fast-xml-parser": "^4.4.1",
-		"store2": "^2.14.3"
+		"fast-xml-parser": "^5.8.0",
+		"store2": "^2.14.4"
 	},
 	"devDependencies": {
-		"@babel/core": "^7.24.5",
-		"@babel/plugin-transform-class-properties": "^7.24.1",
-		"@babel/plugin-transform-export-namespace-from": "^7.24.1",
-		"@babel/plugin-transform-runtime": "^7.24.3",
-		"@babel/preset-env": "^7.24.5",
-		"@babel/runtime": "^7.24.5",
-		"@cypress/webpack-preprocessor": "^5.17.1",
-		"cypress": "^13.15.2",
-		"cypress-localstorage-commands": "^2.2.7",
+		"@babel/core": "^7.29.7",
+		"@babel/plugin-transform-class-properties": "^7.29.7",
+		"@babel/plugin-transform-export-namespace-from": "^7.29.7",
+		"@babel/plugin-transform-runtime": "^7.29.7",
+		"@babel/preset-env": "^7.29.7",
+		"@babel/runtime": "^7.29.7",
+		"@cypress/webpack-preprocessor": "^7.1.1",
+		"cypress": "^15.16.0",
+		"cypress-localstorage-commands": "^2.3.0",
 		"ink-docstrap": "^1.3.2",
-		"joi": "^17.9.2",
-		"jsdoc": "^4.0.2",
-		"yup": "^1.2.0"
+		"joi": "^18.2.1",
+		"jsdoc": "^4.0.5",
+		"yup": "^1.7.1"
 	}
 }
