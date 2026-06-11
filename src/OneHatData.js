@@ -592,13 +592,13 @@ export class OneHatData extends EventEmitter {
 	 * Get Repositories that share the given type
 	 * @return {Repository[]} repositories
 	 */
-	getRepositoriesByType = (type) => {
+	getRepositoriesByType = (type, firstOnly = false) => {
 		if (this.isDestroyed) {
 			throw new Error('this.getRepositoriesByType is no longer valid. OneHatData has been destroyed.');
 		}
 		return this.getRepositoriesBy((repository) => {
 			return repository.getType() === type;
-		});
+		}, firstOnly);
 	}
 
 	/**
