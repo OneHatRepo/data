@@ -552,7 +552,11 @@ export class OneHatData extends EventEmitter {
 			throw new Error('this.getRepositoriesBy is no longer valid. OneHatData has been destroyed.');
 		}
 		if (firstOnly) {
-			return _.find(this.repositories, filter);
+			const found = _.find(this.repositories, filter);
+			if (_.isArray(found) && !found.length) {
+				throw new Error('repository not found')
+			}
+			return found;
 		}
 		return _.filter(this.repositories, filter);
 	}
