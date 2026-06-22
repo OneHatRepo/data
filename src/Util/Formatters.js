@@ -33,7 +33,7 @@ class Formatters {
 	static FormatBoolAsYesNo = (value) => {
 		let ret;
 		if (_.isNil(value)) {
-			return 'No';
+			return 'N/A';
 		} else if (_.isBoolean(value)) {
 			ret = value ? 'Yes' : 'No';
 		} else {
