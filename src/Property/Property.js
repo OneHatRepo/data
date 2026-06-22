@@ -24,7 +24,7 @@ export default class Property extends EventEmitter {
 		name: null,
 
 		/**
-		 * @member {boolean} allowNull - Is the property required to have a value? 
+		 * @member {boolean} allowNull - Is the property allowed to NOT have a value? 
 		 * Defaults to true.
 		 */
 		allowNull: true,
