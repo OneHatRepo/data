@@ -1,6 +1,7 @@
 /** @module Property */
 
 import Property from './Property.js';
+import Formatters from '../Util/Formatters.js';
 import Parsers from '../Util/Parsers.js';
 import _ from 'lodash';
 
@@ -15,6 +16,7 @@ export default class IntegerProperty extends Property {
 	static defaults = {
 		// defaultValue: 0,
 		idStartsAt: 100 * 1000 * 1000 * 1000, // 100 billion
+		formatter: 'FormatInt',
 	};
 
 	constructor(config = {}, entity) {
