@@ -90,6 +90,12 @@ export default class Schema extends EventEmitter {
 				hasChildrenProperty: 'hasChildren',
 
 				/**
+				 * @member {string} hasChildrenOfOtherNodeTypesProperty - name of hasChildrenOfOtherNodeTypes Property (e.g. 'categories__has_children_of_other_node_types' for Adjacency Lists, and has_children_of_other_node_types for Closure Tables)
+				 * For trees only
+				 */
+				hasChildrenOfOtherNodeTypesProperty: 'hasChildrenOfOtherNodeTypes',
+
+				/**
 				 * @member {boolean} isAdjacencyList - Whether this tree is an Adjacency List
 				 */
 				isAdjacencyList: false,

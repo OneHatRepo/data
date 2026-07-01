@@ -1537,7 +1537,7 @@ class Entity extends EventEmitter {
 	/**
 	 * Gets the "hasChildren" Property object for this TreeNode.
 	 * This is the Property whose value represents whether this TreeNode has any children.
-	 * @return {Property} parentId Property
+	 * @return {Property} hasChildren Property
 	 */
 	getHasChildrenProperty = () => {
 		this.ensureTree();
@@ -1553,7 +1553,7 @@ class Entity extends EventEmitter {
 	 * Gets the hasChildren value for this TreeNode.
 	 * It does this by getting the hasChildren property's submitValue.
 	 * It doesn't look at some value created by client on the TreeNode.
-	 * @return {any} parentId - The parentId
+	 * @return {any} hasChildren - The hasChildren value
 	 */
 	getHasChildren = () => {
 		this.ensureTree();
@@ -1570,10 +1570,52 @@ class Entity extends EventEmitter {
 
 	/**
 	 * Getter of hasChildren for this TreeNode.
-	 * @return {any} parentId - The parentId
+	 * @return {any} hasChildren - The hasChildren value
 	 */
 	get hasChildren() {
 		return this.getHasChildren();
+	}
+
+	/**
+	 * Gets the "hasChildrenOfOtherNodeTypes" Property object for this TreeNode.
+	 * This is the Property whose value represents whether this TreeNode has any children of other node types.
+	 * @return {Property} hasChildrenOfOtherNodeTypes Property
+	 */
+	getHasChildrenOfOtherNodeTypesProperty = () => {
+		this.ensureTree();
+		if (this.isDestroyed) {
+			throw Error('this.getHasChildrenOfOtherNodeTypesProperty is no longer valid. TreeNode has been destroyed.');
+		}
+
+		const hasChildrenOfOtherNodeTypesProperty = this.getSchema()?.model.hasChildrenOfOtherNodeTypesProperty;
+		return this.getProperty(hasChildrenOfOtherNodeTypesProperty);
+	}
+
+	/**
+	 * Gets the hasChildrenOfOtherNodeTypes value for this TreeNode.
+	 * It does this by getting the hasChildrenOfOtherNodeTypes property's submitValue.
+	 * It doesn't look at some value created by client on the TreeNode.
+	 * @return {any} hasChildrenOfOtherNodeTypes - The hasChildrenOfOtherNodeTypes value
+	 */
+	getHasChildrenOfOtherNodeTypes = () => {
+		this.ensureTree();
+		if (this.isDestroyed) {
+			throw Error('this.getHasChildrenOfOtherNodeTypes is no longer valid. TreeNode has been destroyed.');
+		}
+
+		if (!_.isEmpty(this.children)) {
+			return true; // In case the hasChildrenOfOtherNodeTypesProperty is stale. i.e. That property came from server, and we now have children here
+		}
+
+		return this.getHasChildrenOfOtherNodeTypesProperty()?.getSubmitValue();
+	}
+
+	/**
+	 * Getter of hasChildrenOfOtherNodeTypes for this TreeNode.
+	 * @return {any} hasChildrenOfOtherNodeTypes - The hasChildrenOfOtherNodeTypes value
+	 */
+	get hasChildrenOfOtherNodeTypes() {
+		return this.getHasChildrenOfOtherNodeTypes();
 	}
 
 	/**
