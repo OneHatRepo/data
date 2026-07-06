@@ -30,6 +30,10 @@ class Formatters {
 		return numeral(value).format('0,000');
 	}
 
+	static FormatIntNoCommas = (value) => {
+		return numeral(value).format('0');
+	}
+
 	static FormatBoolAsYesNo = (value) => {
 		let ret;
 		if (_.isNil(value)) {
