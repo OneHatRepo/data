@@ -304,6 +304,10 @@ export default class Schema extends EventEmitter {
 			return propertyDefinition.name === propertyName;
 		}));
 
+		if (!found) {
+			throw Error('Property "' + propertyName + '" not found in schema "' + this.name + '".');
+		}
+
 		if (this.model?.validator?.fields && this.model.validator.fields[propertyName]) {
 			found.validator = this.model?.validator?.fields[propertyName];
 		}
