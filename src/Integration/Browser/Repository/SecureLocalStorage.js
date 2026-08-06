@@ -1,13 +1,12 @@
 /** @module Repository */
 
 import LocalStorageRepository from '@onehat/data/src/Integration/Browser/Repository/LocalStorage';
-import CryptoJS from 'crypto-js';
-import AES from 'crypto-js/aes';
+import CryptoES from 'crypto-es';
 import _ from 'lodash';
 
 /**
  * Repository representing an encrypted version of the browser's LocalStorage implementation
- * Requires crypto-js - https://www.npmjs.com/package/crypto-js
+ * Requires crypto-es - https://www.npmjs.com/package/crypto-es
  * @extends LocalStorageRepository
  */
 class SecureLocalStorageRepository extends LocalStorageRepository {
@@ -32,7 +31,7 @@ class SecureLocalStorageRepository extends LocalStorageRepository {
 			// BEGIN MOD
 			let result = this._store(name);
 			if (!_.isEmpty(result)) {
-				result = AES.decrypt(result, this.passphrase).toString(CryptoJS.enc.Utf8);
+				result = CryptoES.AES.decrypt(result, this.passphrase).toString(CryptoES.enc.Utf8);
 			}
 			// END MOD
 			
@@ -67,7 +66,7 @@ class SecureLocalStorageRepository extends LocalStorageRepository {
 				value = JSON.stringify(value);
 			}
 
-			value = AES.encrypt(value, this.passphrase).toString(); // MOD
+			value = CryptoES.AES.encrypt(value, this.passphrase).toString(); // MOD
 
 			const result = this._store(name, value);
 			this._broadcastStorageChange(name, 'set');
