@@ -29,16 +29,6 @@ async function beforeEach(that) {
 	that.repository = that.oneHatData.getRepositoryById('foo');
 }
 
-async function waitForRepositoryInitialization(repository, timeout = 2000) {
-	const start = Date.now();
-	while (!repository.isInitialized) {
-		if (Date.now() - start > timeout) {
-			throw new Error('Repository did not initialize in time: ' + repository.name);
-		}
-		await new Promise((resolve) => setTimeout(resolve, 5));
-	}
-}
-
 function afterEach(that) {
 	that.oneHatData.destroy();
 }
@@ -278,36 +268,34 @@ describe('OneHatData', function() {
 
 			const
 				repo1 = that.oneHatData.getRepository('bar'),
-				repo2 = that.oneHatData.getRepository('bar', true);
+				repo2 = await that.oneHatData.getUniqueRepository('bar');
 			expect(repo1 !== repo2).to.be.true;
+			expect(repo2.isInitialized).to.be.true;
 
 			afterEach(that);
 		})();
 	});
 
-	it('getRepositoryAsync returns initialized unique repository', function() {
+	it('getRepository(name, true) throws migration error', function() {
 		(async () => {
 			const that = {};
 			await beforeEach(that);
 
-			const repository = await that.oneHatData.getRepositoryAsync('bar', true);
+			expect(() => that.oneHatData.getRepository('bar', true)).to.throw('Use await this.getUniqueRepository(name) instead.');
+
+			afterEach(that);
+		})();
+	});
+
+	it('getUniqueRepository returns initialized unique repository', function() {
+		(async () => {
+			const that = {};
+			await beforeEach(that);
+
+			const repository = await that.oneHatData.getUniqueRepository('bar');
 
 			expect(repository).to.be.ok;
 			expect(repository.isUnique).to.be.true;
-			expect(repository.isInitialized).to.be.true;
-
-			afterEach(that);
-		})();
-	});
-
-	it('getRepositoryAsync returns initialized bound repository', function() {
-		(async () => {
-			const that = {};
-			await beforeEach(that);
-
-			const repository = await that.oneHatData.getRepositoryAsync('bar');
-
-			expect(repository).to.be.eq(that.repository);
 			expect(repository.isInitialized).to.be.true;
 
 			afterEach(that);
@@ -321,9 +309,7 @@ describe('OneHatData', function() {
 
 			const
 				boundRepository = that.oneHatData.getRepository('bar'),
-				uniqueRepository = that.oneHatData.getRepository('bar', true);
-
-			await waitForRepositoryInitialization(uniqueRepository);
+				uniqueRepository = await that.oneHatData.getUniqueRepository('bar');
 
 			boundRepository.filter('key', 'bound-only');
 			expect(boundRepository.hasFilterValue('key', 'bound-only')).to.be.true;
@@ -338,7 +324,7 @@ describe('OneHatData', function() {
 		})();
 	});
 
-	it('getRepository unique allows pre-init setBaseParams for Ajax repositories', function() {
+	it('getUniqueRepository allows setBaseParams for Ajax repositories', function() {
 		(async () => {
 			const that = {};
 			await beforeEach(that);
@@ -362,7 +348,7 @@ describe('OneHatData', function() {
 			});
 			await that.oneHatData.createRepository('meters', true);
 
-			const uniqueRepository = that.oneHatData.getRepository('meters', true);
+			const uniqueRepository = await that.oneHatData.getUniqueRepository('meters');
 
 			expect(() => {
 				uniqueRepository.setBaseParams({
@@ -371,6 +357,41 @@ describe('OneHatData', function() {
 			}).to.not.throw();
 
 			expect(uniqueRepository.getBaseParam('foo')).to.be.eq('bar');
+
+			afterEach(that);
+		})();
+	});
+
+	it('getOrCreateUniqueRepository reuses existing mapped repository', function() {
+		(async () => {
+			const that = {};
+			await beforeEach(that);
+
+			const repository1 = await that.oneHatData.getOrCreateUniqueRepository('partsMap', 'bar');
+			const repository2 = await that.oneHatData.getOrCreateUniqueRepository('partsMap', 'bar');
+
+			expect(repository1).to.be.eq(repository2);
+			expect(repository1.isUnique).to.be.true;
+
+			afterEach(that);
+		})();
+	});
+
+	it('getOrCreateUniqueRepository recreates repository when mapped id is stale', function() {
+		(async () => {
+			const that = {};
+			await beforeEach(that);
+
+			const repository1 = await that.oneHatData.getOrCreateUniqueRepository('partsMap', 'bar');
+			const originalId = repository1.id;
+
+			that.oneHatData.deleteRepository(originalId);
+
+			const repository2 = await that.oneHatData.getOrCreateUniqueRepository('partsMap', 'bar');
+
+			expect(repository2).to.be.ok;
+			expect(repository2.id).to.not.eq(originalId);
+			expect(that.oneHatData.uniqueRepositoryIdsMap.partsMap).to.be.eq(repository2.id);
 
 			afterEach(that);
 		})();

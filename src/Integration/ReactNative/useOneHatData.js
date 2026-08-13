@@ -35,7 +35,7 @@ export default function useOneHatData(schemaName, uniqueRepository = false) {
 
 			if (uniqueRepository) {
 				if (_.isString(schemaName)) {
-					repository = await oneHatData.getRepositoryAsync(schemaName, true);
+					repository = await oneHatData.getUniqueRepository(schemaName);
 				} else {
 					repository = await oneHatData.createRepository(schemaName);
 					repository.isUnique = true;
@@ -49,7 +49,7 @@ export default function useOneHatData(schemaName, uniqueRepository = false) {
 					repository = await oneHatData.createRepository(schemaName)
 				}
 			} else {
-				repository = await oneHatData.getRepositoryAsync(schemaName); // Get initialized bound Repository for this schema
+				repository = oneHatData.getRepository(schemaName); // Get bound Repository for this schema
 			}
 
 			if (!isMounted || !repository) {

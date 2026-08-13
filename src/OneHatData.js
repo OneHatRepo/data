@@ -479,247 +479,70 @@ export class OneHatData extends EventEmitter {
 		if (this.isDestroyed) {
 			throw new Error('this.getRepository is no longer valid. OneHatData has been destroyed.');
 		}
+		if (unique) {
+			throw new Error('this.getRepository(name, true) is no longer supported. Use await this.getUniqueRepository(name) instead.');
+		}
 		const schema = this.getSchema(name);
 		if (!schema) {
 			return null;
-		}
-		if (unique) {
-			return this._createUniqueRepositorySync(name);
 		}
 		return schema.getBoundRepository();
 	}
 
 	/**
-	 * Async variant of getRepository.
-	 * Useful when unique repositories are needed in frameworks that expect
-	 * fully initialized objects before first use.
+	 * Gets a fully initialized unique Repository for the supplied schema.
 	 * @param {string} name - Name of Schema
-	 * @param {boolean} unique - Whether to create a unique repository
-	 * @param {number} timeout - Max ms to wait for initialization
 	 * @return {Promise<Repository>} repository
 	 */
-	getRepositoryAsync = async (name, unique = false, timeout = 10000) => {
+	getUniqueRepository = async (name) => {
 		if (this.isDestroyed) {
-			throw new Error('this.getRepositoryAsync is no longer valid. OneHatData has been destroyed.');
-		}
-
-		const repository = this.getRepository(name, unique);
-		if (!repository) {
-			return null;
-		}
-
-		await this._waitForRepositoryInitialization(repository, timeout);
-		return repository;
-	}
-
-	/**
-	 * Creates an unbound unique Repository synchronously.
-	 * It returns the instance immediately and initializes in background.
-	 * @param {string} name - Name of Schema
-	 * @return {Repository} repository
-	 */
-	_createUniqueRepositorySync = (name) => {
-		if (this.isDestroyed) {
-			throw new Error('this._createUniqueRepositorySync is no longer valid. OneHatData has been destroyed.');
+			throw new Error('this.getUniqueRepository is no longer valid. OneHatData has been destroyed.');
 		}
 
 		const schema = this.getSchema(name);
 		if (!schema) {
-			return null;
+			throw new Error('this.getUniqueRepository: Schema not found. Name: ' + name);
 		}
 
 		const boundRepository = schema.getBoundRepository();
 		if (!boundRepository) {
-			return null;
+			throw new Error('this.getUniqueRepository: Schema does not have a bound Repository. Name: ' + name);
 		}
 
-		const id = uuid();
-		const schemaRepositoryDef = _.isString(schema.repository) ? { type: schema.repository } : schema.repository;
-
-		// Keep behavioral overrides while omitting mutable runtime state and nested repo instances.
-		const safeOverrides = _.omit(boundRepository.originalConfig || {}, [
-			'id',
-			'name',
-			'isUnique',
-			'local',
-			'remote',
-			'entities',
-			'filters',
-			'sorters',
-			'page',
-			'previousPage',
-			'pageTotal',
-			'pageStart',
-			'pageEnd',
-			'totalPages',
-			'total',
-			'isFiltered',
-			'isInitialized',
-			'isLoaded',
-			'isLoading',
-			'lastLoaded',
-			'hash',
-		]);
-
-		const config = _.merge({}, schemaRepositoryDef, this._repositoryGlobals, safeOverrides, {
-			schema,
-			id,
-			name: boundRepository.name + '-' + id,
-			isUnique: true,
-		});
-
-		const repository = this._createRepositorySync(config);
-
-		this.repositories[repository.id] = repository;
-		this._initializeRepositoryInBackground(repository);
-
-		if (repository.isRegisteredEvent('logout')) { // OneBuild repository emits this
-			this.relayEventsFrom(repository, ['logout']);
-		}
-		if (repository.isRegisteredEvent(CROSS_TAB_EVENT_NAME)) {
-			this.relayEventsFrom(repository, [CROSS_TAB_EVENT_NAME]);
-		}
-
-		this.emit('createRepository', repository);
-		return repository;
-	}
-
-	/**
-	 * Creates a Repository instance synchronously.
-	 * Used when we must return a repository instance immediately.
-	 * @param {object} config - Repository config object
-	 * @return {Repository} repository
-	 * @private
-	 */
-	_createRepositorySync = (config) => {
-		if (this.isDestroyed) {
-			throw new Error('this._createRepositorySync is no longer valid. OneHatData has been destroyed.');
-		}
-
-		const workingConfig = _.merge({}, config);
-
-		if (workingConfig.type === 'lfr') {
-			const generalConfig = _.omit(workingConfig, ['type', 'local', 'remote']);
-
-			let localConfig = workingConfig.local;
-			let remoteConfig = workingConfig.remote;
-
-			if (_.isString(localConfig)) {
-				localConfig = {
-					type: localConfig,
-				};
-			}
-			if (_.isString(remoteConfig)) {
-				remoteConfig = {
-					type: remoteConfig,
-				};
-			}
-
-			if (workingConfig.mode === MODE_COMMAND_QUEUE) {
-				generalConfig.isPaginated = false;
-				remoteConfig.type = 'command';
-			}
-
-			localConfig = _.merge({}, generalConfig, localConfig);
-			remoteConfig = _.merge({}, generalConfig, remoteConfig);
-
-			const localRepository = this._createRepositorySync(localConfig);
-			const remoteRepository = this._createRepositorySync(remoteConfig);
-
-			workingConfig.local = localRepository;
-			workingConfig.remote = remoteRepository;
-		}
-
-		const RepositoryType = this._repositoryTypes[workingConfig.type];
-		if (!RepositoryType) {
-			throw new Error('Repository type does not exist');
-		}
-
-		return new RepositoryType(workingConfig, this);
-	}
-
-	/**
-	 * Initializes repositories in the proper dependency order.
-	 * @param {Repository} repository - Repository instance
-	 * @private
-	 */
-	_initializeRepositoryInBackground = (repository) => {
-		repository._initializationError = null;
-		repository._initializationPromise = Promise.resolve()
-			.then(async () => {
-				if (repository && repository.type === 'lfr') {
-					if (repository.local && _.isFunction(repository.local.initialize)) {
-						await repository.local.initialize();
-					}
-					if (repository.remote && _.isFunction(repository.remote.initialize)) {
-						await repository.remote.initialize();
-					}
-				}
-				await repository.initialize();
-			})
-			.catch((error) => {
-				repository._initializationError = error;
-				repository.emit('error', error);
+		const
+			id = uuid(),
+			schemaRepositoryDef = _.isString(schema.repository) ? { type: schema.repository } : schema.repository,
+			safeOverrides = _.omit(boundRepository.originalConfig || {}, [ // Keep behavioral overrides while omitting mutable runtime state and nested repo instances.
+				'id',
+				'name',
+				'isUnique',
+				'local',
+				'remote',
+				'entities',
+				'filters',
+				'sorters',
+				'page',
+				'previousPage',
+				'pageTotal',
+				'pageStart',
+				'pageEnd',
+				'totalPages',
+				'total',
+				'isFiltered',
+				'isInitialized',
+				'isLoaded',
+				'isLoading',
+				'lastLoaded',
+				'hash',
+			]),
+			config = _.merge({}, schemaRepositoryDef, this._repositoryGlobals, safeOverrides, {
+				schema,
+				id,
+				name: boundRepository.name + '-' + id,
+				isUnique: true,
 			});
-		return repository._initializationPromise;
-	}
 
-	/**
-	 * Waits for repository initialization if currently pending.
-	 * @param {Repository} repository - Repository instance
-	 * @param {number} timeout - Max ms to wait for initialization
-	 * @return {Promise<Repository>} repository
-	 * @private
-	 */
-	_waitForRepositoryInitialization = async (repository, timeout = 10000) => {
-		if (!repository) {
-			return null;
-		}
-
-		if (repository._initializationPromise) {
-			await repository._initializationPromise;
-		}
-
-		if (repository._initializationError) {
-			throw repository._initializationError;
-		}
-
-		if (repository.isInitialized === true) {
-			return repository;
-		}
-
-		if (repository.isInitializing && _.isFunction(repository.on) && _.isFunction(repository.off)) {
-			await new Promise((resolve, reject) => {
-				const timeoutId = setTimeout(() => {
-					repository.off('initialize', handleInitialize);
-					repository.off('error', handleError);
-					reject(new Error('Timed out waiting for repository initialization: ' + repository.name));
-				}, timeout);
-
-				const handleInitialize = () => {
-					clearTimeout(timeoutId);
-					repository.off('initialize', handleInitialize);
-					repository.off('error', handleError);
-					resolve();
-				};
-
-				const handleError = (error) => {
-					clearTimeout(timeoutId);
-					repository.off('initialize', handleInitialize);
-					repository.off('error', handleError);
-					reject(error || new Error('Repository initialization failed: ' + repository.name));
-				};
-
-				repository.on('initialize', handleInitialize);
-				repository.on('error', handleError);
-			});
-		}
-
-		if (repository._initializationError) {
-			throw repository._initializationError;
-		}
-
-		return repository;
+		return await this.createRepository(config);
 	}
 
 	/**
@@ -730,13 +553,17 @@ export class OneHatData extends EventEmitter {
 	 */
 	getOrCreateUniqueRepository = async (mapName, schemaName) => {
 		if (this.isDestroyed) {
-			throw new Error('this.getUniqueRepository is no longer valid. OneHatData has been destroyed.');
+			throw new Error('this.getOrCreateUniqueRepository is no longer valid. OneHatData has been destroyed.');
 		}
 		
 		// Try to get it
 		let id = this.uniqueRepositoryIdsMap[mapName];
 		if (id) {
-			return this.getRepositoryById(id);
+			const existingRepository = this.getRepositoryById(id);
+			if (existingRepository) {
+				return existingRepository;
+			}
+			delete this.uniqueRepositoryIdsMap[mapName];
 		}
 
 		// Try to create it
@@ -744,11 +571,8 @@ export class OneHatData extends EventEmitter {
 		if (!schema) {
 			return null;
 		}
-
-		const repository = await this.createRepository(schemaName);
+		const repository = await this.getUniqueRepository(schemaName);
 		id = repository.id;
-		repository.name += '-' + id;
-		repository.isUnique = true;
 		this.uniqueRepositoryIdsMap[mapName] = repository.id;
 		return repository;
 	}
