@@ -160,6 +160,7 @@ export default class Repository extends EventEmitter {
 			 * @member {boolean} debugMode - Whether this Repository should output debug messages
 			 */
 			debugMode: false,
+
 		};
 
 		_.merge(this, defaults, config);
@@ -234,6 +235,11 @@ export default class Repository extends EventEmitter {
 		 * @member {boolean} isInitialized - State: whether or not this repository has been completely initialized
 		 */
 		this.isInitialized = false;
+
+		/**
+		 * @member {boolean} isInitializing - State: whether initialize() is currently running
+		 */
+		this.isInitializing = false;
 
 		/**
 		 * @member {boolean} isTree - Whether this Repository contains TreeNodes
@@ -328,38 +334,66 @@ export default class Repository extends EventEmitter {
 	 * This is async because we may need to wait for loading and sorting.
 	 */
 	async initialize() {
-		// Create default sorters if none supplied
-		if (this.isAutoSort && !this.sorters.length) {
-			this.sorters = this.getDefaultSorters();
-		}
-		
-		// Assign event handlers
-		this.on('entity_change', async (entity) => { // Entity changed its value
-			if (this.isAutoSave && !this.isRemotePhantomMode) {
-				return await this.save(entity);
+		this.isInitializing = true;
+		try {
+			// Create default sorters if none supplied
+			if (this.isAutoSort && !this.sorters.length) {
+				this.sorters = this.getDefaultSorters();
 			}
-		});
+			
+			// Assign event handlers
+			this.on('entity_change', async (entity) => { // Entity changed its value
+				if (this.isAutoSave && !this.isRemotePhantomMode) {
+					return await this.save(entity);
+				}
+			});
 
-		// Auto load & sort
-		if (this.isAutoLoad && !this.isTree) {
-			await this.load();
+			// Auto load & sort
+			if (this.isAutoLoad && !this.isTree) {
+				await this.load();
+			}
+			if (!this.isSorted && this.isAutoSort && !this.isRemoteSort && !this.isTree) { // load may have sorted, in which case this will be skipped.
+				await this.sort();
+			}
+
+			this._createMethods();
+			this._createStatics();
+			this._createListeners();
+
+			const init = this.schema.repository.init || this.originalConfig.init; // The latter is mainly for lfr repositories
+			if (init) {
+				await init.call(this);
+			}
+			this.rehash();
+
+			this.isInitialized = true;
+			this.emit('initialize');
+		} finally {
+			this.isInitializing = false;
 		}
-		if (!this.isSorted && this.isAutoSort && !this.isRemoteSort && !this.isTree) { // load may have sorted, in which case this will be skipped.
-			await this.sort();
+	}
+
+	/**
+	 * Throws when operational methods are used before initialization completes.
+	 * @param {string} methodName - Name of the method being guarded
+	 * @private
+	 */
+	_assertInitialized(methodName) {
+		const strictMethods = {
+			add: true,
+			addMultiple: true,
+			save: true,
+			delete: true,
+			load: true,
+			reloadEntity: true,
+			_send: true,
+		};
+		if (!strictMethods[methodName]) {
+			return;
 		}
-
-		this._createMethods();
-		this._createStatics();
-		this._createListeners();
-
-		const init = this.schema.repository.init || this.originalConfig.init; // The latter is mainly for lfr repositories
-		if (init) {
-			await init.call(this);
+		if (!this.isInitialized && !this.isInitializing) {
+			throw new Error('Repository ' + this.name + ' is not initialized. Cannot call ' + methodName + ' yet.');
 		}
-		this.rehash();
-
-		this.isInitialized = true;
-		this.emit('initialize');
 	}
 
 	/**
@@ -588,6 +622,7 @@ export default class Repository extends EventEmitter {
 			this.throwError('this.sort is no longer valid. Repository has been destroyed.');
 			return;
 		}
+		this._assertInitialized('sort');
 		// Assemble sorting definition objects
 		let sorters = [];
 		if (_.isNil(arg1)) {
@@ -648,6 +683,7 @@ export default class Repository extends EventEmitter {
 			this.throwError('this.setSorters is no longer valid. Repository has been destroyed.');
 			return;
 		}
+		this._assertInitialized('setSorters');
 		if (!this.allowsMultiSort && sorters.length > 1) {
 			this.throwError('Cannot have more than one sorter at a time.');
 			return;
@@ -757,6 +793,7 @@ export default class Repository extends EventEmitter {
 			this.throwError('this.filter is no longer valid. Repository has been destroyed.');
 			return;
 		}
+		this._assertInitialized('filter');
 
 		if (_.isNil(arg1)) {
 			return this.clearFilters();
@@ -833,6 +870,7 @@ export default class Repository extends EventEmitter {
 	 * @return this
 	 */
 	setFilters(filters, clearFirst = true) {
+		this._assertInitialized('setFilters');
 		const parsed = _.map(filters, (value, name) => {
 			return {
 				name,
@@ -853,6 +891,7 @@ export default class Repository extends EventEmitter {
 	 * - repository.clearFilters(['first_name', 'last_name']); // Clear multiple filters
 	 */
 	clearFilters(filtersToClear) {
+		this._assertInitialized('clearFilters');
 		let filters = [];
 		if (filtersToClear) {
 			if (_.isString(filtersToClear)) {
@@ -875,6 +914,7 @@ export default class Repository extends EventEmitter {
 			this.throwError('this._setFilters is no longer valid. Repository has been destroyed.');
 			return;
 		}
+		this._assertInitialized('_setFilters');
 		if (!_.isEqual(this.filters, filters)) {
 			this.filters = filters;
 			this.resetPagination();
@@ -1114,6 +1154,7 @@ export default class Repository extends EventEmitter {
 			this.throwError('this.add is no longer valid. Repository has been destroyed.');
 			return;
 		}
+		this._assertInitialized('add');
 		if (!this.canAdd) {
 			this.throwError('Adding has been disabled on this repository.');
 			return;
@@ -1201,6 +1242,7 @@ export default class Repository extends EventEmitter {
 	 * @return {array} entities - new Entity objects
 	 */
 	async addMultiple(allData, isPersisted = false) {
+		this._assertInitialized('addMultiple');
 
 		if (!this.canAdd) {
 			this.throwError('Adding has been disabled on this repository.');
@@ -1386,6 +1428,7 @@ export default class Repository extends EventEmitter {
 			this.throwError('this.getByIx is no longer valid. Repository has been destroyed.');
 			return;
 		}
+		this._assertInitialized('getByIx');
 		return this.entities[ix];
 	}
 	
@@ -1401,6 +1444,7 @@ export default class Repository extends EventEmitter {
 			this.throwError('this.getByRange is no longer valid. Repository has been destroyed.');
 			return;
 		}
+		this._assertInitialized('getByRange');
 		return _.slice(this.entities, startIx, endIx+1);
 	}
 
@@ -1414,6 +1458,7 @@ export default class Repository extends EventEmitter {
 			this.throwError('this.getById is no longer valid. Repository has been destroyed.');
 			return;
 		}
+		this._assertInitialized('getById');
 		if (_.isNil(id)) {
 			return null;
 		}
@@ -1430,6 +1475,7 @@ export default class Repository extends EventEmitter {
 			this.throwError('this.getIxById is no longer valid. Repository has been destroyed.');
 			return;
 		}
+		this._assertInitialized('getIxById');
 		if (_.isNil(id)) {
 			return null;
 		}
@@ -1451,6 +1497,7 @@ export default class Repository extends EventEmitter {
 			this.throwError('this.getBy is no longer valid. Repository has been destroyed.');
 			return;
 		}
+		this._assertInitialized('getBy');
 		return _.filter(this.entities, filter);
 	}
 
@@ -1468,6 +1515,7 @@ export default class Repository extends EventEmitter {
 			this.throwError('this.getFirstBy is no longer valid. Repository has been destroyed.');
 			return;
 		}
+		this._assertInitialized('getFirstBy');
 		return _.find(this.entities, filter);
 	}
 
@@ -1513,6 +1561,7 @@ export default class Repository extends EventEmitter {
 			this.throwError('this.getEntities is no longer valid. Repository has been destroyed.');
 			return;
 		}
+		this._assertInitialized('getEntities');
 		return this.entities;
 	}
 	/* */
@@ -1528,6 +1577,7 @@ export default class Repository extends EventEmitter {
 			this.throwError('this.getPagedEntities is no longer valid. Repository has been destroyed.');
 			return;
 		}
+		this._assertInitialized('getEntitiesOnPage');
 		const entities = this.getEntities();
 		if (!this.isPaginated) {
 			return entities;
@@ -1767,6 +1817,7 @@ export default class Repository extends EventEmitter {
 			this.throwError('this.save is no longer valid. Repository has been destroyed.');
 			return;
 		}
+		this._assertInitialized('save');
 
 		this.emit('beforeSave'); // So subclasses can prep anything needed for saving
 	
@@ -2011,6 +2062,7 @@ export default class Repository extends EventEmitter {
 	 * @fires delete
 	 */
 	async delete(entities, moveSubtreeUp = false) {
+		this._assertInitialized('delete');
 		if (this.isDestroyed) {
 			this.throwError('this.delete is no longer valid. Repository has been destroyed.');
 			return;
@@ -2275,10 +2327,23 @@ export default class Repository extends EventEmitter {
 	 * @param {object} data - optional data object to describe the error
 	 */
 	throwError(obj, data = null) {
+		let errorObject = obj;
+		if (!(errorObject instanceof Error)) {
+			// standardize the errorObject to be an Error instance
+			if (_.isString(errorObject)) {
+				errorObject = new Error(errorObject);
+			} else if (errorObject && _.isString(errorObject.message)) {
+				errorObject = new Error(errorObject.message);
+			} else {
+				errorObject = new Error('Unknown repository error');
+			}
+		}
+		errorObject.context = data;
+
 		if (this.errorHandler) {
-			this.errorHandler(obj, data);
+			this.errorHandler(errorObject, data);
 		} else {
-			this.emit('error', obj, data);
+			this.emit('error', errorObject, data);
 		}
 	}
 
@@ -2311,11 +2376,7 @@ export default class Repository extends EventEmitter {
 	 * @return {string} className
 	 */
 	getClassName() {
-		if (this.isDestroyed) {
-			this.throwError('this.getClassName is no longer valid. Repository has been destroyed.');
-			return;
-		}
-		return this.__proto__.constructor.className;
+		return this.__proto__.constructor.className || this.constructor.className || 'Repository';
 	}
 
 	get className() {
@@ -2327,11 +2388,7 @@ export default class Repository extends EventEmitter {
 	 * @return {string} className
 	 */
 	getType() {
-		if (this.isDestroyed) {
-			this.throwError('this.getClassName is no longer valid. Repository has been destroyed.');
-			return;
-		}
-		return this.__proto__.constructor.type;
+		return this.__proto__.constructor.type || this.constructor.type || null;
 	}
 
 	get type() {
@@ -2339,11 +2396,9 @@ export default class Repository extends EventEmitter {
 	}
 
 	toString() {
-		if (this.isDestroyed) {
-			this.throwError('this.toString is no longer valid. Repository has been destroyed.');
-			return;
-		}
-		return this.getClassName() + 'Repository {' + this.name + '} - ' + this.id;
+		const name = this.name || 'destroyed';
+		const id = this.id || 'unknown';
+		return this.getClassName() + 'Repository {' + name + '} - ' + id;
 	}
 
 };

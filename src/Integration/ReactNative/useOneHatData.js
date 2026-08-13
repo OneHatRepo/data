@@ -28,12 +28,19 @@ export default function useOneHatData(schemaName, uniqueRepository = false) {
 	useEffect(() => {
 
 		let repository,
+			repositoryIdToDelete = null,
+			isMounted = true,
 			onChangeData = () => {};
 		(async () => {
 
 			if (uniqueRepository) {
-				repository = await oneHatData.createRepository(schemaName);
-				repository.isUnique = true;
+				if (_.isString(schemaName)) {
+					repository = await oneHatData.getRepositoryAsync(schemaName, true);
+				} else {
+					repository = await oneHatData.createRepository(schemaName);
+					repository.isUnique = true;
+				}
+				repositoryIdToDelete = repository?.id;
 			} else if (_.isObject(schemaName)) {
 				if (schemaName.id) {
 					repository = oneHatData.getRepositoryById(schemaName.id);
@@ -42,8 +49,13 @@ export default function useOneHatData(schemaName, uniqueRepository = false) {
 					repository = await oneHatData.createRepository(schemaName)
 				}
 			} else {
-				repository = oneHatData.getRepository(schemaName); // Get bound Repository for this schema
+				repository = await oneHatData.getRepositoryAsync(schemaName); // Get initialized bound Repository for this schema
 			}
+
+			if (!isMounted || !repository) {
+				return;
+			}
+
 			onChangeData = () => {
 				setEntities(repository.entities); // Set new state in component
 			};
@@ -57,9 +69,12 @@ export default function useOneHatData(schemaName, uniqueRepository = false) {
 		})();
 
 		return () => {
-			repository.off('changeData', onChangeData);
-			if (uniqueRepository) {
-				oneHatData.deleteRepository(schemaName);
+			isMounted = false;
+			if (repository) {
+				repository.off('changeData', onChangeData);
+			}
+			if (uniqueRepository && repositoryIdToDelete) {
+				oneHatData.deleteRepository(repositoryIdToDelete);
 			}
 		};
 		

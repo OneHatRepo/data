@@ -28,6 +28,17 @@ async function beforeEach(that) {
 	}, true);
 	that.repository = that.oneHatData.getRepositoryById('foo');
 }
+
+async function waitForRepositoryInitialization(repository, timeout = 2000) {
+	const start = Date.now();
+	while (!repository.isInitialized) {
+		if (Date.now() - start > timeout) {
+			throw new Error('Repository did not initialize in time: ' + repository.name);
+		}
+		await new Promise((resolve) => setTimeout(resolve, 5));
+	}
+}
+
 function afterEach(that) {
 	that.oneHatData.destroy();
 }
@@ -269,6 +280,97 @@ describe('OneHatData', function() {
 				repo1 = that.oneHatData.getRepository('bar'),
 				repo2 = that.oneHatData.getRepository('bar', true);
 			expect(repo1 !== repo2).to.be.true;
+
+			afterEach(that);
+		})();
+	});
+
+	it('getRepositoryAsync returns initialized unique repository', function() {
+		(async () => {
+			const that = {};
+			await beforeEach(that);
+
+			const repository = await that.oneHatData.getRepositoryAsync('bar', true);
+
+			expect(repository).to.be.ok;
+			expect(repository.isUnique).to.be.true;
+			expect(repository.isInitialized).to.be.true;
+
+			afterEach(that);
+		})();
+	});
+
+	it('getRepositoryAsync returns initialized bound repository', function() {
+		(async () => {
+			const that = {};
+			await beforeEach(that);
+
+			const repository = await that.oneHatData.getRepositoryAsync('bar');
+
+			expect(repository).to.be.eq(that.repository);
+			expect(repository.isInitialized).to.be.true;
+
+			afterEach(that);
+		})();
+	});
+
+	it('getRepository unique keeps filters isolated from bound repository', function() {
+		(async () => {
+			const that = {};
+			await beforeEach(that);
+
+			const
+				boundRepository = that.oneHatData.getRepository('bar'),
+				uniqueRepository = that.oneHatData.getRepository('bar', true);
+
+			await waitForRepositoryInitialization(uniqueRepository);
+
+			boundRepository.filter('key', 'bound-only');
+			expect(boundRepository.hasFilterValue('key', 'bound-only')).to.be.true;
+			expect(uniqueRepository.hasFilter('key')).to.be.false;
+
+			uniqueRepository.filter('key', 'unique-only');
+			expect(uniqueRepository.hasFilterValue('key', 'unique-only')).to.be.true;
+			expect(boundRepository.hasFilterValue('key', 'bound-only')).to.be.true;
+			expect(boundRepository.hasFilterValue('key', 'unique-only')).to.be.false;
+
+			afterEach(that);
+		})();
+	});
+
+	it('getRepository unique allows pre-init setBaseParams for Ajax repositories', function() {
+		(async () => {
+			const that = {};
+			await beforeEach(that);
+
+			that.oneHatData.createSchema({
+				name: 'meters',
+				model: {
+					idProperty: 'id',
+					displayProperty: 'name',
+					properties: [
+						{ name: 'id' },
+						{ name: 'name' },
+					],
+				},
+				repository: {
+					type: 'ajax',
+					api: {
+						get: 'meters',
+					},
+				},
+			});
+			await that.oneHatData.createRepository('meters', true);
+
+			const uniqueRepository = that.oneHatData.getRepository('meters', true);
+
+			expect(() => {
+				uniqueRepository.setBaseParams({
+					foo: 'bar',
+				});
+			}).to.not.throw();
+
+			expect(uniqueRepository.getBaseParam('foo')).to.be.eq('bar');
 
 			afterEach(that);
 		})();

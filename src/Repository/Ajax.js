@@ -141,51 +141,58 @@ class AjaxRepository extends Repository {
 	}
 
 	async initialize() {
+		this.isInitializing = true;
+		try {
 
-		this.registerEvents([
-			'beforeLoad',
-		]);
+			this.registerEvents([
+				'beforeLoad',
+			]);
 
-		// Respond to Repository events
-		this.on('beforeSave', this._onBeforeSave);
+			// Respond to Repository events
+			this.on('beforeSave', this._onBeforeSave);
 
 
-		// Create Reader
-		let readerConfig;
-		if (this.reader && this.reader.type) {
-			readerConfig = this.reader;
-		} else if (_.isString(this.reader)) {
-			readerConfig = {
-				type: this.reader,
-			};
+			// Create Reader
+			let readerConfig;
+			if (this.reader && this.reader.type) {
+				readerConfig = this.reader;
+			} else if (_.isString(this.reader)) {
+				readerConfig = {
+					type: this.reader,
+				};
+			}
+			if (readerConfig && ReaderTypes[readerConfig.type]) {
+				const Reader = ReaderTypes[readerConfig.type];
+				this.reader = new Reader(readerConfig);
+			} else {
+				this.reader = null;
+			}
+
+			// Create Writer
+			let writerConfig;
+			if (this.writer && this.writer.type) {
+				writerConfig = this.writer;
+			} else if (_.isString(this.writer)) {
+				writerConfig = {
+					type: this.writer,
+				};
+			}
+			if (writerConfig && WriterTypes[writerConfig.type]) {
+				const Writer = WriterTypes[writerConfig.type];
+				this.writer = new Writer(writerConfig);
+			} else {
+				this.writer = null;
+			}
+
+			// Initialize query params
+			this._setInitialQueryParams();
+
+			await super.initialize();
+		} finally {
+			if (!this.isInitialized) {
+				this.isInitializing = false;
+			}
 		}
-		if (readerConfig && ReaderTypes[readerConfig.type]) {
-			const Reader = ReaderTypes[readerConfig.type];
-			this.reader = new Reader(readerConfig);
-		} else {
-			this.reader = null;
-		}
-
-		// Create Writer
-		let writerConfig;
-		if (this.writer && this.writer.type) {
-			writerConfig = this.writer;
-		} else if (_.isString(this.writer)) {
-			writerConfig = {
-				type: this.writer,
-			};
-		}
-		if (writerConfig && WriterTypes[writerConfig.type]) {
-			const Writer = WriterTypes[writerConfig.type];
-			this.writer = new Writer(writerConfig);
-		} else {
-			this.writer = null;
-		}
-
-		// Initialize query params
-		this._setInitialQueryParams();
-
-		await super.initialize();
 	}
 
 	/**
@@ -227,6 +234,7 @@ class AjaxRepository extends Repository {
 	 * @param {boolean} isBaseParam - Whether param is a base param (to be sent on every request).
 	 */
 	setParam(name, value, isBaseParam = false) {
+		this._assertInitialized('setParam');
 		const
 			re = /^([^\[]+)\[([^\]]+)\](.*)$/,
 			matches = name.match(re),
@@ -263,6 +271,7 @@ class AjaxRepository extends Repository {
 	 * @param {boolean} isBaseParam - Whether param is a base param (to be sent on every request).
 	 */
 	setValuelessParam(name, isBaseParam = false) {
+		this._assertInitialized('setValuelessParam');
 		const
 			re = /^([^\[]+)\[([^\]]+)\](.*)$/,
 			matches = name.match(re),
@@ -290,6 +299,7 @@ class AjaxRepository extends Repository {
 	 * @param {object} params - Params to set. Key is parameter name, value is parameter value
 	 */
 	setParams(params) {
+		this._assertInitialized('setParams');
 		const oThis = this;
 		_.each(params, (value, name) => {
 			oThis.setParam(name, value);
@@ -301,6 +311,7 @@ class AjaxRepository extends Repository {
 	 * @param {string} name - Param name
 	 */
 	hasBaseParam(name) {
+		this._assertInitialized('hasBaseParam');
 		if (this._baseParams.hasOwnProperty(name)) {
 			return true;
 		}
@@ -324,6 +335,7 @@ class AjaxRepository extends Repository {
 	 * @param {string} name - Param name
 	 */
 	getBaseParam(name) {
+		this._assertInitialized('getBaseParam');
 		if (!this.hasBaseParam(name)) {
 			return null;
 		}
@@ -351,6 +363,7 @@ class AjaxRepository extends Repository {
 	 * @param {object} params - Params to set. Key is parameter name, value is parameter value
 	 */
 	getBaseParams() {
+		this._assertInitialized('getBaseParams');
 		return this._baseParams;
 	}
 
@@ -358,6 +371,7 @@ class AjaxRepository extends Repository {
 	 * Returns current value of any baseParam query conditions
 	 */
 	getBaseParamConditions() {
+		this._assertInitialized('getBaseParamConditions');
 		const
 			existingConditions = this._baseParams.conditions || {},
 			convertedConditions = {};
@@ -371,6 +385,7 @@ class AjaxRepository extends Repository {
 	 * Returns current value of any param query conditions
 	 */
 	getParamConditions() {
+		this._assertInitialized('getParamConditions');
 		const
 			existingConditions = this._params.conditions || {},
 			convertedConditions = {};
@@ -385,6 +400,7 @@ class AjaxRepository extends Repository {
 	 * @param {string} name - Param name
 	 */
 	hasParam(name) {
+		this._assertInitialized('hasParam');
 		if (this._params.hasOwnProperty(name)) {
 			return true;
 		}
@@ -409,6 +425,7 @@ class AjaxRepository extends Repository {
 	 * @param {any} value - Param value to set.
 	 */
 	setBaseParam(name, value) {
+		this._assertInitialized('setBaseParam');
 		this.setParam(name, value, true);
 	}
 
@@ -417,6 +434,7 @@ class AjaxRepository extends Repository {
 	 * @param {object} params - Base params to set. Key is parameter name, value is parameter value
 	 */
 	setBaseParams(params) {
+		this._assertInitialized('setBaseParams');
 		const oThis = this;
 		_.each(params, (value, name) => {
 			oThis.setBaseParam(name, value);
@@ -429,6 +447,7 @@ class AjaxRepository extends Repository {
 	 * @param {boolean} reload - Whether to reload repository. Defaults to false.
 	 */
 	clearParams(reload = false, clearBase = false) {
+		this._assertInitialized('clearParams');
 		this._params = {};
 		if (clearBase) {
 			this._baseParams = {};
@@ -444,6 +463,7 @@ class AjaxRepository extends Repository {
 	 * Refreshes entities.
 	 */
 	_onChangeSorters() {
+		this._assertInitialized('_onChangeSorters');
 		const sorter = this.sorters[0];
 		this.setBaseParam(this.paramSort, sorter.name);
 		this.setBaseParam(this.paramDirection, sorter.direction);
@@ -458,6 +478,7 @@ class AjaxRepository extends Repository {
 	 * Refreshes entities.
 	 */
 	_onChangeFilters() {
+		this._assertInitialized('_onChangeFilters');
 		const oThis = this;
 		_.each(this.filters, (value, name) => {
 			oThis.setParam(name, value);
@@ -473,6 +494,7 @@ class AjaxRepository extends Repository {
 	 * Refreshes entities.
 	 */
 	_onChangePagination() {
+		this._assertInitialized('_onChangePagination');
 		this.setBaseParam(this.paramPageNum, this.isPaginated ? this.page : null);
 		this.setBaseParam(this.paramPageSize, this.isPaginated ? this.pageSize : null);
 
@@ -512,6 +534,7 @@ class AjaxRepository extends Repository {
 	 * @fires beforeLoad,changeData,load,error
 	 */
 	async load(params, callback = null) {
+		this._assertInitialized('load');
 		if (this.isTree) {
 			return this.loadRootNodes();
 		}
@@ -684,6 +707,7 @@ class AjaxRepository extends Repository {
 	}
 
 	showMore(params = {}, callback) {
+		this._assertInitialized('showMore');
 		params.showMore = true;
 		return this.load(params, callback);
 	}
@@ -696,6 +720,7 @@ class AjaxRepository extends Repository {
 	 * @fires reloadEntity,beforeLoad,changeData,load,error
 	 */
 	async reloadEntity(entity, callback = null) { // use this notation so we can override it in subclasses
+		this._assertInitialized('reloadEntity');
 		if (this.isDestroyed) {
 			this.throwError('this.reloadEntity is no longer valid. Repository has been destroyed.');
 			return;
@@ -759,6 +784,7 @@ class AjaxRepository extends Repository {
 	 * @private
 	 */
 	_getReloadEntityParams(entity) {
+		this._assertInitialized('_getReloadEntityParams');
 		const params = {
 			id: entity.id,
 		};
@@ -770,6 +796,7 @@ class AjaxRepository extends Repository {
 	 * @private
 	 */
 	_onBeforeSave() {
+		this._assertInitialized('_onBeforeSave');
 		this._operations = {
 			add: false,
 			edit: false,
@@ -1171,6 +1198,7 @@ class AjaxRepository extends Repository {
 	 * @private
 	 */
 	_send(method, url, data, options = {}) {
+		this._assertInitialized('_send');
 
 		if (!url) {
 			this.throwError('No url submitted');
@@ -1251,6 +1279,7 @@ class AjaxRepository extends Repository {
 	 * since the server normally sorts, and they haven't yet gone to server.
 	 */
 	sortInMemory() {
+		this._assertInitialized('sortInMemory');
 		const sorters = this.sorters;
 		let sortNames = [],
 			sortDirections = [];
