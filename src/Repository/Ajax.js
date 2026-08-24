@@ -225,6 +225,7 @@ class AjaxRepository extends Repository {
 	 * @param {string} name - Param name to set.
 	 * @param {any} value - Param value to set.
 	 * @param {boolean} isBaseParam - Whether param is a base param (to be sent on every request).
+	 * @returns {boolean} - Returns true if the param was changed, false otherwise.
 	 */
 	setParam(name, value, isBaseParam = false) {
 		const
@@ -235,25 +236,45 @@ class AjaxRepository extends Repository {
 		if (matches) { // name has array notation like 'conditions[username]'
 			const
 				first = matches[1],
-				second = matches[2];
-			if (paramsToChange && !paramsToChange.hasOwnProperty(first)) {
-				paramsToChange[first] = {};
-			}
-			if (_.isNil(value) && paramsToChange[first] && paramsToChange[first].hasOwnProperty(second)) {
+				second = matches[2],
+				hasFirst = paramsToChange && paramsToChange.hasOwnProperty(first),
+				hasSecond = hasFirst && paramsToChange[first] && paramsToChange[first].hasOwnProperty(second);
+
+			if (_.isNil(value)) {
+				if (!hasSecond) {
+					return false;
+				}
 				delete paramsToChange[first][second];
 				if (_.isEmpty(paramsToChange[first])) {
 					delete paramsToChange[first];
 				}
-				return;
+				return true;
+			}
+
+			if (!hasFirst) {
+				paramsToChange[first] = {};
+			}
+
+			if (hasSecond && _.isEqual(paramsToChange[first][second], value)) {
+				return false;
 			}
 			paramsToChange[first][second] = value;
-			return;
+			return true;
 		}
-		if (_.isNil(value) && paramsToChange && paramsToChange.hasOwnProperty(name)) {
+		if (_.isNil(value)) {
+			if (!paramsToChange || !paramsToChange.hasOwnProperty(name)) {
+				return false;
+			}
 			delete paramsToChange[name];
-			return;
+			return true;
 		}
+
+		if (paramsToChange && paramsToChange.hasOwnProperty(name) && _.isEqual(paramsToChange[name], value)) {
+			return false;
+		}
+
 		paramsToChange[name] = value;
+		return true;
 	}
 
 	/**
@@ -261,6 +282,7 @@ class AjaxRepository extends Repository {
 	 * Sets a single query param.
 	 * @param {string} name - Param name to set.
 	 * @param {boolean} isBaseParam - Whether param is a base param (to be sent on every request).
+	 * @returns {boolean} - Returns true if the param was changed, false otherwise.
 	 */
 	setValuelessParam(name, isBaseParam = false) {
 		const
@@ -273,27 +295,37 @@ class AjaxRepository extends Repository {
 			first = matches[1],
 			second = matches[2];
 			if (paramsToChange && !paramsToChange.hasOwnProperty(first)) {
-				paramsToChange[first] = [];
+				paramsToChange[first] = {};
 			}
-			if (paramsToChange[first] && paramsToChange[first].hasOwnProperty(second)) {
-				delete paramsToChange[first][second];
-				return;
+			if (paramsToChange[first] && paramsToChange[first].hasOwnProperty(second) && paramsToChange[first][second] === true) {
+				return false;
 			}
-			paramsToChange[first][ paramsToChange[first].length ] = second;
-			return;
+			paramsToChange[first][second] = true;
+			return true;
 		}
-		paramsToChange[paramsToChange.length] = second;
+
+		if (paramsToChange && paramsToChange.hasOwnProperty(name) && paramsToChange[name] === true) {
+			return false;
+		}
+
+		paramsToChange[name] = true;
+		return true;
 	}
 
 	/**
 	 * Sets query params
 	 * @param {object} params - Params to set. Key is parameter name, value is parameter value
+	 * @returns {boolean} - Returns true if any param was changed, false otherwise.
 	 */
 	setParams(params) {
 		const oThis = this;
+		let isChanged = false;
 		_.each(params, (value, name) => {
-			oThis.setParam(name, value);
+			if (oThis.setParam(name, value)) {
+				isChanged = true;
+			}
 		});
+		return isChanged;
 	}
 
 	/**
@@ -407,20 +439,26 @@ class AjaxRepository extends Repository {
 	 * Sets base query param
 	 * @param {string} name - Param name to set.
 	 * @param {any} value - Param value to set.
+	 * @returns {boolean} - Returns true if the base param was changed, false otherwise.
 	 */
 	setBaseParam(name, value) {
-		this.setParam(name, value, true);
+		return this.setParam(name, value, true);
 	}
 
 	/**
 	 * Sets base query params. These params are sent on every request.
 	 * @param {object} params - Base params to set. Key is parameter name, value is parameter value
+	 * @returns {boolean} - Returns true if any base param was changed, false otherwise.
 	 */
 	setBaseParams(params) {
 		const oThis = this;
+		let isChanged = false;
 		_.each(params, (value, name) => {
-			oThis.setBaseParam(name, value);
+			if (oThis.setBaseParam(name, value)) {
+				isChanged = true;
+			}
 		});
+		return isChanged;
 	}
 
 	/**
@@ -442,39 +480,51 @@ class AjaxRepository extends Repository {
 	 * Sets sort and direction params.
 	 * Only one sorter is allowed with this Repository type.
 	 * Refreshes entities.
+	 * @returns {boolean} - Returns true if the sort params were changed, false otherwise.
 	 */
 	_onChangeSorters() {
 		const sorter = this.sorters[0];
-		this.setBaseParam(this.paramSort, sorter.name);
-		this.setBaseParam(this.paramDirection, sorter.direction);
+		let isChanged = false;
+		isChanged = this.setBaseParam(this.paramSort, sorter.name) || isChanged;
+		isChanged = this.setBaseParam(this.paramDirection, sorter.direction) || isChanged;
 		
 		if (this.isLoaded && !this.eventsPaused) {
 			return this.reload();
 		}
+
+		return isChanged;
 	}
 
 	/**
 	 * Sets filter params.
 	 * Refreshes entities.
+	 * @returns {boolean} - Returns true if the filter params were changed, false otherwise.
 	 */
 	_onChangeFilters() {
 		const oThis = this;
+		let isChanged = false;
 		_.each(this.filters, (value, name) => {
-			oThis.setParam(name, value);
+			if (oThis.setParam(name, value)) {
+				isChanged = true;
+			}
 		});
 
 		if (this.isLoaded && !this.eventsPaused) {
 			return this.reload();
 		}
+
+		return isChanged;
 	}
 
 	/**
 	 * Sets pagination params.
 	 * Refreshes entities.
+	 * @returns {boolean} - Returns true if the pagination params were changed, false otherwise.
 	 */
 	_onChangePagination() {
-		this.setBaseParam(this.paramPageNum, this.isPaginated ? this.page : null);
-		this.setBaseParam(this.paramPageSize, this.isPaginated ? this.pageSize : null);
+		let isChanged = false;
+		isChanged = this.setBaseParam(this.paramPageNum, this.isPaginated ? this.page : null) || isChanged;
+		isChanged = this.setBaseParam(this.paramPageSize, this.isPaginated ? this.pageSize : null) || isChanged;
 
 		if (this.isLoaded && !this.eventsPaused) {
 			const
@@ -495,6 +545,8 @@ class AjaxRepository extends Repository {
 				return this.reload();
 			}
 		}
+
+		return isChanged;
 	}
 	
 

@@ -183,6 +183,7 @@ class OneBuildRepository extends AjaxRepository {
 	 * Sets "conditions" param.
 	 * OneBuild uses a single, multi-dimentional param for filtering.
 	 * Refreshes entities.
+	 * @returns {boolean} - Returns true if the filter params were changed, false otherwise.
 	 */
 	_onChangeFilters() {
 		// Clear existing "conditions" params
@@ -193,11 +194,16 @@ class OneBuildRepository extends AjaxRepository {
 		}
 
 		const oThis = this;
+		let isChanged = false;
 		_.each(this.filters, (filter, ix) => {
 			if (_.includes(nonConditionFilters, filter.name)) {
-				oThis.setParam(filter.name, filter.value);
+				if (oThis.setParam(filter.name, filter.value)) {
+					isChanged = true;
+				}
 			} else {
-				oThis.setParam('conditions[' + filter.name + ']', filter.value);
+				if (oThis.setParam('conditions[' + filter.name + ']', filter.value)) {
+					isChanged = true;
+				}
 			}
 		});
 
@@ -208,21 +214,25 @@ class OneBuildRepository extends AjaxRepository {
 				return this.reload();
 			}
 		}
+
+		return isChanged;
 	}
 
 	/**
 	 * Sets "order" param.
 	 * OneBuild uses a single order param, rather than separate name & direction params.
 	 * Refreshes entities.
+	 * @returns {boolean} - Returns true if the sort params were changed, false otherwise.
 	 */
 	_onChangeSorters() {
 		let sorterStrings = [];
+		let isChanged = false;
 		_.each(this.sorters, (sorter) => {
 			sorterStrings.push(sorter.name + ' ' + sorter.direction);
 		});
 
 		if (!_.isEmpty(sorterStrings)) {
-			this.setBaseParam('order', sorterStrings.join(','));
+			isChanged = this.setBaseParam('order', sorterStrings.join(',')) || isChanged;
 		}
 		
 		if (!this.eventsPaused) {
@@ -240,6 +250,8 @@ class OneBuildRepository extends AjaxRepository {
 				this.emit('changeSorters');
 			}
 		}
+
+		return isChanged;
 	}
 
 	/**
