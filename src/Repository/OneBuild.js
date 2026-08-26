@@ -430,33 +430,69 @@ class OneBuildRepository extends AjaxRepository {
 			this.throwError('this.getSingleEntityFromServer is no longer valid. Repository has been destroyed.');
 			return;
 		}
+		return this.getMultipleEntitiesFromServer([id])
+					.then(entities => {
+						if (!entities || entities.length === 0) {
+							return null;
+						}
+						return entities[0];
+					});
+	}
+
+	async getMultipleEntitiesFromServer(ids) {
+		if (this.isDestroyed) {
+			this.throwError('this.getMultipleEntitiesFromServer is no longer valid. Repository has been destroyed.');
+			return;
+		}
 		if (!this.api.get) {
 			this.throwError('No "get" api endpoint defined.');
 			return;
 		}
 
-		if (!id) {
+		if (!ids || !Array.isArray(ids) || ids.length === 0) {
 			return null;
+		}
+
+		const entitiesById = new Map();
+		_.each(this.entities, (entity) => {
+			entitiesById.set(entity.id, entity);
+		});
+
+		const idsToFetch = [];
+		const idsToFetchSet = new Set();
+		_.each(ids, (id) => {
+			if (entitiesById.has(id)) {
+				return;
+			}
+			if (idsToFetchSet.has(id)) {
+				return;
+			}
+			idsToFetchSet.add(id);
+			idsToFetch.push(id);
+		});
+
+		if (!idsToFetch.length) {
+			return [];
 		}
 
 		this.markLoading();
 
 		const idPropertyName = this.getSchema().model.idProperty;
 		const params = {};
-		params['conditions[' + idPropertyName + ']'] = id;
+		params['conditions[' + idPropertyName + ']'] = idsToFetch;
 
 		const
 			url = this.getModel() + '/' + this.api.get,
 			data = _.merge(params, this._baseParams);
 
 		if (this.debugMode) {
-			console.log('getSingleEntityFromServer', data);
+			console.log('getMultipleEntitiesFromServer', data);
 		}
 
 		return this._send(this.methods.get, url, data)
 					.then(result => {
 						if (this.debugMode) {
-							console.log('Response for getSingleEntityFromServer for ' + this.name, result);
+							console.log('Response for getMultipleEntitiesFromServer for ' + this.name, result);
 						}
 
 						if (this.isDestroyed) {
@@ -473,17 +509,47 @@ class OneBuildRepository extends AjaxRepository {
 						} = this._processServerResponse(result);
 
 						if (!root[0]) {
-							return null;
+							return [];
 						}
 
-						const entity = this.createStandaloneEntity(root[0]);
-						entity.isPersisted = true;
-						entity.isRemotePhantom = false;
-						return entity;
+						const newEntities = [];
+						_.each(root, (item) => {
+							const entity = this.createStandaloneEntity(item);
+
+							if (entitiesById.has(entity.id)) {
+								// If an entity with the same ID already exists, we don't want to add a duplicate.
+								entity.destroy();
+								return;
+							}
+
+							entity.isPersisted = true;
+							entity.isRemotePhantom = false;
+							this._relayEntityEvents(entity);
+							entitiesById.set(entity.id, entity);
+							newEntities.push(entity);
+						});
+
+						// Add any new entities to the repository's main entities array.
+						if (newEntities.length) {
+							this.entities = this.entities.concat(newEntities);
+						}
+						if (this.isTree) {
+							this.assembleTreeNodes();
+							// pagination vars shouldn't be affected by the loading of additional entities
+						}
+
+						// I don't want to do the following because there might be event handler
+						// side-effects of loading these!
+						// this.markLoaded();
+						// this.rehash();
+						// this.emit('load', this);
+
+						return newEntities;
 					})
 					.finally(() => {
 						this.markLoading(false);
 					});
+
 
 	}
 

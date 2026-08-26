@@ -942,6 +942,7 @@ describe('Repository Base', function() {
 
 	describe('deleting', function() {
 
+
 		it('clear', function() {
 			this.repository.clear();
 			expect(this.repository.entities.length).to.be.eq(0);
@@ -965,6 +966,21 @@ describe('Repository Base', function() {
 			const entity = await this.repository.add({ value: 'six' });
 			this.repository.delete(entity);
 			expect(this.repository.entities.length).to.be.eq(5);
+		});
+
+		it('removeById', function() {
+			const entity = this.repository.entities[0];
+			const id = entity.id;
+			this.repository.removeById(id);
+			expect(this.repository.entities.includes(entity)).to.be.false;
+		});
+
+		it('removeDestroyedEntities', function() {
+			const entity = this.repository.entities[0];
+			expect(this.repository.entities.includes(entity)).to.be.true;
+			entity.destroy();
+			this.repository.removeDestroyedEntities();
+			expect(this.repository.entities.includes(entity)).to.be.false;
 		});
 
 

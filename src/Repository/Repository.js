@@ -2075,6 +2075,24 @@ export default class Repository extends EventEmitter {
 	}
 
 	/**
+	 * Removes an Entity from the current page by ID
+	 */
+	removeById(id) {
+		const entity = this.getById(id);
+		if (entity) {
+			this.removeEntity(entity);
+		}
+	}
+
+	/**
+	 * Removes all entities that have been destroyed from the current page.
+	 * This is an optimized version of removeById, specifically targeting destroyed entities.
+	 */
+	removeDestroyedEntities() {
+		this.entities = _.filter(this.entities, (entity) => !entity.isDestroyed);
+	}
+
+	/**
 	 * Deletes a single Entity by its index (zero-indexed) on the current page
 	 * @param {integer} ix - Index
 	 * @return {object} entity - Entity
