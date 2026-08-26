@@ -479,7 +479,7 @@ class OneBuildRepository extends AjaxRepository {
 
 		const idPropertyName = this.getSchema().model.idProperty;
 		const params = {};
-		params['conditions[' + idPropertyName + ']'] = idsToFetch;
+		params['conditions[' + idPropertyName + ' IN]'] = idsToFetch;
 
 		const
 			url = this.getModel() + '/' + this.api.get,
