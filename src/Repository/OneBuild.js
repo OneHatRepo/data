@@ -417,10 +417,6 @@ class OneBuildRepository extends AjaxRepository {
 			return null;
 		}
 
-		this._relayEntityEvents(entity);
-		this.entities.push(entity);
-		this.total++;
-		this._setPaginationVars();
 		this.emit('changeData', this.entities);
 		return entity;
 	}
