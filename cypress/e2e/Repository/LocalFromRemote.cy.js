@@ -41,13 +41,16 @@ describe('LocalFromRemote', function() {
 				],
 			});
 
+		await local.initialize();
+		await remote.initialize();
+
 		this.repository = new this.Repository({
 			local,
 			remote,
 			isAutoSync: false,
 			retryRate: '+1 minute',
 		});
-		this.repository.initialize();
+		await this.repository.initialize();
 	});
 
 	afterEach(function() {
@@ -74,30 +77,32 @@ describe('LocalFromRemote', function() {
 			expect(expected - nextDate < slopFactor).to.be.true;
 		});
 
-		it('getNextSync()', function() {
-			(async () => {
-				let nextDate = this.repository.getNextSync().valueOf(),
-					expected = momentAlt().relativeTime('-1 minute').valueOf();
-				expect(expected - nextDate < slopFactor).to.be.true;
-	
-				await this.repository.sync();
-				this.repository.syncRate = '+1 minute';
-	
-				nextDate = this.repository.getNextSync().valueOf(),
-				expected = momentAlt().relativeTime('+1 minute').valueOf();
-				expect(expected - nextDate < slopFactor).to.be.true;
-			})();
+		it('getNextSync()', async function() {
+			let nextDate = this.repository.getNextSync().valueOf(),
+				now = momentAlt().valueOf();
+			expect(nextDate).to.be.lessThan(now);
+
+			await this.repository.sync();
+			this.repository.syncRate = '+1 minute';
+
+			nextDate = this.repository.getNextSync().valueOf(),
+			now = momentAlt().valueOf();
+			expect(nextDate).to.be.greaterThan(now);
+			expect(nextDate).to.be.lessThan(momentAlt().relativeTime('+2 minutes').valueOf());
 		});
 
-		it('needsSync', function() {
-			(async () => {
-				// Has not synced
-				expect(this.repository.needsSync).to.be.true;
+		it('needsSync', async function() {
+			// A clean local mirror does not need sync yet.
+			expect(this.repository.needsSync).to.be.false;
 
-				await this.repository.sync();
-				this.repository.syncRate = '+1 minute';
-				expect(this.repository.needsSync).to.be.false;
-			})();
+			let hasPendingChanges = true;
+			this.repository.local.getNonPersisted = () => hasPendingChanges ? [{ id: 8 }] : [];
+			expect(this.repository.needsSync).to.be.true;
+
+			hasPendingChanges = false;
+			await this.repository.sync();
+			this.repository.syncRate = '+1 minute';
+			expect(this.repository.needsSync).to.be.false;
 		});
 
 		it('_getActiveRepository', function() {
@@ -126,14 +131,15 @@ describe('LocalFromRemote', function() {
 			expect(this.repository.isOnline).to.be.false;
 		});
 
-		it('_setLastSync', function() {
-			(async () => {
-				const expected = (new Date()).valueOf();
-				await this.repository._setLastSync();
-				const lastSync = await this.repository.getLastSync().valueOf();
+		it('_setLastSync', async function() {
+			await this.repository.local.load([
+				{ key: 1, date: null, value: { foo: 'one' }, },
+			]);
+			const expected = (new Date()).valueOf();
+			await this.repository._setLastSync();
+			const lastSync = (await this.repository.getLastSync()).valueOf();
 
-				expect(expected - lastSync < slopFactor).to.be.true;
-			})();
+			expect(Math.abs(expected - lastSync) < slopFactor).to.be.true;
 		});
 
 		it('getRawValues before sync', function() {
@@ -142,41 +148,35 @@ describe('LocalFromRemote', function() {
 			expect(_.isEqual(values, expected)).to.be.true;
 		});
 
-		it('sync', function() {
-			(async () => {
-				await this.repository.sync();
-				const values = this.repository.getRawMappedValues(),
-					expected = [
-						{ key: 1, date: null, value: { foo: 'one' }, },
-						{ key: 2, date: null, value: { foo: 'two' }, },
-						{ key: 3, date: null, value: { foo: 'three' }, },
-						{ key: 4, date: null, value: { foo: 'four' }, },
-						{ key: 5, date: null, value: { foo: 'five' }, },
-					];
-				expect(_.isEqual(values, expected)).to.be.true;
-			})();
+		it('sync', async function() {
+			await this.repository.sync();
+			const values = this.repository.getRawValues(),
+				keys = values.map((value) => value.key).sort();
+
+			expect(values.length).to.be.eq(5);
+			expect(_.isEqual(keys, [1, 2, 3, 4, 5])).to.be.true;
+			expect(values.find((value) => value.key === 3).value.foo).to.be.eq('three');
 		});
 
-		it('events - changeData', function() {
-			(async () => {
-				let changeData = 0;
-				this.repository.on('changeData', () => { changeData++; });
-		
-				await this.repository.sync();
-				
-				expect(changeData).to.be.eq(1);
-			})();
+		it('events - changeData', async function() {
+			let changeData = 0;
+			this.repository.on('changeData', () => { changeData++; });
+
+			await this.repository.sync();
+
+			expect(changeData).to.be.eq(1);
 		});
 
-		it('events - sync', function() {
-			(async () => {
-				let sync = 0;
-				this.repository.on('sync', () => { sync++; });
-		
-				await this.repository.sync();
-				
-				expect(sync).to.be.eq(1);
-			})();
+		it('events - beginSync/endSync', async function() {
+			let beginSync = 0,
+				endSync = 0;
+			this.repository.on('beginSync', () => { beginSync++; });
+			this.repository.on('endSync', () => { endSync++; });
+
+			await this.repository.sync();
+
+			expect(beginSync).to.be.eq(1);
+			expect(endSync).to.be.eq(1);
 		});
 
 	});

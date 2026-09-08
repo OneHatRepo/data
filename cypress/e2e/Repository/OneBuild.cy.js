@@ -4,10 +4,11 @@ import GroupsDefinition from '../../fixtures/Definitions/Groups.js';
 import UserData from '../../fixtures/Data/User.js';
 import _ from 'lodash';
 
-const baseURL = Cypress.env('baseURL'),
+const
+	baseURL = cy.env('baseURL'),
 	creds = {
-		username: Cypress.env('username'),
-		password: Cypress.env('password'),
+		username: cy.env('username'),
+		password: cy.env('password'),
 	};
 
 describe('OneBuildRepository', function() {

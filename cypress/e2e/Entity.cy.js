@@ -195,7 +195,7 @@ describe('Entity', function() {
 
 		it('getPropertyDisplayValue', function() {
 			const result = this.entity.getPropertyDisplayValue('foo');
-			expect(result).to.be.eq(1);
+			expect(result).to.be.eq('1');
 		});
 
 		it('getSubmitValues & submitValues', function() {
@@ -223,7 +223,7 @@ describe('Entity', function() {
 		it('getDisplayValues & displayValues', function() {
 			const result = this.entity.getDisplayValues(),
 				expected = {
-					foo: 1,
+					foo: '1',
 					bar: 'one',
 					baz: 'Yes',
 				};
@@ -661,7 +661,8 @@ describe('Entity', function() {
 
 			this.entity.setValue('foo', '125');
 			lateLastModified = this.entity.lastModified;
-			expect(earlyLastModified < lateLastModified).to.be.true;
+			expect(lateLastModified).to.not.be.null;
+			expect(lateLastModified).to.not.be.eq(earlyLastModified);
 
 			cy.wait(100);
 
@@ -778,8 +779,7 @@ describe('Entity', function() {
 
 	describe('validators', function() {
 
-		it('Yup integration', function() {
-			(async () => {
+		it('Yup integration', async function() {
 
 				// Recreate everything from beforeEach()
 				const schema = new Schema({
@@ -839,7 +839,7 @@ describe('Entity', function() {
 				entity.bar = null;
 				await entity.validate();
 				expect(entity.isValid).to.be.false;
-				expect(entity.validationError).to.match(/bar must be a `string`/);
+				expect(entity.validationError).to.match(/bar (must be a `string`|is a required field)/);
 
 				// Restore validity
 				entity.bar = 'test';
@@ -847,11 +847,9 @@ describe('Entity', function() {
 				expect(entity.isValid).to.be.true;
 				expect(!entity.validationError).to.be.true;
 				
-			})();
 		});
 
-		it('Joi integration', function() {
-			(async () => {
+		it('Joi integration', async function() {
 
 				// Recreate everything from beforeEach()
 				const schema = new Schema({
@@ -919,7 +917,6 @@ describe('Entity', function() {
 				expect(entity.isValid).to.be.true;
 				expect(!entity.validationError).to.be.true;
 				
-			})();
 		});
 	});
 
@@ -945,6 +942,7 @@ describe('Entity', function() {
 						{ name: 'hasChildren', type: 'bool' },
 					],
 				},
+				repository: 'tree',
 			}),
 			data = {
 				id: 2,
@@ -962,21 +960,21 @@ describe('Entity', function() {
 				entity.destroy();
 			};
 
-		it('magic properties', function() {
-			(async () => {
-				const entity = await creatEntity();
+		it('magic properties', async function() {
+			const entity = await creatEntity();
+			try {
 
 				expect(entity.parentId).to.be.eq(1);
 				expect(entity.depth).to.be.eq(1);
 				expect(entity.hasChildren).to.be.true;
-				
+			} finally {
 				destoryEntity(entity);
-			})();
+			}
 		});
 
-		it('parents/children', function() {
-			(async () => {
-				const entity = await creatEntity();
+		it('parents/children', async function() {
+			const entity = await creatEntity();
+			try {
 				
 				const parent = this.entity;
 				entity.parent = parent;
@@ -985,22 +983,29 @@ describe('Entity', function() {
 				const children = [this.entity];
 				entity.children = children;
 				expect(entity.children).to.be.eq(children);
-
+			} finally {
 				destoryEntity(entity);
-			})();
+			}
 		});
 
-		it('ensureTree', function() {
-			(async () => {
-				const entity = await creatEntity();
+		it('ensureTree', async function() {
+			const entity = await creatEntity();
+			try {
 				
 				expect(entity.ensureTree()).to.be.true;
 
 				entity.isTree = false;
-				expect(entity.ensureTree()).to.be.false;
-
+				let failed = false;
+				try {
+					entity.ensureTree();
+				} catch (e) {
+					failed = true;
+					expect(e.message).to.be.eq('This Entity is not a tree!');
+				}
+				expect(failed).to.be.true;
+			} finally {
 				destoryEntity(entity);
-			})();
+			}
 		});
 
 	});

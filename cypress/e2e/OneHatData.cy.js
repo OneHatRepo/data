@@ -35,568 +35,647 @@ function afterEach(that) {
 
 describe('OneHatData', function() {
 
-	it('createSchema', function() {
-		(async function() {
-			await beforeEach();
-	
-			expect(this.schema.name).to.be.eq('bar');
-			const result = this.oneHatData.schemas;
-			expect(_.size(result)).to.be.eq(1);
-			
-			afterEach();
-		})();
+	it('createSchema', async function() {
+		await beforeEach(this);
+
+		expect(this.schema.name).to.be.eq('bar');
+		const sizeBefore = _.size(this.oneHatData.schemas);
+
+		const newSchema = this.oneHatData.createSchema({
+			name: 'bazCreateSchema',
+			model: {
+				idProperty: 'id',
+				displayProperty: 'name',
+				properties: [
+					{ name: 'id' },
+					{ name: 'name' },
+				],
+			},
+			repository: 'memory',
+		});
+
+		expect(newSchema.name).to.be.eq('bazCreateSchema');
+		expect(_.size(this.oneHatData.schemas)).to.be.eq(sizeBefore +1);
+
+		afterEach(this);
 	});
 
-	it('createSchemas', function() {
-		(async function() {
-			await beforeEach();
+	it('createSchemas', async function() {
+		await beforeEach(this);
+		const sizeBefore = _.size(this.oneHatData.schemas);
 
-			this.oneHatData.createSchemas([
-				{ name: 'foo', },
-				// { name: 'bar', }, // already exists
-				{ name: 'baz', },
-			]);
-			const result = this.oneHatData.schemas;
-			expect(_.size(result)).to.be.eq(3);
+		this.oneHatData.createSchemas([
+			{ name: 'fooCreateSchemas' },
+			{ name: 'bazCreateSchemas' },
+		]);
+		expect(this.oneHatData.hasSchemaWithName('fooCreateSchemas')).to.be.true;
+		expect(this.oneHatData.hasSchemaWithName('bazCreateSchemas')).to.be.true;
+		expect(_.size(this.oneHatData.schemas)).to.be.eq(sizeBefore +2);
 
-			afterEach();
-		})();
+		afterEach(this);
 	});
 
-	it('hasSchemaWithName', function() {
-		(async function() {
-			await beforeEach();
+	it('hasSchemaWithName', async function() {
+		await beforeEach(this);
 
-			const name = this.schema.name;
-			expect(this.oneHatData.hasSchemaWithName(name)).to.be.true;
+		const name = this.schema.name;
+		expect(this.oneHatData.hasSchemaWithName(name)).to.be.true;
 
-			afterEach();
-		})();
+		afterEach(this);
 	});
 
-	it('deleteSchema', function() {
-		(async function() {
-			await beforeEach();
+	it('deleteSchema', async function() {
+		await beforeEach(this);
 
-			const name = this.schema.name;
-			this.oneHatData.deleteSchema(name);
-			expect(this.oneHatData.hasSchemaWithName(name)).to.be.false;
+		const name = this.schema.name;
+		this.oneHatData.deleteSchema(name);
+		expect(this.oneHatData.hasSchemaWithName(name)).to.be.false;
 
-			afterEach();
-		})();
+		afterEach(this);
 	});
 
-	it('getSchema', function() {
-		(async function() {
-			await beforeEach();
+	it('getSchema', async function() {
+		await beforeEach(this);
 
-			const name = this.schema.name,
-			schema = this.oneHatData.getSchema(name);
-			expect(schema).to.be.eq(this.schema);
+		const name = this.schema.name,
+		schema = this.oneHatData.getSchema(name);
+		expect(schema).to.be.eq(this.schema);
 
-			afterEach();
-		})();
+		afterEach(this);
 	});
 
-	it('getSchemasBy', function() {
-		(async function() {
-			await beforeEach();
+	it('getSchemasBy', async function() {
+		await beforeEach(this);
 
-			const name = this.schema.name,
-			result = this.oneHatData.getSchemasBy((schema) => {
-				return schema.name === name;
-			});
-			expect(result[0]).to.be.eq(this.schema);
+		const name = this.schema.name,
+		result = this.oneHatData.getSchemasBy((schema) => {
+			return schema.name === name;
+		});
+		expect(result[0]).to.be.eq(this.schema);
 
-			afterEach();
-		})();
+		afterEach(this);
 	});
 
-	it('createRepository', function() {
-		(async function() {
-			await beforeEach();
+	it('createRepository', async function() {
+		await beforeEach(this);
 
-			expect(this.repository.id).to.be.eq('foo');
+		expect(this.repository.id).to.be.eq('foo');
 
-			afterEach();
-		})();
+		afterEach(this);
 	});
 
-	it('createRepository - unique', function() {
-		(async function() {
-			await beforeEach();
+	it('createRepository - unique', async function() {
+		await beforeEach(this);
 
-			const repository = await this.oneHatData.createRepository('bar');
-			expect(repository.id).to.be.not.eq(this.repository.id);
+		const repository = await this.oneHatData.createRepository('bar');
+		expect(repository.id).to.be.not.eq(this.repository.id);
 
-			afterEach();
-		})();
+		afterEach(this);
 	});
 
-	it('createRepositories', function() {
-		(async function() {
-			await beforeEach();
+	it('createRepositories', async function() {
+		await beforeEach(this);
 
-			const oneHatData = new OneHatData();
-			oneHatData.createSchemas([
-				{ name: 'foo', },
-				{ name: 'bar', },
-				{ name: 'baz', },
-			]);
-			const schemas = oneHatData.schemas;
-			await oneHatData.createRepositories(schemas);
-	
-			const result = oneHatData.getAllRepositories();
-			expect(_.size(result)).to.be.eq(3);
+		const oneHatData = new OneHatData();
+		oneHatData.createSchemas([
+			{ name: 'foo', },
+			{ name: 'bar', },
+			{ name: 'baz', },
+		]);
+		const schemas = oneHatData.schemas;
+		await oneHatData.createRepositories(schemas);
 
-			afterEach();
-		})();
+		const result = oneHatData.getAllRepositories();
+		expect(_.size(result)).to.be.eq(_.size(schemas));
+
+		afterEach(this);
 	});
 
-	it('createBoundRepositories', function() {
-		(async function() {
-			await beforeEach();
+	it('createBoundRepositories', async function() {
+		await beforeEach(this);
 
-			const oneHatData = new OneHatData();
-			oneHatData.createSchemas([
-				{ name: 'foo', },
-				{ name: 'bar', },
-				{ name: 'baz', },
-			]);
-			await oneHatData.createBoundRepositories();
-	
-			const schemas = oneHatData.schemas;
-			let bound = 0;
-			_.each(schemas, (schema) => {
-				if (schema.getBoundRepository()) {
-					bound++;
-				}
-			});
-	
-			expect(bound).to.be.eq(3);
+		const oneHatData = new OneHatData();
+		oneHatData.createSchemas([
+			{ name: 'foo', },
+			{ name: 'bar', },
+			{ name: 'baz', },
+		]);
+		await oneHatData.createBoundRepositories();
 
-			afterEach();
-		})();
+		const schemas = oneHatData.schemas;
+		let bound = 0;
+		_.each(schemas, (schema) => {
+			if (schema.getBoundRepository()) {
+				bound++;
+			}
+		});
+
+		expect(bound).to.be.eq(_.size(schemas));
+
+		afterEach(this);
 	});
 
-	it('deleteRepository', function() {
-		(async function() {
-			await beforeEach();
+	it('destroyBoundRepositories', async function() {
+		await beforeEach(this);
 
-			const id = this.repository.id;
-			this.oneHatData.deleteRepository(id);
-			expect(this.oneHatData.hasRepositoryWithId(id)).to.be.false;
+		const oneHatData = new OneHatData();
+		oneHatData.createSchemas([
+			{ name: 'fooDestroyBoundRepositories', },
+			{ name: 'barDestroyBoundRepositories', },
+		]);
+		await oneHatData.createBoundRepositories();
 
-			afterEach();
-		})();
+		expect(_.size(oneHatData.getAllRepositories())).to.be.greaterThan(0);
+
+		await oneHatData.destroyBoundRepositories();
+
+		expect(_.size(oneHatData.getAllRepositories())).to.be.eq(0);
+		expect(oneHatData.getSchema('fooDestroyBoundRepositories').getBoundRepository()).to.be.null;
+		expect(oneHatData.getSchema('barDestroyBoundRepositories').getBoundRepository()).to.be.null;
+
+		oneHatData.destroy();
+		afterEach(this);
 	});
 
-	it('hasRepository', function() {
-		(async function() {
-			await beforeEach();
+	it('deleteRepository', async function() {
+		await beforeEach(this);
 
-			const oneHatData = new OneHatData();
-			oneHatData.createSchemas([
-				{ name: 'foo', },
-			]);
-			await oneHatData.createBoundRepositories();
-			expect(oneHatData.hasRepository('foo')).to.be.true;
+		const id = this.repository.id;
+		this.oneHatData.deleteRepository(id);
+		expect(this.oneHatData.hasRepositoryWithId(id)).to.be.false;
 
-			afterEach();
-		})();
+		afterEach(this);
 	});
 
-	it('Entity.getAssociatedRepository', function() {
-		(async function() {
-			await beforeEach();
+	it('hasRepository', async function() {
+		await beforeEach(this);
 
-			const oneHatData = new OneHatData();
+		const oneHatData = new OneHatData();
+		oneHatData.createSchemas([
+			{ name: 'foo', },
+		]);
+		await oneHatData.createBoundRepositories();
+		expect(oneHatData.hasRepository('foo')).to.be.true;
 
-			await oneHatData.createSchemas([
-				GroupsDefinition,
-				GroupsUsersDefinition,
-				UsersDefinition,
-			]);
-			await oneHatData.createBoundRepositories();
-			const GroupsUsers = oneHatData.getRepository('GroupsUsers');
-			const groupsUser = await GroupsUsers.add(groupsUserData);
-			const Users = groupsUser.getAssociatedRepository('Users');
-
-			expect(Users).to.be.not.null;
-
-			afterEach();
-		})();
+		afterEach(this);
 	});
 
-	it('hasRepositoryWithId', function() {
-		(async function() {
-			await beforeEach();
+	it('Entity.getAssociatedRepository', async function() {
+		await beforeEach(this);
 
-			expect(this.oneHatData.hasRepositoryWithId('foo')).to.be.true;
+		const oneHatData = new OneHatData();
 
-			afterEach();
-		})();
+		await oneHatData.createSchemas([
+			GroupsDefinition,
+			GroupsUsersDefinition,
+			UsersDefinition,
+		]);
+		await oneHatData.createBoundRepositories();
+		const GroupsUsers = oneHatData.getRepository('GroupsUsers');
+		const groupsUser = await GroupsUsers.add(groupsUserData);
+		const Users = groupsUser.getAssociatedRepository('Users');
+
+		expect(Users).to.be.not.null;
+
+		afterEach(this);
 	});
 
-	it('getAllRepositories', function() {
-		(async function() {
-			await beforeEach();
+	it('hasRepositoryWithId', async function() {
+		await beforeEach(this);
 
-			const result = this.oneHatData.getAllRepositories();
-			expect(_.size(result)).to.be.eq(1);
+		expect(this.oneHatData.hasRepositoryWithId('foo')).to.be.true;
 
-			afterEach();
-		})();
+		afterEach(this);
 	});
 
-	it('getRepository', function() {
-		(async function() {
+	it('getAllRepositories', async function() {
+		await beforeEach(this);
 
-			await beforeEach();
+		const result = this.oneHatData.getAllRepositories();
+		expect(_.size(result)).to.be.eq(1);
 
-			const result = that.oneHatData.getRepository('bar');
-			expect(result).to.be.eq(that.repository);
-
-			afterEach();
-		})();
+		afterEach(this);
 	});
 
-	it('getUniqueRepository', function() {
-		(async () => {
-			const that = {};
-			await beforeEach(that);
+	it('getRepository', async function() {
+		await beforeEach(this);
 
-			const
-				repo1 = that.oneHatData.getRepository('bar'),
-				repo2 = await that.oneHatData.getUniqueRepository('bar');
-			expect(repo1 !== repo2).to.be.true;
-			expect(repo2.isInitialized).to.be.true;
+		const result = this.oneHatData.getRepository('bar');
+		expect(result).to.be.eq(this.repository);
 
-			afterEach(that);
-		})();
+		afterEach(this);
 	});
 
-	it('getRepository(name, true) throws migration error', function() {
-		(async () => {
-			const that = {};
-			await beforeEach(that);
+	it('getUniqueRepository', async function() {
+		await beforeEach(this);
+		const that = this;
 
-			expect(() => that.oneHatData.getRepository('bar', true)).to.throw('Use await this.getUniqueRepository(name) instead.');
+		const
+			repo1 = that.oneHatData.getRepository('bar'),
+			repo2 = await that.oneHatData.getUniqueRepository('bar');
+		expect(repo1 !== repo2).to.be.true;
+		expect(repo2.isInitialized).to.be.true;
 
-			afterEach(that);
-		})();
+		afterEach(this);
 	});
 
-	it('getUniqueRepository returns initialized unique repository', function() {
-		(async () => {
-			const that = {};
-			await beforeEach(that);
+	it('getRepository(name, true) throws migration error', async function() {
+		await beforeEach(this);
+		const that = this;
 
-			const repository = await that.oneHatData.getUniqueRepository('bar');
+		expect(() => that.oneHatData.getRepository('bar', true)).to.throw('Use await this.getUniqueRepository(name) instead.');
 
-			expect(repository).to.be.ok;
-			expect(repository.isUnique).to.be.true;
-			expect(repository.isInitialized).to.be.true;
-
-			afterEach(that);
-		})();
+		afterEach(this);
 	});
 
-	it('getRepository unique keeps filters isolated from bound repository', function() {
-		(async () => {
-			const that = {};
-			await beforeEach(that);
+	it('getUniqueRepository returns initialized unique repository', async function() {
+		await beforeEach(this);
+		const that = this;
 
-			const
-				boundRepository = that.oneHatData.getRepository('bar'),
-				uniqueRepository = await that.oneHatData.getUniqueRepository('bar');
+		const repository = await that.oneHatData.getUniqueRepository('bar');
 
-			boundRepository.filter('key', 'bound-only');
-			expect(boundRepository.hasFilterValue('key', 'bound-only')).to.be.true;
-			expect(uniqueRepository.hasFilter('key')).to.be.false;
+		expect(repository).to.be.ok;
+		expect(repository.isUnique).to.be.true;
+		expect(repository.isInitialized).to.be.true;
 
-			uniqueRepository.filter('key', 'unique-only');
-			expect(uniqueRepository.hasFilterValue('key', 'unique-only')).to.be.true;
-			expect(boundRepository.hasFilterValue('key', 'bound-only')).to.be.true;
-			expect(boundRepository.hasFilterValue('key', 'unique-only')).to.be.false;
-
-			afterEach(that);
-		})();
+		afterEach(this);
 	});
 
-	it('getUniqueRepository allows setBaseParams for Ajax repositories', function() {
-		(async () => {
-			const that = {};
-			await beforeEach(that);
+	it('getRepository unique keeps filters isolated from bound repository', async function() {
+		await beforeEach(this);
+		const that = this;
 
-			that.oneHatData.createSchema({
-				name: 'meters',
-				model: {
-					idProperty: 'id',
-					displayProperty: 'name',
-					properties: [
-						{ name: 'id' },
-						{ name: 'name' },
-					],
+		const
+			boundRepository = that.oneHatData.getRepository('bar'),
+			uniqueRepository = await that.oneHatData.getUniqueRepository('bar');
+
+		boundRepository.filter('key', 'bound-only');
+		expect(boundRepository.hasFilterValue('key', 'bound-only')).to.be.true;
+		expect(uniqueRepository.hasFilter('key')).to.be.false;
+
+		uniqueRepository.filter('key', 'unique-only');
+		expect(uniqueRepository.hasFilterValue('key', 'unique-only')).to.be.true;
+		expect(boundRepository.hasFilterValue('key', 'bound-only')).to.be.true;
+		expect(boundRepository.hasFilterValue('key', 'unique-only')).to.be.false;
+
+		afterEach(this);
+	});
+
+	it('getUniqueRepository allows setBaseParams for Ajax repositories', async function() {
+		await beforeEach(this);
+		const that = this;
+
+		that.oneHatData.createSchema({
+			name: 'meters',
+			model: {
+				idProperty: 'id',
+				displayProperty: 'name',
+				properties: [
+					{ name: 'id' },
+					{ name: 'name' },
+				],
+			},
+			repository: {
+				type: 'ajax',
+				api: {
+					get: 'meters',
 				},
-				repository: {
-					type: 'ajax',
-					api: {
-						get: 'meters',
-					},
-				},
+			},
+		});
+		await that.oneHatData.createRepository('meters', true);
+
+		const uniqueRepository = await that.oneHatData.getUniqueRepository('meters');
+
+		expect(() => {
+			uniqueRepository.setBaseParams({
+				foo: 'bar',
 			});
-			await that.oneHatData.createRepository('meters', true);
+		}).to.not.throw();
 
-			const uniqueRepository = await that.oneHatData.getUniqueRepository('meters');
+		expect(uniqueRepository.getBaseParam('foo')).to.be.eq('bar');
 
-			expect(() => {
-				uniqueRepository.setBaseParams({
-					foo: 'bar',
-				});
-			}).to.not.throw();
-
-			expect(uniqueRepository.getBaseParam('foo')).to.be.eq('bar');
-
-			afterEach(that);
-		})();
+		afterEach(this);
 	});
 
-	it('getOrCreateUniqueRepository reuses existing mapped repository', function() {
-		(async () => {
-			const that = {};
-			await beforeEach(that);
+	it('getOrCreateUniqueRepository reuses existing mapped repository', async function() {
+		await beforeEach(this);
+		const that = this;
 
-			const repository1 = await that.oneHatData.getOrCreateUniqueRepository('partsMap', 'bar');
-			const repository2 = await that.oneHatData.getOrCreateUniqueRepository('partsMap', 'bar');
+		const repository1 = await that.oneHatData.getOrCreateUniqueRepository('partsMap', 'bar');
+		const repository2 = await that.oneHatData.getOrCreateUniqueRepository('partsMap', 'bar');
 
-			expect(repository1).to.be.eq(repository2);
-			expect(repository1.isUnique).to.be.true;
+		expect(repository1).to.be.eq(repository2);
+		expect(repository1.isUnique).to.be.true;
 
-			afterEach(that);
-		})();
+		afterEach(this);
 	});
 
-	it('getOrCreateUniqueRepository recreates repository when mapped id is stale', function() {
-		(async () => {
-			const that = {};
-			await beforeEach(that);
+	it('getOrCreateUniqueRepository recreates repository when mapped id is stale', async function() {
+		await beforeEach(this);
+		const that = this;
 
-			const repository1 = await that.oneHatData.getOrCreateUniqueRepository('partsMap', 'bar');
-			const originalId = repository1.id;
+		const repository1 = await that.oneHatData.getOrCreateUniqueRepository('partsMap', 'bar');
+		const originalId = repository1.id;
 
-			that.oneHatData.deleteRepository(originalId);
+		that.oneHatData.deleteRepository(originalId);
 
-			const repository2 = await that.oneHatData.getOrCreateUniqueRepository('partsMap', 'bar');
+		const repository2 = await that.oneHatData.getOrCreateUniqueRepository('partsMap', 'bar');
 
-			expect(repository2).to.be.ok;
-			expect(repository2.id).to.not.eq(originalId);
-			expect(that.oneHatData.uniqueRepositoryIdsMap.partsMap).to.be.eq(repository2.id);
+		expect(repository2).to.be.ok;
+		expect(repository2.id).to.not.eq(originalId);
+		expect(that.oneHatData.uniqueRepositoryIdsMap.partsMap).to.be.eq(repository2.id);
 
-			afterEach(that);
-		})();
+		afterEach(this);
 	});
 
-	it('getRepositoriesBy', function() {
-		(async function() {
-			await beforeEach();
+	it('getRepositoriesBy', async function() {
+		await beforeEach(this);
+		const that = this;
 
-			const result = this.oneHatData.getRepositoriesBy((repository) => {
-				return repository.id === 'foo';
-			});
-			expect(result[0]).to.be.eq(this.repository);
+		const result = this.oneHatData.getRepositoriesBy((repository) => {
+			return repository.id === 'foo';
+		});
+		expect(result[0]).to.be.eq(this.repository);
 
-			afterEach();
-		})();
+		afterEach(this);
 	});
 
-	it('getRepositoriesBy - first', function() {
-		(async function() {
-			await beforeEach();
+	it('getRepositoriesBy - first', async function() {
+		await beforeEach(this);
+		const that = this;
 
-			const result = this.oneHatData.getRepositoriesBy((repository) => {
-				return repository.id === 'foo';
-			}, true);
-			expect(result).to.be.eq(this.repository);
+		const result = this.oneHatData.getRepositoriesBy((repository) => {
+			return repository.id === 'foo';
+		}, true);
+		expect(result).to.be.eq(this.repository);
 
-			afterEach();
-		})();
+		afterEach(this);
 	});
 
-	it('getRepositoryById', function() {
-		(async function() {
-			await beforeEach();
+	it('getRepositoryById', async function() {
+		await beforeEach(this);
+		const that = this;
 
-			const result = this.oneHatData.getRepositoryById('foo');
-			expect(result).to.be.eq(this.repository);
+		const result = this.oneHatData.getRepositoryById('foo');
+		expect(result).to.be.eq(this.repository);
 
-			afterEach();
-		})();
+		afterEach(this);
 	});
 
-	it('getRepositoriesBySchema', function() {
-		(async function() {
-			await beforeEach();
+	it('getRepositoriesByType', async function() {
+		await beforeEach(this);
 
-			const oneHatData = this.oneHatData;
-			await oneHatData.createRepository('bar');
-			await oneHatData.createRepository('bar');
-			await oneHatData.createRepository('bar');
-			const result = oneHatData.getRepositoriesBySchema(this.schema);
-			expect(_.size(result)).to.be.eq(4);
+		await this.oneHatData.createRepository('bar');
 
-			afterEach();
-		})();
+		const repositories = this.oneHatData.getRepositoriesByType('memory');
+		expect(_.size(repositories)).to.be.eq(2);
+
+		const firstRepository = this.oneHatData.getRepositoriesByType('memory', true);
+		expect(firstRepository).to.be.ok;
+		expect(firstRepository.type).to.be.eq('memory');
+
+		afterEach(this);
 	});
 
-	// it('createGlobalErrorHandler', function() {
-	// 	(async function() {
-	// 		await beforeEach();
+	it('getRepositoriesBySchema', async function() {
+		await beforeEach(this);
+		const that = this;
 
-	// 		let message = '';
-	// 		const oneHatData = this.oneHatData,
-	// 			errorHandler = (a, b) => {
-	// 				debugger;
-	// 			};
-	// 		oneHatData.createGlobalErrorHandler(errorHandler);
-	// 		oneHatData.emitError();
-	// 		expect(message).to.be.eq('Test here');
+		const oneHatData = this.oneHatData;
+		await oneHatData.createRepository('bar');
+		await oneHatData.createRepository('bar');
+		await oneHatData.createRepository('bar');
+		const result = oneHatData.getRepositoriesBySchema(this.schema);
+		expect(_.size(result)).to.be.eq(4);
 
-	// 		afterEach();
-	// 	})();
-	// });
-
-	it('setOptionsOnAllRepositories', function() {
-		(async function() {
-			await beforeEach();
-
-			const oneHatData = this.oneHatData;
-			oneHatData.setOptionsOnAllRepositories({
-				test: 1,
-			});
-			const repository = oneHatData.getRepository('bar');
-			expect(repository.test).to.be.eq(1);
-
-			afterEach();
-		})();
+		afterEach(this);
 	});
 
-	it('setIsOnline', function() {
-		(async function() {
-			await beforeEach();
+	it('createGlobalErrorHandler', async function() {
+		await beforeEach(this);
 
-			const oneHatData = this.oneHatData;
+		let message = null;
+		this.oneHatData.createGlobalErrorHandler((error) => {
+			message = error.message;
+		});
 
-			oneHatData.setIsOnline(true);
-			expect(oneHatData.isOnline).to.be.true;
+		this.repository.throwError('Test here');
+		expect(message).to.be.eq('Test here');
 
-			oneHatData.setIsOnline(false);
-			expect(oneHatData.isOnline).to.be.false;
+		afterEach(this);
+	});
 
-			afterEach();
-		})();
+	it('setGlobalErrorHandler', async function() {
+		await beforeEach(this);
+
+		let message = null;
+		this.oneHatData.setGlobalErrorHandler((error) => {
+			message = error.message;
+		});
+
+		this.repository.throwError('Test here 2');
+		expect(message).to.be.eq('Test here 2');
+
+		afterEach(this);
+	});
+
+	it('registerRepositoryType', async function() {
+		await beforeEach(this);
+
+		class CustomMemoryRepository extends this.repository.constructor {}
+		CustomMemoryRepository.type = 'customMemorySingle';
+		CustomMemoryRepository.className = 'CustomMemorySingle';
+
+		this.oneHatData.registerRepositoryType(CustomMemoryRepository);
+		this.oneHatData.createSchema({
+			name: 'customRepositoryTypeSingle',
+			model: {
+				idProperty: 'key',
+				displayProperty: 'value',
+				properties: [
+					{ name: 'key', type: 'int', },
+					{ name: 'value', },
+				],
+			},
+			repository: 'customMemorySingle',
+		});
+
+		await this.oneHatData.createRepository('customRepositoryTypeSingle', true);
+
+		const customRepository = this.oneHatData.getRepository('customRepositoryTypeSingle');
+		expect(customRepository).to.be.ok;
+		expect(customRepository.type).to.be.eq('customMemorySingle');
+		expect(customRepository.className).to.be.eq('CustomMemorySingle');
+
+		afterEach(this);
+	});
+
+	it('registerRepositoryTypes', async function() {
+		await beforeEach(this);
+
+		class CustomMemoryRepositoryA extends this.repository.constructor {}
+		CustomMemoryRepositoryA.type = 'customMemoryA';
+		CustomMemoryRepositoryA.className = 'CustomMemoryA';
+
+		class CustomMemoryRepositoryB extends this.repository.constructor {}
+		CustomMemoryRepositoryB.type = 'customMemoryB';
+		CustomMemoryRepositoryB.className = 'CustomMemoryB';
+
+		this.oneHatData.registerRepositoryTypes([
+			CustomMemoryRepositoryA,
+			CustomMemoryRepositoryB,
+		]);
+
+		this.oneHatData.createSchema({
+			name: 'customRepositoryTypeB',
+			model: {
+				idProperty: 'key',
+				displayProperty: 'value',
+				properties: [
+					{ name: 'key', type: 'int', },
+					{ name: 'value', },
+				],
+			},
+			repository: 'customMemoryB',
+		});
+
+		await this.oneHatData.createRepository('customRepositoryTypeB', true);
+
+		const customRepository = this.oneHatData.getRepository('customRepositoryTypeB');
+		expect(customRepository).to.be.ok;
+		expect(customRepository.type).to.be.eq('customMemoryB');
+		expect(customRepository.className).to.be.eq('CustomMemoryB');
+
+		afterEach(this);
+	});
+
+	it('setOptionsOnAllRepositories', async function() {
+		await beforeEach(this);
+		const that = this;
+
+		const oneHatData = this.oneHatData;
+		oneHatData.setOptionsOnAllRepositories({
+			test: 1,
+		});
+		const repository = oneHatData.getRepository('bar');
+		expect(repository.test).to.be.eq(1);
+
+		afterEach(this);
+	});
+
+	it('setIsOnline', async function() {
+		await beforeEach(this);
+		const that = this;
+
+		const oneHatData = this.oneHatData;
+
+		oneHatData.setIsOnline(true);
+		expect(oneHatData.isOnline).to.be.true;
+
+		oneHatData.setIsOnline(false);
+		expect(oneHatData.isOnline).to.be.false;
+
+		afterEach(this);
 	});
 
 	it('isEntity', async function() {
-		(async function() {
-			await beforeEach();
-			const oneHatData = this.oneHatData;
-			const repository = oneHatData.getRepository('bar');
-			const entity = await repository.add({ key: 1, value: 'value', });
+		await beforeEach(this);
+		const
+			that = this,
+			oneHatData = this.oneHatData,
+			isEntity = oneHatData.isEntity,
+			repository = oneHatData.getRepository('bar');
+		const entity = await repository.add({ key: 1, value: 'value', });
 
-			expect(isEntity(entity)).to.be.true;
-			expect(isEntity({})).to.be.false;
-			expect(isEntity(2)).to.be.false;
-			expect(isEntity([1,2])).to.be.false;
+		expect(isEntity(entity)).to.be.true;
+		expect(isEntity({})).to.be.false;
+		expect(isEntity(2)).to.be.false;
+		expect(isEntity([1,2])).to.be.false;
 
-			afterEach();
-		})();
+		afterEach(this);
 	});
 
-	it('destroy', function() {
-		(async function() {
-			await beforeEach();
+	it('destroy', async function() {
+		await beforeEach(this);
+		const that = this;
 
-			this.oneHatData.destroy();
-			const result = this.oneHatData.isDestroyed;
-			expect(result).to.be.true;
+		this.oneHatData.destroy();
+		const result = this.oneHatData.isDestroyed;
+		expect(result).to.be.true;
 
-			afterEach();
-		})();
+		afterEach(this);
 	});
 
-	it('chains creation of schemas and repos', function() {
-		(async function() {
-			await beforeEach();
+	it('chains creation of schemas and repos', async function() {
+		await beforeEach(this);
+		const that = this;
 
-			const oneHatData = new OneHatData();
+		const oneHatData = new OneHatData();
 
-			await oneHatData.createSchemas([
-					{ name: 'foo', },
-					{ name: 'bar', },
-					{ name: 'baz', },
-				])
-				.createBoundRepositories();
-			
-			// NOTE: Can't chain getAllRepositories() because we have to wait for createBoundRepositories to finish
-			const repositories = oneHatData.getAllRepositories();
-			expect(_.size(repositories)).to.be.eq(3);
+		await oneHatData.createSchemas([
+				{ name: 'foo', },
+				{ name: 'bar', },
+				{ name: 'baz', },
+			])
+			.createBoundRepositories();
+		
+		// NOTE: Can't chain getAllRepositories() because we have to wait for createBoundRepositories to finish
+		const repositories = oneHatData.getAllRepositories();
+		expect(_.size(repositories)).to.be.eq(_.size(oneHatData.schemas));
 
-			afterEach();
-		})();
+		afterEach(this);
 	});
 
-	it('real-world example', function() {
-		(async function() {
-			await beforeEach();
+	it('real-world example', async function() {
+		await beforeEach(this);
+		const that = this;
 
-			const oneHatData = new OneHatData(),
-				data = [
-					{ key: '1', value: 'one', },
-					{ key: '2', value: 'two', },
-					{ key: '3', value: 'three', },
-					{ key: '4', value: 'four', },
-					{ key: '5', value: 'five', },
-				],
-				repository = await oneHatData.createRepository({
-					schema: KeyValues,
-					data,
-				});
-
-			// See if initial data load was successful,
-			// and parsedData matches initial data
-			repository.sort('key');
-			let parsedData = repository.getRawValues();
-			expect(_.isEqual(data, parsedData)).to.be.true;
-
-
-			// this.repository.setAutoSave(true);
-			let firedChangeData = false;
-			repository.on('changeData', () => {
-				firedChangeData = true;
-			});
-
-			repository.getById(2).value = 'Test'
-
-			expect(firedChangeData).to.be.true;
-
-
-			parsedData = repository.getRawValues();
-			expect(_.isEqual([
+		const oneHatData = new OneHatData(),
+			data = [
 				{ key: '1', value: 'one', },
-				{ key: '2', value: 'Test', },
+				{ key: '2', value: 'two', },
 				{ key: '3', value: 'three', },
 				{ key: '4', value: 'four', },
 				{ key: '5', value: 'five', },
-			], parsedData)).to.be.true;
+			],
+			repository = await oneHatData.createRepository({
+				schema: KeyValues,
+				data,
+			});
 
-			afterEach();
-		})();
+		// See if initial data load was successful,
+		// and parsedData matches initial data
+		repository.sort('key');
+		let parsedData = repository.getRawValues();
+		expect(_.isEqual(data, parsedData)).to.be.true;
+
+
+		// this.repository.setAutoSave(true);
+		let firedChangeData = false;
+		repository.on('changeData', () => {
+			firedChangeData = true;
+		});
+
+		repository.getById(2).value = 'Test'
+
+		expect(firedChangeData).to.be.true;
+
+
+		parsedData = repository.getRawValues();
+		expect(_.isEqual([
+			{ key: '1', value: 'one', },
+			{ key: '2', value: 'Test', },
+			{ key: '3', value: 'three', },
+			{ key: '4', value: 'four', },
+			{ key: '5', value: 'five', },
+		], parsedData)).to.be.true;
+
+		afterEach(this);
 	});
 
 	it('createRepository - LFR', async function() {
 		const oneHatData = new OneHatData();
-		oneHatData
+		await oneHatData
 			.setRepositoryGlobals({
 				debugMode: true,
 			})
@@ -619,11 +698,12 @@ describe('OneHatData', function() {
 					},
 				}
 			})
-			.createBoundRepositories()
-			.then(() => {
-				const repository = oneHatData.getRepository('bar');
-				expect(repository.name).to.be.eq('bar');
-			});
+			.createBoundRepositories();
+
+		const repository = oneHatData.getRepository('bar');
+		expect(repository.name).to.be.eq('bar');
+
+		oneHatData.destroy();
 	});
 
 });

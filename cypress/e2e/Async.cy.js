@@ -125,7 +125,7 @@ describe('Async playground', function() {
 
 	});
 
-	it('Manual load & save', function() {
+	it('Manual load & save', async function() {
 		const oneHatData = new OneHatData();
 		oneHatData
 			.createSchemas([{
@@ -150,30 +150,26 @@ describe('Async playground', function() {
 						{ key: 5, value: 'five', },
 					],
 				}
-			}])
-			.createBoundRepositories();
+			}]);
+		await oneHatData.createBoundRepositories();
 		const Bar = oneHatData.getRepository('Bar');
-		
-		(async () => {
 
-			await Bar.load();
+		await Bar.load();
 
-			const entity = Bar.getById(1);
-			entity.value = 'bar';
-			expect(entity.isDirty).to.be.true;
+		const entity = Bar.getById(1);
+		entity.value = 'bar';
+		expect(entity.isDirty).to.be.true;
 
-			await Bar.save(); // Sorting and filtering is applied before this returns??
-			const values = Bar.getSubmitValues(),
-				expected = [
-					{ key: 1, value: 'bar', },
-					{ key: 5, value: 'five', },
-					{ key: 4, value: 'four', },
-					{ key: 3, value: 'three', },
-					{ key: 2, value: 'two', },
-				];
-			expect(_.isEqual(values, expected)).to.be.true;
-
-		})();
+		await Bar.save(); // Sorting and filtering is applied before this returns??
+		const values = Bar.getSubmitValues(),
+			expected = [
+				{ key: 1, value: 'bar', },
+				{ key: 5, value: 'five', },
+				{ key: 4, value: 'four', },
+				{ key: 3, value: 'three', },
+				{ key: 2, value: 'two', },
+			];
+		expect(_.isEqual(values, expected)).to.be.true;
 
 	});
 

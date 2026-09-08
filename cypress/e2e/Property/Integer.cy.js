@@ -30,6 +30,7 @@ describe('IntegerProperty', function() {
 					editorType: null,
 					fieldGroup: null,
 					filterType: null,
+					formatter: 'FormatInt',
 					isEditingDisabled: false,
 					isFilteringDisabled: false,
 					isForeignModel: false,

@@ -27,6 +27,7 @@ describe('JsonProperty', function() {
 				editorType: null,
 				fieldGroup: null,
 				filterType: null,
+				formatter: null,
 				isEditingDisabled: false,
 				isFilteringDisabled: false,
 				isForeignModel: false,
@@ -71,11 +72,10 @@ describe('JsonProperty', function() {
 		});
 
 		it('displayValue', function() {
-			const json = '{"test":true}',
-				testObj = {test:true};
+			const json = '{"test":true}';
 			this.property.setValue(json);
 			const formatted = this.property.displayValue;
-			expect(_.isEqual(formatted, testObj)).to.be.true;
+			expect(formatted).to.be.eq(json);
 		});
 		
 		it('submitValue - null', function() {

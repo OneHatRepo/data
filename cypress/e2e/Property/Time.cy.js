@@ -26,6 +26,7 @@ describe('TimeProperty', function() {
 				editorType: null,
 				fieldGroup: null,
 				filterType: null,
+				formatter: null,
 				isEditingDisabled: false,
 				isFilteringDisabled: false,
 				isForeignModel: false,

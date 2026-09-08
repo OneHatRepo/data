@@ -32,6 +32,7 @@ describe('Property', function() {
 					editorType: null,
 					fieldGroup: null,
 					filterType: null,
+					formatter: null,
 					isEditingDisabled: false,
 					isFilteringDisabled: false,
 					isForeignModel: false,
@@ -83,7 +84,7 @@ describe('Property', function() {
 		it('getDisplayValue & displayValue', function() {
 			this.property.setValue('12');
 			let value = this.property.getDisplayValue();
-			expect(value).to.be.eq(12);
+			expect(value).to.be.eq('12');
 			expect(value).to.be.eq(this.property.displayValue);
 
 			this.property.setFormatter('FormatInt');
