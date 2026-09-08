@@ -36,6 +36,7 @@ describe('CurrencyProperty', function() {
 					isVirtual: false,
 					mapping: null,
 					name: null,
+					formatter: null,
 					submitAsString: true, // mod
 					title: null,
 					tooltip: null,
@@ -49,6 +50,15 @@ describe('CurrencyProperty', function() {
 						precision: 2,
 						grouping: 3,
 						stripZeros: false,
+						abbreviateThousands: false,
+						abbreviateMin: 1000,
+						abbreviatePrecision: 1,
+						abbreviateSuffixes: {
+							thousand: 'k',
+							million: 'm',
+							billion: 'b',
+							trillion: 't',
+						},
 						fallback: 0,
 					},
 					omitZeros: false, // new
@@ -160,6 +170,25 @@ describe('CurrencyProperty', function() {
 			this.property.setValue(123.156);
 			const formatted = this.property.submitValue;
 			expect(formatted).to.be.eq('123.16');
+		});
+
+		it('abbreviates thousands when enabled', function() {
+			this.property.displayOptions.abbreviateThousands = true;
+			this.property.displayOptions.precision = 0;
+			this.property.displayOptions.abbreviatePrecision = 1;
+
+			this.property.setValue('32800');
+			expect(this.property.displayValue).to.be.eq('$32.8k');
+
+			this.property.setValue('-32800');
+			expect(this.property.displayValue).to.be.eq('$-32.8k');
+		});
+
+		it('uses standard precision when abbreviation is disabled', function() {
+			this.property.displayOptions.precision = 0;
+
+			this.property.setValue('32800.50');
+			expect(this.property.displayValue).to.be.eq('$32,801');
 		});
 
 	});

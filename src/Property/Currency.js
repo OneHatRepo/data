@@ -19,6 +19,15 @@ export default class CurrencyProperty extends Property {
 			precision: 2,
 			grouping: 3,
 			stripZeros: false,
+			abbreviateThousands: false,
+			abbreviateMin: 1000,
+			abbreviatePrecision: 1,
+			abbreviateSuffixes: {
+				thousand: 'k',
+				million: 'm',
+				billion: 'b',
+				trillion: 't',
+			},
 			fallback: 0,
 		},
 		submitAsString: true, // NOTE, we want to use the accounting.toFixed() method by default
@@ -56,11 +65,49 @@ export default class CurrencyProperty extends Property {
 			throw Error('this.getDisplayValue is no longer valid. Property has been destroyed.');
 		}
 
-		let ret = accounting.formatMoney(this.parsedValue, this.displayOptions)
+		let ret = this._getFormattedMoney();
 		if (this.omitZeros && ret.match(/\.00$/)) {
 			ret = ret.replace(/\.00$/, '');
 		}
 		return ret;
+	}
+
+	_getFormattedMoney() {
+		const value = this.parsedValue;
+		const options = this.displayOptions || {};
+
+		if (!options.abbreviateThousands || _.isNil(value) || !_.isFinite(value)) {
+			return accounting.formatMoney(value, options);
+		}
+
+		const abs = Math.abs(value);
+		const min = _.isNumber(options.abbreviateMin) ? options.abbreviateMin : 1000;
+		if (abs < min) {
+			return accounting.formatMoney(value, options);
+		}
+
+		const suffixes = options.abbreviateSuffixes || {};
+		let divisor = 1;
+		let suffix = '';
+
+		if (abs >= 1e12) {
+			divisor = 1e12;
+			suffix = suffixes.trillion || 't';
+		} else if (abs >= 1e9) {
+			divisor = 1e9;
+			suffix = suffixes.billion || 'b';
+		} else if (abs >= 1e6) {
+			divisor = 1e6;
+			suffix = suffixes.million || 'm';
+		} else {
+			divisor = 1e3;
+			suffix = suffixes.thousand || 'k';
+		}
+
+		const displayOptions = _.omit(options, ['abbreviateThousands', 'abbreviateMin', 'abbreviatePrecision', 'abbreviateSuffixes']);
+		displayOptions.precision = _.isNumber(options.abbreviatePrecision) ? options.abbreviatePrecision : 1;
+
+		return accounting.formatMoney(value / divisor, displayOptions) + suffix;
 	}
 
 	getSubmitValue() {
