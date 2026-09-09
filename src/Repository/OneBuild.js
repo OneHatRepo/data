@@ -454,10 +454,13 @@ class OneBuildRepository extends AjaxRepository {
 			entitiesById.set(entity.id, entity);
 		});
 
-		const idsToFetch = [];
-		const idsToFetchSet = new Set();
+		const
+			idsToFetch = [],
+			idsAlreadyHas = [],
+			idsToFetchSet = new Set();
 		_.each(ids, (id) => {
 			if (entitiesById.has(id)) {
+				idsAlreadyHas.push(id);
 				return;
 			}
 			if (idsToFetchSet.has(id)) {
@@ -468,13 +471,20 @@ class OneBuildRepository extends AjaxRepository {
 		});
 
 		if (!idsToFetch.length) {
-			return [];
+			const ret = [];
+			if (!_.isEmpty(idsAlreadyHas)) {
+				_.each(idsAlreadyHas, (id) => {
+					ret.push(entitiesById.get(id));
+				});
+			}
+			return ret;
 		}
 
 		this.markLoading();
 
-		const idPropertyName = this.getSchema().model.idProperty;
-		const params = {};
+		const
+			idPropertyName = this.getSchema().model.idProperty,
+			params = {};
 		params['conditions[' + idPropertyName + ' IN]'] = idsToFetch;
 
 		const
