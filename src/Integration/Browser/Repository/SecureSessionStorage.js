@@ -1,6 +1,6 @@
 /** @module Repository */
 
-import SessionStorageRepository from '@onehat/data/src/Integration/Browser/Repository/SessionStorage';
+import SessionStorageRepository from '@onehat/data/src/Integration/Browser/Repository/SessionStorage.js';
 import { AES, Utf8 } from 'crypto-es';
 import _ from 'lodash';
 

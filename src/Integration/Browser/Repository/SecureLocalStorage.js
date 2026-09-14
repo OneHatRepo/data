@@ -1,6 +1,6 @@
 /** @module Repository */
 
-import LocalStorageRepository from '@onehat/data/src/Integration/Browser/Repository/LocalStorage';
+import LocalStorageRepository from '@onehat/data/src/Integration/Browser/Repository/LocalStorage.js';
 import { AES, Utf8 } from 'crypto-es';
 import _ from 'lodash';
 
