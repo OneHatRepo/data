@@ -283,10 +283,10 @@ class OneBuildRepository extends AjaxRepository {
 		}
 
 		const
-			root = response[this.rootProperty],
-			success = response[this.successProperty],
-			total = response[this.totalProperty],
-			message = response[this.messageProperty];
+			root = response[this.rootProperty] ?? response.root ?? response.data ?? null,
+			success = response[this.successProperty] ?? response.success ?? false,
+			total = response[this.totalProperty] ?? response.total ?? 0,
+			message = response[this.messageProperty] ?? response.message ?? null;
 		
 		if (message === 'You do not have authorization to access this area.') {
 			this.emit('logout');
