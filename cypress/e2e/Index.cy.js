@@ -1,5 +1,6 @@
 import oneHatData, {
 	OneHatData,
+	oneHatTestData,
 	resetOneHatDataSingleton,
 } from '../../src/index.js';
 
@@ -24,5 +25,10 @@ describe('index singleton export', function() {
 
 		expect(resetSingleton).to.be.eq(initialSingleton);
 		expect(globalScope[ONEHAT_DATA_SINGLETON_KEY]).to.be.eq(initialSingleton);
+	});
+
+	it('exports oneHatTestData singleton with test namespace', function() {
+		expect(oneHatTestData).to.be.instanceof(OneHatData);
+		expect(oneHatTestData.namespace).to.be.eq('test_');
 	});
 });

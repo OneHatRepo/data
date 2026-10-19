@@ -338,7 +338,8 @@ class OfflineRepository extends MemoryRepository {
 			this.throwError('Storage medium does not support _getAllKeys');
 			return;
 		}
-		const re = new RegExp('^' + this.name + '-');
+		const prefix = this._getStoragePrefix();
+		const re = new RegExp('^' + _.escapeRegExp(prefix));
 		let keys = await this._getAllKeys();
 		keys = _.filter(keys, (key) => key.match(re));
 		keys = _.map(keys, (key) => key.replace(re, ''));
@@ -400,12 +401,21 @@ class OfflineRepository extends MemoryRepository {
 	 * @param {string|array} name - The name or an array of names to get
 	 * @return {string|array} namespacedName - The namespaced name(s)
 	 */
+	_getStorageNamespace() {
+		const namespace = _.isString(this.namespace) ? this.namespace : '';
+		return namespace + this.schema.name;
+	}
+
+	_getStoragePrefix() {
+		return this._getStorageNamespace() + '-';
+	}
+
 	_namespace(name) {
+		const prefix = this._getStoragePrefix();
 		if (_.isArray(name)) {
-			const oThis = this;
-			return _.map(name, (key) => oThis.schema.name + '-' + key);
+			return _.map(name, (key) => prefix + key);
 		}
-		return this.schema.name + '-' + name;	
+		return prefix + name;	
 	}
 
 	/**

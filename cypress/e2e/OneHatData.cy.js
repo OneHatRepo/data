@@ -1,4 +1,5 @@
 import { OneHatData } from '../../src/OneHatData.js';
+import OfflineRepository from '../../src/Repository/Offline.js';
 import GroupsDefinition from '../fixtures/Definitions/Groups.js';
 import GroupsUsersDefinition from '../fixtures/Definitions/GroupsUsers.js';
 import UsersDefinition from '../fixtures/Definitions/Users.js';
@@ -575,6 +576,48 @@ describe('OneHatData', function() {
 		oneHatData.setIsOnline(false);
 		expect(oneHatData.isOnline).to.be.false;
 
+		afterEach(this);
+	});
+
+	it('passes OneHatData namespace into storage-backed repositories', async function() {
+		await beforeEach(this);
+
+		class TestOfflineRepository extends OfflineRepository {
+			async _storageGetValue() {
+				return null;
+			}
+
+			async _storageSetValue() {
+				return null;
+			}
+
+			async _storageDeleteValue() {
+				return null;
+			}
+		}
+		TestOfflineRepository.type = 'testOffline';
+		TestOfflineRepository.className = 'TestOffline';
+
+		const oneHatTestData = new OneHatData('test_');
+		oneHatTestData.registerRepositoryType(TestOfflineRepository);
+		oneHatTestData.createSchema({
+			name: 'NamespaceSchema',
+			model: {
+				idProperty: 'id',
+				displayProperty: 'name',
+				properties: [
+					{ name: 'id' },
+					{ name: 'name' },
+				],
+			},
+			repository: 'testOffline',
+		});
+
+		const repository = await oneHatTestData.createRepository('NamespaceSchema', true);
+		expect(repository.namespace).to.be.eq('test_');
+		expect(repository._namespace('index')).to.be.eq('test_NamespaceSchema-index');
+
+		oneHatTestData.destroy();
 		afterEach(this);
 	});
 

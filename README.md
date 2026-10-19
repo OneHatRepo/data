@@ -101,6 +101,11 @@ oneHatData
 	});
 ```
 
+For test flows that must isolate persisted data from the app singleton, import `oneHatTestData` instead. It is preconfigured with the `test_` namespace, so storage-backed repositories write to separate keys.
+```javascript
+import { oneHatTestData } from '@onehat/data';
+```
+
 
 ## 3. Add / Edit / Delete an Entity
 Once you have a Repository initialized, you can start adding data to it.

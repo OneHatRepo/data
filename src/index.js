@@ -5,6 +5,7 @@
 import {
 	default as oneHatData,
 	OneHatData,
+	oneHatTestData,
 } from './OneHatData.js';
 
 
@@ -40,5 +41,6 @@ export default oneHatDataSingleton;
 
 export {
 	OneHatData,
+	oneHatTestData,
 	resetOneHatDataSingleton,
 };

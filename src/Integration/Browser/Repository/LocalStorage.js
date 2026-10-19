@@ -16,7 +16,7 @@ class LocalStorageRepository extends OfflineRepository {
 		super(...arguments);
 		_.merge(this, config);
 
-		this._store = store.namespace(this.schema.name);
+		this._store = store.namespace(this._getStorageNamespace());
 
 		// crossTabSync defaults
 		this._crossTabSyncEnabled = config.crossTabSync === true;

@@ -27,8 +27,10 @@ import { CROSS_TAB_EVENT_NAME } from './Integration/Browser/Repository/crossTabC
  */
 export class OneHatData extends EventEmitter {
 
-	constructor() {
+	constructor(namespace = null) {
 		super(...arguments);
+		
+		this.namespace = namespace;
 
 		/**
 		 * @member {object} schemas - Object of all Schemas, keyed by name (for quick access)
@@ -241,6 +243,9 @@ export class OneHatData extends EventEmitter {
 		// Construct overall config
 		const schemaRepositoryDef = _.isString(schema.repository) ? { type: schema.repository } : schema.repository;
 		config = _.merge({}, schemaRepositoryDef, this._repositoryGlobals, config);
+		if (_.isNil(config.namespace)) {
+			config.namespace = this.namespace;
+		}
 
 		if (!config.type) {
 			throw new Error('Repository type not set');
@@ -680,7 +685,7 @@ export class OneHatData extends EventEmitter {
 	 */
 	setIsOnline = (isOnline) => {
 		this.isOnline = !!isOnline;
-		const remoteRepositories = oneHatData.getRepositoriesBy((repository) => !!repository.setIsOnline);
+		const remoteRepositories = this.getRepositoriesBy((repository) => !!repository.setIsOnline);
 		_.each(remoteRepositories, (repository) => {
 			repository.setIsOnline(isOnline);
 		});
@@ -780,3 +785,6 @@ export class OneHatData extends EventEmitter {
 // Create and export a singleton
 const oneHatData = new OneHatData();
 export default oneHatData;
+
+// Create and export a singleton for tests
+export const oneHatTestData = new OneHatData('test_');

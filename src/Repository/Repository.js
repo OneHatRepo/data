@@ -161,6 +161,11 @@ export default class Repository extends EventEmitter {
 			 */
 			debugMode: false,
 
+			/**
+			 * @member {string} namespace - Optional key namespace prefix for storage-backed repositories
+			 */
+			namespace: '',
+
 		};
 
 		_.merge(this, defaults, config);
