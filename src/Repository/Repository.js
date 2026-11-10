@@ -1125,7 +1125,7 @@ export default class Repository extends EventEmitter {
 	 * @return {object} entity - new Entity object
 	 * @fires add
 	 */
-	async add(data, isPersisted = false, isDelayedSave = false) {
+	async add(data, isPersisted = false, isDelayedSave = false, options = {}) {
 		if (this.isDestroyed) {
 			this.throwError('this.add is no longer valid. Repository has been destroyed.');
 			return;
@@ -1142,7 +1142,7 @@ export default class Repository extends EventEmitter {
 				const existing = this.getById(data[idProperty]);
 				existing.setRawValues(data);
 				if (this.isAutoSave && !existing.isPersisted) {
-					await this.save(existing);
+					await this.save(existing, false, options);
 				}
 				return existing;
 			}
@@ -1181,7 +1181,7 @@ export default class Repository extends EventEmitter {
 		this.emit('add', entity);
 
 		if (this.isRemotePhantomMode || (this.isAutoSave && !entity.isPersisted && !entity.isDelayedSave)) {
-			await this.save(entity);
+			await this.save(entity, false, options);
 		}
 
 		return entity;
@@ -1709,6 +1709,92 @@ export default class Repository extends EventEmitter {
 	}
 
 	/**
+	 * Infers join fields for a many-to-many join model.
+	 * @param {object} config - Inference config
+	 * @param {string} config.joinModel - Join model name
+	 * @param {string} [config.parentSelectorId] - Parent selector id (e.g. "Model.id")
+	 * @param {string} [config.currentModelName] - Current model name override
+	 * @return {object} join field metadata
+	 */
+	getJoinFields({ joinModel, parentSelectorId = '', currentModelName = '' } = {}) {
+		if (this.isDestroyed) {
+			this.throwError('this.getJoinFields is no longer valid. Repository has been destroyed.');
+			return;
+		}
+		if (!joinModel) {
+			throw Error('joinModel is required for getJoinFields().');
+		}
+
+		const
+			joinRepository = this.getAssociatedRepository(joinModel),
+			schema = joinRepository.getSchema?.(),
+			properties = schema?.model?.properties || [],
+			fkProperties = _.filter(properties, (propertyDef) => propertyDef?.isFk),
+			normalizedJoinModel = _.snakeCase(schema?.name || joinModel || ''),
+			normalizedCurrentModel = _.snakeCase(currentModelName || this?.schema?.name || this.getModel() || ''),
+			normalizedParentSelectorId = _.snakeCase((parentSelectorId || '').split('.').pop() || ''),
+
+			scoreProperty = (propertyDef) => {
+				const mapping = _.snakeCase(propertyDef.mapping || '');
+				let score = 0;
+				if (normalizedParentSelectorId && mapping === normalizedParentSelectorId) {
+					score += 10;
+				}
+				if (normalizedCurrentModel && mapping.includes(normalizedCurrentModel.replace(/s$/, ''))) {
+					score += 5;
+				}
+				if (normalizedJoinModel) {
+					const joinParts = normalizedJoinModel.split('_');
+					_.each(joinParts, (part) => {
+						if (part && mapping.includes(part)) {
+							score += 1;
+						}
+					});
+				}
+				return score;
+			},
+
+			sorted = _.orderBy(fkProperties, [scoreProperty], ['desc']),
+			singularCurrentModel = normalizedCurrentModel.replace(/s$/, ''),
+
+			explicitParentCandidate = _.find(sorted, (propertyDef) => _.snakeCase(propertyDef.mapping || '') === normalizedParentSelectorId),
+
+			childCandidate = _.find(sorted, (propertyDef) => {
+				if (propertyDef === explicitParentCandidate) {
+					return false;
+				}
+				const mapping = _.snakeCase(propertyDef.mapping || '');
+				if (!singularCurrentModel) {
+					return false;
+				}
+				return mapping.includes(singularCurrentModel);
+			}) || _.find(sorted, (propertyDef) => {
+				if (propertyDef === explicitParentCandidate) {
+					return false;
+				}
+				return true;
+			}),
+
+			parentCandidate = explicitParentCandidate || _.find(sorted, (propertyDef) => propertyDef !== childCandidate),
+
+			fallbackChildCandidate = _.find(sorted, (propertyDef) => propertyDef !== parentCandidate),
+			resolvedChildCandidate = childCandidate || fallbackChildCandidate;
+
+		if (!parentCandidate || !resolvedChildCandidate || parentCandidate === resolvedChildCandidate) {
+			throw Error('Could not infer join foreign keys from joinModel schema.');
+		}
+
+		const joinIdProperty = _.find(properties, (propertyDef) => propertyDef?.mapping === 'id');
+
+		return {
+			joinRepository,
+			joinIdField: joinIdProperty?.name || schema?.model?.idProperty || 'id',
+			parentJoinField: parentCandidate.name,
+			childJoinField: resolvedChildCandidate.name,
+		};
+	}
+
+	/**
 	 * Utility function.
 	 * Detects if entity is in the current page of the storage medium.
 	 * @param {object|string} entity - Either an Entity object, or an id
@@ -1777,7 +1863,7 @@ export default class Repository extends EventEmitter {
 	 * @param {object} entity - Optional single entity to save (instead of doing a batch operation on everything)
 	 * @param {boolean} useStaged - Save only the staged items, not all
 	 */
-	async save(entity = null, useStaged = false) {
+	async save(entity = null, useStaged = false, options = {}) {
 		if (this.isDestroyed) {
 			this.throwError('this.save is no longer valid. Repository has been destroyed.');
 			return;
@@ -1796,11 +1882,11 @@ export default class Repository extends EventEmitter {
 			if (!entity.isPersisted && entity.isDeleted) {
 				result = this._doDeleteNonPersisted(entity);
 			} else if (!entity.isPersisted) {
-				result = this._doAdd(entity);
+				result = this._doAdd(entity, options);
 			} else if (entity.isDirty && !entity.isDeleted) {
-				result = this._doEdit(entity);
+				result = this._doEdit(entity, options);
 			} else if (entity.isDeleted) {
-				result = this._doDelete(entity);
+				result = this._doDelete(entity, options);
 			}
 			results.push(result);
 
@@ -1827,7 +1913,7 @@ export default class Repository extends EventEmitter {
 						if (_.size(entities) > 0) {
 							if (this.combineBatch) {
 
-								result = this.batchAsSynchronous ? await this._doBatchAdd(entities) : this._doBatchAdd(entities);
+								result = this.batchAsSynchronous ? await this._doBatchAdd(entities, options) : this._doBatchAdd(entities, options);
 								if (result) {
 									results.push(result);
 								}
@@ -1842,7 +1928,7 @@ export default class Repository extends EventEmitter {
 										continue;
 									}
 	
-									result = this.batchAsSynchronous ? await this._doAdd(entity) : this._doAdd(entity);
+									result = this.batchAsSynchronous ? await this._doAdd(entity, options) : this._doAdd(entity, options);
 									if (result) {
 										results.push(result);
 									}
@@ -1862,7 +1948,7 @@ export default class Repository extends EventEmitter {
 						if (_.size(entities) > 0) {
 							if (this.combineBatch) {
 
-								result = this.batchAsSynchronous ? await this._doBatchEdit(entities) : this._doBatchEdit(entities);
+								result = this.batchAsSynchronous ? await this._doBatchEdit(entities, options) : this._doBatchEdit(entities, options);
 								if (result) {
 									results.push(result);
 								}
@@ -1877,7 +1963,7 @@ export default class Repository extends EventEmitter {
 										continue;
 									}
 
-									result = this.batchAsSynchronous ? await this._doEdit(entity) : this._doEdit(entity);
+									result = this.batchAsSynchronous ? await this._doEdit(entity, options) : this._doEdit(entity, options);
 									if (result) {
 										results.push(result);
 									}
@@ -1893,7 +1979,7 @@ export default class Repository extends EventEmitter {
 						if (_.size(entities) > 0) {
 							if (this.combineBatch) {
 
-								result = this.batchAsSynchronous ? await this._doBatchDelete(entities) : this._doBatchDelete(entities);
+								result = this.batchAsSynchronous ? await this._doBatchDelete(entities, options) : this._doBatchDelete(entities, options);
 								if (result) {
 									results.push(result);
 								}
@@ -1905,7 +1991,7 @@ export default class Repository extends EventEmitter {
 									if (!entity.isPersisted) {
 										result = this.batchAsSynchronous ? await this._doDeleteNonPersisted(entity) : this._doDeleteNonPersisted(entity);
 									} else {
-										result = this.batchAsSynchronous ? await this._doDelete(entity) : this._doDelete(entity);
+										result = this.batchAsSynchronous ? await this._doDelete(entity, options) : this._doDelete(entity, options);
 									}
 									if (result) {
 										results.push(result);
@@ -1929,7 +2015,7 @@ export default class Repository extends EventEmitter {
 	 * @private
 	 * @abstract
 	 */
-	_doBatchAdd(entities) { // standard function notation
+	_doBatchAdd(entities, options = {}) { // standard function notation
 		this.throwError('_doBatchAdd must be implemented by Repository subclass');
 		return;
 	}
@@ -1941,7 +2027,7 @@ export default class Repository extends EventEmitter {
 	 * @private
 	 * @abstract
 	 */
-	_doAdd(entity) { // standard function notation
+	_doAdd(entity, options = {}) { // standard function notation
 		this.throwError('_doAdd must be implemented by Repository subclass');
 		return;
 	}
@@ -1953,7 +2039,7 @@ export default class Repository extends EventEmitter {
 	 * @private
 	 * @abstract
 	 */
-	_doBatchEdit(entities) { // standard function notation
+	_doBatchEdit(entities, options = {}) { // standard function notation
 		this.throwError('_doBatchEdit must be implemented by Repository subclass');
 		return;
 	}
@@ -1965,7 +2051,7 @@ export default class Repository extends EventEmitter {
 	 * @private
 	 * @abstract
 	 */
-	_doEdit(entity) { // standard function notation
+	_doEdit(entity, options = {}) { // standard function notation
 		this.throwError('_doEdit must be implemented by Repository subclass');
 		return;
 	}
@@ -1977,7 +2063,7 @@ export default class Repository extends EventEmitter {
 	 * @private
 	 * @abstract
 	 */
-	_doBatchDelete(entities) { // standard function notation
+	_doBatchDelete(entities, options = {}) { // standard function notation
 		this.throwError('_doBatchDelete must be implemented by Repository subclass');
 		return;
 	}
@@ -1989,7 +2075,7 @@ export default class Repository extends EventEmitter {
 	 * @private
 	 * @abstract
 	 */
-	_doDelete(entity) { // standard function notation
+	_doDelete(entity, options = {}) { // standard function notation
 		this.throwError('_doDelete must be implemented by Repository subclass');
 		return;
 	}

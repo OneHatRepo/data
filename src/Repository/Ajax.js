@@ -830,12 +830,20 @@ class AjaxRepository extends Repository {
 		};
 	}
 
+	_mergeRequestParams(data, options = {}) {
+		const requestParams = options?.requestParams;
+		if (!requestParams || !_.isObject(requestParams) || _.isEmpty(requestParams)) {
+			return data;
+		}
+		return _.assign({}, data, requestParams);
+	}
+
 	/**
 	 * Helper for save.
 	 * @returns {promise} - Axios Promise.
 	 * @private
 	 */
-	_doAdd(entity) { // standard function notation
+	_doAdd(entity, options = {}) { // standard function notation
 		if (!this.api.add) {
 			this.throwError('No "add" api endpoint defined.');
 			return;
@@ -851,7 +859,7 @@ class AjaxRepository extends Repository {
 		const
 			method = this.methods.add,
 			url = entity.getModel() + '/' + this.api.add,
-			data = entity.getSubmitValues();
+			data = this._mergeRequestParams(entity.getSubmitValues(), options);
 
 		return this._send(method, url, data)
 					.then(result => {
@@ -890,7 +898,7 @@ class AjaxRepository extends Repository {
 	 * @returns {promise} - Axios Promise.
 	 * @private
 	 */
-	_doBatchAdd(entities) { // standard function notation
+	_doBatchAdd(entities, options = {}) { // standard function notation
 		if (!this.api.batchAdd) {
 			this.throwError('No "batchAdd" api endpoint defined.');
 			return;
@@ -905,13 +913,13 @@ class AjaxRepository extends Repository {
 		const
 			method = this.methods.add,
 			url = this.getModel() + '/' + this.api.batchAdd,
-			data = {
+			data = this._mergeRequestParams({
 				entities: _.map(entities, entity => {
 					const values = entity.submitValues;
 					entity.isSaving = true;
 					return values;
 				}),
-			};
+			}, options);
 
 		return this._send(method, url, data)
 					.then(result => {
@@ -954,7 +962,7 @@ class AjaxRepository extends Repository {
 	 * @returns {promise} - Axios Promise.
 	 * @private
 	 */
-	_doEdit(entity) { // standard function notation
+	_doEdit(entity, options = {}) { // standard function notation
 		if (!this.api.edit) {
 			this.throwError('No "edit" api endpoint defined.');
 			return;
@@ -970,7 +978,7 @@ class AjaxRepository extends Repository {
 		const
 			method = this.methods.edit,
 			url = entity.getModel() + '/' + this.api.edit,
-			data = entity.getSubmitValues();
+			data = this._mergeRequestParams(entity.getSubmitValues(), options);
 
 		return this._send(method, url, data)
 					.then(result => {
@@ -1009,7 +1017,7 @@ class AjaxRepository extends Repository {
 	 * @returns {promise} - Axios Promise.
 	 * @private
 	 */
-	_doBatchEdit(entities) { // standard function notation
+	_doBatchEdit(entities, options = {}) { // standard function notation
 		if (!this.api.batchEdit) {
 			this.throwError('No "batchEdit" api endpoint defined.');
 			return;
@@ -1024,13 +1032,13 @@ class AjaxRepository extends Repository {
 		const
 			method = this.methods.edit,
 			url = this.getModel() + '/' + this.api.batchEdit,
-			data = {
+			data = this._mergeRequestParams({
 				entities: _.map(entities, entity => {
 					const values = entity.submitValues;
 					entity.isSaving = true;
 					return values;
 				}),
-			};
+			}, options);
 
 		return this._send(method, url, data)
 					.then(result => {
@@ -1073,7 +1081,7 @@ class AjaxRepository extends Repository {
 	 * @returns {promise} - Axios Promise.
 	 * @private
 	 */
-	_doDelete(entity) { // standard function notation
+	_doDelete(entity, options = {}) { // standard function notation
 		if (!this.api.delete) {
 			this.throwError('No "delete" api endpoint defined.');
 			return;
@@ -1101,7 +1109,9 @@ class AjaxRepository extends Repository {
 			data.moveSubtreeUp = this.moveSubtreeUp;
 		}
 
-		return this._send(method, url, data)
+		const dataToSend = this._mergeRequestParams(data, options);
+
+		return this._send(method, url, dataToSend)
 					.then(result => {
 						if (this.debugMode) {
 							console.log(this.api.delete + ' response', result);
@@ -1138,7 +1148,7 @@ class AjaxRepository extends Repository {
 	 * @returns {promise} - Axios Promise.
 	 * @private
 	 */
-	_doBatchDelete(entities) { // standard function notation
+	_doBatchDelete(entities, options = {}) { // standard function notation
 		if (!this.api.batchDelete) {
 			this.throwError('No "batchDelete" api endpoint defined.');
 			return;
@@ -1157,7 +1167,7 @@ class AjaxRepository extends Repository {
 				entity.isSaving = true;
 				return entity.id;
 			}),
-			data = { ids, };
+			data = this._mergeRequestParams({ ids, }, options);
 
 		return this._send(method, url, data)
 					.then(result => {

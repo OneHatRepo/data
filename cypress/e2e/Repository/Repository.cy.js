@@ -1280,6 +1280,106 @@ describe('Repository Base', function() {
 			}
 		});
 
+		it('getJoinFields', async function() {
+			const
+				addressesSchema = new Schema({
+					name: 'Addresses',
+					model: {
+						idProperty: 'addresses__id',
+						displayProperty: 'addresses__name',
+						properties: [
+							{ name: 'addresses__id', mapping: 'id', type: 'int', },
+							{ name: 'addresses__name', mapping: 'name', type: 'string', },
+						],
+						associations: {
+							belongsToMany: [
+								'AddressesContacts',
+							],
+						},
+					},
+					repository: 'null',
+				}),
+				contactsSchema = new Schema({
+					name: 'Contacts',
+					model: {
+						idProperty: 'contacts__id',
+						displayProperty: 'contacts__name',
+						properties: [
+							{ name: 'contacts__id', mapping: 'id', type: 'int', },
+							{ name: 'contacts__name', mapping: 'name', type: 'string', },
+						],
+						associations: {
+							belongsToMany: [
+								'AddressesContacts',
+							],
+						},
+					},
+					repository: 'null',
+				}),
+				addressesContactsSchema = new Schema({
+					name: 'AddressesContacts',
+					model: {
+						idProperty: 'addresses_contacts__id',
+						displayProperty: 'addresses_contacts__address_id',
+						properties: [
+							{ name: 'addresses_contacts__id', mapping: 'id', type: 'int', },
+							{ name: 'addresses_contacts__address_id', mapping: 'address_id', type: 'int', isFk: true, fkIdField: 'id', },
+							{ name: 'addresses_contacts__contact_id', mapping: 'contact_id', type: 'int', isFk: true, fkIdField: 'id', },
+						],
+					},
+					repository: 'null',
+				}),
+				addressesRepository = new this.Repository({
+					schema: addressesSchema,
+					data: [],
+				}),
+				contactsRepository = new this.Repository({
+					schema: contactsSchema,
+					data: [],
+				}),
+				addressesContactsRepository = new this.Repository({
+					schema: addressesContactsSchema,
+					data: [],
+				});
+
+			await addressesRepository.initialize();
+			await contactsRepository.initialize();
+			await addressesContactsRepository.initialize();
+			addressesSchema.setBoundRepository(addressesRepository);
+			contactsSchema.setBoundRepository(contactsRepository);
+			addressesContactsSchema.setBoundRepository(addressesContactsRepository);
+
+			contactsRepository.oneHatData = {
+				getRepository: (name) => {
+					if (name === 'Addresses') {
+						return addressesRepository;
+					}
+					if (name === 'AddressesContacts') {
+						return addressesContactsRepository;
+					}
+					return null;
+				},
+			};
+
+			const result = contactsRepository.getJoinFields({
+				joinModel: 'AddressesContacts',
+				parentSelectorId: 'Address.address_id',
+				currentModelName: 'Contacts',
+			});
+
+			expect(result.joinRepository.id).to.equal(addressesContactsRepository.id);
+			expect(result.joinIdField).to.equal('addresses_contacts__id');
+			expect(result.parentJoinField).to.equal('addresses_contacts__address_id');
+			expect(result.childJoinField).to.equal('addresses_contacts__contact_id');
+
+			addressesSchema.destroy();
+			contactsSchema.destroy();
+			addressesContactsSchema.destroy();
+			addressesRepository.destroy();
+			contactsRepository.destroy();
+			addressesContactsRepository.destroy();
+		});
+
 		it('toString', function() {
 			const str = this.repository.toString();
 			expect(str).to.be.eq('NullRepository {bar} - foo');
@@ -1319,4 +1419,3 @@ describe('Repository Base', function() {
 	});
 
 });
-

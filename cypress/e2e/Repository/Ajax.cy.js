@@ -182,6 +182,129 @@ describe('OneBuildRepository', function() {
 			repository.setIsOnline(false);
 			expect(repository.isOnline).to.be.false;
 		});
+
+		it('save merges requestParams for add/edit/delete', async function() {
+			const repository = this.repository;
+			const sends = [];
+
+			repository._send = (method, url, data) => {
+				sends.push({ method, url, data, });
+				return Promise.resolve({ method, url, data, });
+			};
+			repository._processServerResponse = (result) => ({
+				root: [result.data],
+				success: true,
+				total: 1,
+				message: '',
+			});
+
+			const entity = await repository.add({ key: 6, value: 'six', });
+			await repository.save(entity, false, {
+				requestParams: {
+					tenant_id: 101,
+				},
+			});
+			expect(sends[0].data.key).to.equal(6);
+			expect(sends[0].data.value).to.equal('six');
+			expect(sends[0].data.tenant_id).to.equal(101);
+
+			entity.value = 'SIX';
+			await repository.save(entity, false, {
+				requestParams: {
+					tenant_id: 102,
+					trace_id: 'edit-123',
+				},
+			});
+			expect(sends[1].data.key).to.equal(6);
+			expect(sends[1].data.value).to.equal('SIX');
+			expect(sends[1].data.tenant_id).to.equal(102);
+			expect(sends[1].data.trace_id).to.equal('edit-123');
+
+			await repository.delete(entity);
+			await repository.save(entity, false, {
+				requestParams: {
+					tenant_id: 103,
+				},
+			});
+			expect(sends[2].data.id).to.equal(6);
+			expect(sends[2].data.tenant_id).to.equal(103);
+		});
+
+		it('add forwards options.requestParams when autoSave is enabled', async function() {
+			const repository = this.repository;
+			const sends = [];
+
+			repository.setAutoSave(true);
+			repository._send = (method, url, data) => {
+				sends.push({ method, url, data, });
+				return Promise.resolve({ method, url, data, });
+			};
+			repository._processServerResponse = (result) => ({
+				root: [result.data],
+				success: true,
+				total: 1,
+				message: '',
+			});
+
+			await repository.add({ key: 9, value: 'nine', }, false, false, {
+				requestParams: {
+					tenant_id: 201,
+				},
+			});
+
+			expect(sends).to.have.length(1);
+			expect(sends[0].data.key).to.equal(9);
+			expect(sends[0].data.value).to.equal('nine');
+			expect(sends[0].data.tenant_id).to.equal(201);
+		});
+
+		it('save merges requestParams for batch add/edit/delete', async function() {
+			const repository = this.repository;
+			const sends = [];
+
+			repository.combineBatch = true;
+			repository._send = (method, url, data) => {
+				sends.push({ method, url, data, });
+				return Promise.resolve({ method, url, data, });
+			};
+			repository._processServerResponse = (result) => ({
+				root: result.data.entities || [],
+				success: true,
+				total: _.size(result.data.entities || []),
+				message: '',
+			});
+
+			const one = await repository.add({ key: 11, value: 'one-one', });
+			const two = await repository.add({ key: 12, value: 'one-two', });
+
+			await repository.save(null, false, {
+				requestParams: {
+					tenant_id: 301,
+				},
+			});
+			expect(sends[0].data.entities).to.have.length(2);
+			expect(sends[0].data.tenant_id).to.equal(301);
+
+			one.value = 'ONE-ONE';
+			two.value = 'ONE-TWO';
+			await repository.save(null, false, {
+				requestParams: {
+					tenant_id: 302,
+				},
+			});
+			expect(sends[1].data.entities).to.have.length(2);
+			expect(sends[1].data.tenant_id).to.equal(302);
+
+			await repository.delete(one);
+			await repository.delete(two);
+			await repository.save(null, false, {
+				requestParams: {
+					tenant_id: 303,
+				},
+			});
+			expect(sends[2].data.ids).to.have.length(2);
+			expect(sends[2].data.tenant_id).to.equal(303);
+		});
 		
 	});
 

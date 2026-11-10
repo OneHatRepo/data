@@ -381,10 +381,10 @@ class LocalFromRemoteRepository extends EventEmitter {
 	 * Adds a hook into the normal Repository.add() method,
 	 * so we can sync immediately after add for MODE_COMMAND_QUEUE mode.
 	 */
-	async add(data) {
+	async add(data, isPersisted = false, isDelayedSave = false, options = {}) {
 		// NORMAL PROCESS
 		// This adds to the local repository, so we can sync later, if needed.
-		const normalAdd = await this._getActiveRepository().add(data);
+		const normalAdd = await this._getActiveRepository().add(data, isPersisted, isDelayedSave, options);
 		if (this.mode !== MODE_COMMAND_QUEUE || !this.isOnline) {
 			return normalAdd;
 		}
