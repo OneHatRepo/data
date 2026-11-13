@@ -555,8 +555,118 @@ class OneBuildRepository extends AjaxRepository {
 					.finally(() => {
 						this.markLoading(false);
 					});
+	}
 
+	async getSingleEntityFromServerByParams(params) {
+		if (this.isDestroyed) {
+			this.throwError('this.getSingleEntityFromServerByParams is no longer valid. Repository has been destroyed.');
+			return;
+		}
+		return this.getMultipleEntitiesFromServerByParams(params)
+					.then(entities => {
+						if (!entities || entities.length === 0) {
+							return null;
+						}
+						return entities[0];
+					});
+	}
 
+	/**
+	 * Fetches multiple entities from the server based on the provided parameters.
+	 * Adds them to the Repository's main entities array.
+	 * @param {Object} params - An object of conditions to filter the entity.
+	 * @returns {Promise<Array>} - A promise that resolves to an array of new entities matching the parameters.
+	 */
+	async getMultipleEntitiesFromServerByParams(params) {
+		if (this.isDestroyed) {
+			this.throwError('this.getMultipleEntitiesFromServerByParams is no longer valid. Repository has been destroyed.');
+			return;
+		}
+		if (!this.api.get) {
+			this.throwError('No "get" api endpoint defined.');
+			return;
+		}
+
+		if (!params || typeof params !== 'object' || Object.keys(params).length === 0) {
+			return null;
+		}
+
+		const entitiesById = new Map();
+		_.each(this.entities, (entity) => {
+			entitiesById.set(entity.id, entity);
+		});
+
+		this.markLoading();
+
+		const
+			idPropertyName = this.getSchema().model.idProperty,
+			url = this.getModel() + '/' + this.api.get,
+			data = _.merge(params, this._baseParams);
+
+		if (this.debugMode) {
+			console.log('getMultipleEntitiesFromServerByParams', data);
+		}
+
+		return this._send(this.methods.get, url, data)
+					.then(result => {
+						if (this.debugMode) {
+							console.log('Response for getMultipleEntitiesFromServerByParams for ' + this.name, result);
+						}
+
+						if (this.isDestroyed) {
+							// If this repository gets destroyed before it has a chance
+							// to process the Ajax request, just ignore the response.
+							return;
+						}
+						
+						const {
+							root,
+							success,
+							total,
+							message
+						} = this._processServerResponse(result);
+
+						if (!root[0]) {
+							return [];
+						}
+
+						const newEntities = [];
+						_.each(root, (item) => {
+							const entity = this.createStandaloneEntity(item);
+
+							if (entitiesById.has(entity.id)) {
+								// If an entity with the same ID already exists, we don't want to add a duplicate.
+								entity.destroy();
+								return;
+							}
+
+							entity.isPersisted = true;
+							entity.isRemotePhantom = false;
+							this._relayEntityEvents(entity);
+							entitiesById.set(entity.id, entity);
+							newEntities.push(entity);
+						});
+
+						// Add any new entities to the repository's main entities array.
+						if (newEntities.length) {
+							this.entities = this.entities.concat(newEntities);
+						}
+						if (this.isTree) {
+							this.assembleTreeNodes();
+							// pagination vars shouldn't be affected by the loading of additional entities
+						}
+
+						// I don't want to do the following because there might be event handler
+						// side-effects of loading these!
+						// this.markLoaded();
+						// this.rehash();
+						// this.emit('load', this);
+
+						return newEntities;
+					})
+					.finally(() => {
+						this.markLoading(false);
+					});
 	}
 
 	async getLastModifiedDate() {
