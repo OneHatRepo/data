@@ -1361,7 +1361,7 @@ describe('Repository Base', function() {
 				},
 			};
 
-			const result = contactsRepository.getJoinFields({
+			const result = await contactsRepository.getJoinFields({
 				joinModel: 'AddressesContacts',
 				parentSelectorId: 'Address.address_id',
 				currentModelName: 'Contacts',
@@ -1378,6 +1378,97 @@ describe('Repository Base', function() {
 			addressesRepository.destroy();
 			contactsRepository.destroy();
 			addressesContactsRepository.destroy();
+		});
+
+		it('getJoinFields (unique join repository)', async function() {
+			const
+				contactsSchema = new Schema({
+					name: 'Contacts',
+					model: {
+						idProperty: 'contacts__id',
+						displayProperty: 'contacts__name',
+						properties: [
+							{ name: 'contacts__id', mapping: 'id', type: 'int', },
+							{ name: 'contacts__name', mapping: 'name', type: 'string', },
+						],
+						associations: {
+							belongsToMany: [
+								'AddressesContacts',
+							],
+						},
+					},
+					repository: 'null',
+				}),
+				addressesContactsSchema = new Schema({
+					name: 'AddressesContacts',
+					model: {
+						idProperty: 'addresses_contacts__id',
+						displayProperty: 'addresses_contacts__address_id',
+						properties: [
+							{ name: 'addresses_contacts__id', mapping: 'id', type: 'int', },
+							{ name: 'addresses_contacts__address_id', mapping: 'address_id', type: 'int', isFk: true, fkIdField: 'id', },
+							{ name: 'addresses_contacts__contact_id', mapping: 'contact_id', type: 'int', isFk: true, fkIdField: 'id', },
+						],
+					},
+					repository: 'null',
+				}),
+				contactsRepository = new this.Repository({
+					schema: contactsSchema,
+					data: [],
+				}),
+				addressesContactsRepository = new this.Repository({
+					schema: addressesContactsSchema,
+					data: [],
+				}),
+				addressesContactsUniqueRepository = new this.Repository({
+					schema: addressesContactsSchema,
+					data: [],
+					isUnique: true,
+					name: 'AddressesContacts-test-unique',
+				});
+
+			await contactsRepository.initialize();
+			await addressesContactsRepository.initialize();
+			await addressesContactsUniqueRepository.initialize();
+			contactsSchema.setBoundRepository(contactsRepository);
+			addressesContactsSchema.setBoundRepository(addressesContactsRepository);
+
+			let didCallGetUniqueRepository = false;
+			contactsRepository.oneHatData = {
+				getRepository: (name) => {
+					if (name === 'AddressesContacts') {
+						return addressesContactsRepository;
+					}
+					return null;
+				},
+				getUniqueRepository: async (name) => {
+					if (name === 'AddressesContacts') {
+						didCallGetUniqueRepository = true;
+						return addressesContactsUniqueRepository;
+					}
+					return null;
+				},
+			};
+
+			const result = await contactsRepository.getJoinFields({
+				joinModel: 'AddressesContacts',
+				parentSelectorId: 'Address.address_id',
+				currentModelName: 'Contacts',
+				unique: true,
+			});
+
+			expect(didCallGetUniqueRepository).to.equal(true);
+			expect(result.joinRepository.id).to.equal(addressesContactsUniqueRepository.id);
+			expect(result.joinRepository.id).to.not.equal(addressesContactsRepository.id);
+			expect(result.joinIdField).to.equal('addresses_contacts__id');
+			expect(result.parentJoinField).to.equal('addresses_contacts__address_id');
+			expect(result.childJoinField).to.equal('addresses_contacts__contact_id');
+
+			contactsSchema.destroy();
+			addressesContactsSchema.destroy();
+			contactsRepository.destroy();
+			addressesContactsRepository.destroy();
+			addressesContactsUniqueRepository.destroy();
 		});
 
 		it('toString', function() {

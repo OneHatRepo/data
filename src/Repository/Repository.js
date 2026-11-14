@@ -1714,9 +1714,10 @@ export default class Repository extends EventEmitter {
 	 * @param {string} config.joinModel - Join model name
 	 * @param {string} [config.parentSelectorId] - Parent selector id (e.g. "Model.id")
 	 * @param {string} [config.currentModelName] - Current model name override
-	 * @return {object} join field metadata
+	 * @param {boolean} [config.unique] - Get a unique join repository
+	 * @return {Promise<object>} join field metadata
 	 */
-	getJoinFields({ joinModel, parentSelectorId = '', currentModelName = '' } = {}) {
+	async getJoinFields({ joinModel, parentSelectorId = '', currentModelName = '', unique = false, } = {}) {
 		if (this.isDestroyed) {
 			this.throwError('this.getJoinFields is no longer valid. Repository has been destroyed.');
 			return;
@@ -1726,7 +1727,7 @@ export default class Repository extends EventEmitter {
 		}
 
 		const
-			joinRepository = this.getAssociatedRepository(joinModel),
+			joinRepository = unique ? await this.oneHatData.getUniqueRepository(joinModel) : this.getAssociatedRepository(joinModel),
 			schema = joinRepository.getSchema?.(),
 			properties = schema?.model?.properties || [],
 			fkProperties = _.filter(properties, (propertyDef) => propertyDef?.isFk),
