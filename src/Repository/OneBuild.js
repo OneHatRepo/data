@@ -421,6 +421,13 @@ class OneBuildRepository extends AjaxRepository {
 		return entity;
 	}
 
+	/**
+	 * getSingleEntityFromServer
+	 * Fetches a single entity from the server by its ID.
+	 * NOTE: Ignores all baseParams of the repository, and gets the matching ID only.
+	 * @param {string|number} id - The ID of the entity to fetch.
+	 * @returns {Promise<Object|null>} - The fetched entity or null if not found.
+	 */
 	async getSingleEntityFromServer(id) {
 		if (this.isDestroyed) {
 			this.throwError('this.getSingleEntityFromServer is no longer valid. Repository has been destroyed.');
@@ -435,6 +442,13 @@ class OneBuildRepository extends AjaxRepository {
 					});
 	}
 
+	/**
+	 * getMultipleEntitiesFromServer
+	 * Fetches multiple entities from the server by their IDs.
+	 * NOTE: Ignores all baseParams of the repository, and gets the matching IDs only.
+	 * @param {Array<string|number>} ids - The IDs of the entities to fetch.
+	 * @returns {Promise<Array<Object>>} - The fetched entities.
+	 */
 	async getMultipleEntitiesFromServer(ids) {
 		if (this.isDestroyed) {
 			this.throwError('this.getMultipleEntitiesFromServer is no longer valid. Repository has been destroyed.');
@@ -489,7 +503,7 @@ class OneBuildRepository extends AjaxRepository {
 
 		const
 			url = this.getModel() + '/' + this.api.get,
-			data = _.merge(params, this._baseParams);
+			data = params; // normally, we'd merge in baseParams of the repository, but this method ignores them.
 
 		if (this.debugMode) {
 			console.log('getMultipleEntitiesFromServer', data);
